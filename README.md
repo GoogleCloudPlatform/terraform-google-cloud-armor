@@ -16,7 +16,7 @@ There are examples included in the [examples](https://github.com/terraform-googl
 
 ```
 module "security_policy" {
-  source = "terraform-google-modules/cloud-armor/google"
+  source = "GoogleCloudPlatform/cloud-armor/google"
   version = "~> 1.0"
 
   project_id                           = var.project_id
