@@ -27,26 +27,18 @@ module "cloud_armor" {
 
   pre_configured_rules = {
     "sqli_sensitivity_level_4" = {
-      action                  = "deny(502)"
-      priority                = 1
-      description             = "SQL Sensitivity Level 4"
-      preview                 = false
-      redirect_type           = null
-      target_rule_set         = "sqli-v33-stable"
-      sensitivity_level       = 4
-      include_target_rule_ids = []
-      exclude_target_rule_ids = []
-      rate_limit_options      = {}
+      action          = "deny(502)"
+      priority        = 1
+      target_rule_set = "sqli-v33-stable"
     }
+
     "xss-stable_level_2_with_exclude" = {
       action                  = "throttle"
       priority                = 2
       description             = "XSS Sensitivity Level 2 with excluded rules"
-      preview                 = false
-      redirect_type           = null
+      preview                 = true
       target_rule_set         = "xss-v33-stable"
       sensitivity_level       = 2
-      include_target_rule_ids = []
       exclude_target_rule_ids = ["owasp-crs-v030301-id941380-xss", "owasp-crs-v030301-id941340-xss"]
       rate_limit_options = {
         exceed_action                        = "deny(502)"
@@ -54,12 +46,11 @@ module "cloud_armor" {
         rate_limit_http_request_interval_sec = 60
       }
     }
+
     "php-stable_level_1_with_include" = {
       action                  = "rate_based_ban"
       priority                = 3
       description             = "PHP Sensitivity Level 1 with included rules"
-      preview                 = false
-      redirect_type           = null
       target_rule_set         = "xss-v33-stable"
       sensitivity_level       = 0
       include_target_rule_ids = ["owasp-crs-v030301-id933190-php", "owasp-crs-v030301-id933111-php"]
@@ -74,47 +65,39 @@ module "cloud_armor" {
         ban_http_request_interval_sec        = 300
       }
     }
+
     "rfi_sensitivity_level_4" = {
-      action                  = "redirect"
-      priority                = 4
-      description             = "Remote file inclusion 4"
-      preview                 = false
-      redirect_type           = "GOOGLE_RECAPTCHA"
-      target_rule_set         = "rfi-v33-stable"
-      sensitivity_level       = 4
-      include_target_rule_ids = []
-      exclude_target_rule_ids = []
-      rate_limit_options      = {}
+      action          = "redirect"
+      priority        = 4
+      description     = "Remote file inclusion 4"
+      redirect_type   = "GOOGLE_RECAPTCHA"
+      target_rule_set = "rfi-v33-stable"
     }
 
   }
 
   security_rules = {
     "deny_project_honeypot" = {
-      action             = "deny(502)"
-      priority           = 11
-      description        = "Deny Malicious IP address from project honeypot"
-      src_ip_ranges      = ["190.217.68.211", "45.116.227.68", "103.43.141.122", "123.11.215.36", ]
-      preview            = false
-      redirect_type      = null
-      rate_limit_options = {}
+      action        = "deny(502)"
+      priority      = 11
+      description   = "Deny Malicious IP address from project honeypot"
+      src_ip_ranges = ["190.217.68.211", "45.116.227.68", "103.43.141.122", "123.11.215.36", ]
+      preview       = true
     }
+
     "redirect_project_drop" = {
-      action             = "redirect"
-      priority           = 12
-      description        = "Redirect IP address from project drop"
-      src_ip_ranges      = ["190.217.68.212", "45.116.227.69", ]
-      preview            = false
-      redirect_type      = "GOOGLE_RECAPTCHA"
-      rate_limit_options = {}
+      action        = "redirect"
+      priority      = 12
+      description   = "Redirect IP address from project drop"
+      src_ip_ranges = ["190.217.68.212", "45.116.227.69", ]
+      redirect_type = "GOOGLE_RECAPTCHA"
     }
+
     "rate_ban_project_dropten" = {
       action        = "rate_based_ban"
       priority      = 13
       description   = "Rate based ban for address from project dropten as soon as they cross rate limit threshold"
       src_ip_ranges = ["190.217.68.213", "45.116.227.70", ]
-      preview       = false
-      redirect_type = null
       rate_limit_options = {
         ban_duration_sec                     = 120
         enforce_on_key                       = "ALL"
@@ -123,13 +106,12 @@ module "cloud_armor" {
         rate_limit_http_request_interval_sec = 60
       }
     }
+
     "rate_ban_project_dropthirty" = {
       action        = "rate_based_ban"
       priority      = 14
       description   = "Rate based ban for address from project dropthirty only if they cross banned threshold"
       src_ip_ranges = ["190.217.68.213", "45.116.227.70", ]
-      preview       = false
-      redirect_type = null
       rate_limit_options = {
         ban_duration_sec                     = 300
         enforce_on_key                       = "ALL"
@@ -140,13 +122,12 @@ module "cloud_armor" {
         ban_http_request_interval_sec        = 300
       }
     }
+
     "throttle_project_droptwenty" = {
       action        = "throttle"
       priority      = 15
       description   = "Throttle IP addresses from project droptwenty"
       src_ip_ranges = ["190.217.68.214", "45.116.227.71", ]
-      preview       = false
-      redirect_type = null
       rate_limit_options = {
         exceed_action                        = "deny(502)"
         rate_limit_http_request_count        = 10
@@ -154,38 +135,32 @@ module "cloud_armor" {
       }
     }
   }
+
   custom_rules = {
     allow_specific_regions = {
-      action             = "allow"
-      priority           = 21
-      description        = "Allow specific Regions"
-      preview            = false
-      expression         = <<-EOT
-      '[US,AU,BE]'.contains(origin.region_code)
-    EOT
-      redirect_type      = null
-      rate_limit_options = {}
+      action      = "allow"
+      priority    = 21
+      description = "Allow specific Regions"
+      expression  = <<-EOT
+        '[US,AU,BE]'.contains(origin.region_code)
+      EOT
     }
+
     deny_specific_ip = {
-      action             = "deny(502)"
-      priority           = 22
-      description        = "Deny Specific IP address"
-      preview            = false
-      expression         = <<-EOT
-      inIpRange(origin.ip, '47.185.201.155/32')
-    EOT
-      redirect_type      = null
-      rate_limit_options = {}
+      action      = "deny(502)"
+      priority    = 22
+      description = "Deny Specific IP address"
+      expression  = <<-EOT
+        inIpRange(origin.ip, '47.185.201.155/32')
+      EOT
     }
     throttle_specific_ip = {
-      action        = "throttle"
-      priority      = 23
-      description   = "Throttle specific IP address in US Region"
-      preview       = false
-      expression    = <<-EOT
-      origin.region_code == "US" && inIpRange(origin.ip, '47.185.201.159/32')
-    EOT
-      redirect_type = null
+      action      = "throttle"
+      priority    = 23
+      description = "Throttle specific IP address in US Region"
+      expression  = <<-EOT
+        origin.region_code == "US" && inIpRange(origin.ip, '47.185.201.159/32')
+      EOT
       rate_limit_options = {
         exceed_action                        = "deny(502)"
         rate_limit_http_request_count        = 10
@@ -193,14 +168,11 @@ module "cloud_armor" {
       }
     }
     rate_ban_specific_ip = {
-      action        = "rate_based_ban"
-      priority      = 24
-      description   = "Rate based ban for specific IP address"
-      preview       = false
-      expression    = <<-EOT
-      inIpRange(origin.ip, '47.185.201.160/32')
-    EOT
-      redirect_type = null
+      action     = "rate_based_ban"
+      priority   = 24
+      expression = <<-EOT
+        inIpRange(origin.ip, '47.185.201.160/32')
+      EOT
       rate_limit_options = {
         ban_duration_sec                     = 120
         enforce_on_key                       = "ALL"
@@ -212,15 +184,14 @@ module "cloud_armor" {
       }
     }
     test-sl = {
-      action             = "deny(502)"
-      priority           = 100
-      description        = "test Sensitivity level policies"
-      preview            = false
-      expression         = <<-EOT
-      evaluatePreconfiguredWaf('xss-v33-stable', {'sensitivity': 4, 'opt_out_rule_ids': ['owasp-crs-v030301-id942350-sqli', 'owasp-crs-v030301-id942360-sqli']})
-    EOT
-      redirect_type      = null
-      rate_limit_options = {}
+      action      = "deny(502)"
+      priority    = 100
+      description = "test Sensitivity level policies"
+      preview     = true
+      expression  = <<-EOT
+        evaluatePreconfiguredWaf('xss-v33-stable', {'sensitivity': 4, 'opt_out_rule_ids': ['owasp-crs-v030301-id942350-sqli', 'owasp-crs-v030301-id942360-sqli']})
+      EOT
     }
   }
+
 }

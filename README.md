@@ -8,7 +8,7 @@ This module makes it easy to setup [Cloud Armor Security Policy](https://cloud.g
 
 ## Compatibility
 
-This module is meant for use with Terraform 0.13+ and tested using Terraform 1.0+. If you find incompatibilities using Terraform >=0.13, please open an issue.
+This module is meant for use with Terraform 1.3+ and tested using Terraform 1.3+. If you find incompatibilities using Terraform >=0.13, please open an issue.
 
 ## Usage
 There are examples included in the [examples](https://github.com/terraform-google-modules/terraform-google-cloud-armor/tree/master/examples) folder but simple usage is as follows:
@@ -29,12 +29,31 @@ module "security_policy" {
 
 
   pre_configured_rules = {
+    "sqli_sensitivity_level_4" = {
+      action          = "deny(502)"
+      priority        = 1
+      target_rule_set = "sqli-v33-stable"
+    }
+
+    "xss-stable_level_2_with_exclude" = {
+      action                  = "throttle"
+      priority                = 2
+      description             = "XSS Sensitivity Level 2 with excluded rules"
+      preview                 = true
+      target_rule_set         = "xss-v33-stable"
+      sensitivity_level       = 2
+      exclude_target_rule_ids = ["owasp-crs-v030301-id941380-xss", "owasp-crs-v030301-id941340-xss"]
+      rate_limit_options = {
+        exceed_action                        = "deny(502)"
+        rate_limit_http_request_count        = 10
+        rate_limit_http_request_interval_sec = 60
+      }
+    }
+
     "php-stable_level_1_with_include" = {
       action                  = "rate_based_ban"
       priority                = 3
       description             = "PHP Sensitivity Level 1 with included rules"
-      preview                 = false
-      redirect_type           = null
       target_rule_set         = "xss-v33-stable"
       sensitivity_level       = 0
       include_target_rule_ids = ["owasp-crs-v030301-id933190-php", "owasp-crs-v030301-id933111-php"]
@@ -49,37 +68,69 @@ module "security_policy" {
         ban_http_request_interval_sec        = 300
       }
     }
+
     "rfi_sensitivity_level_4" = {
-      action                  = "redirect"
-      priority                = 4
-      description             = "Remote file inclusion 4"
-      preview                 = false
-      redirect_type           = "GOOGLE_RECAPTCHA"
-      target_rule_set         = "rfi-v33-stable"
-      sensitivity_level       = 4
-      include_target_rule_ids = []
-      exclude_target_rule_ids = []
-      rate_limit_options      = {}
+      action          = "redirect"
+      priority        = 4
+      description     = "Remote file inclusion 4"
+      redirect_type   = "GOOGLE_RECAPTCHA"
+      target_rule_set = "rfi-v33-stable"
     }
+
   }
 
   security_rules = {
     "deny_project_honeypot" = {
-      action             = "deny(502)"
-      priority           = 11
-      description        = "Deny Malicious IP address from project honeypot"
-      src_ip_ranges      = ["190.217.68.211", "45.116.227.68", "103.43.141.122", "123.11.215.36", ]
-      preview            = false
-      redirect_type      = null
-      rate_limit_options = {}
+      action        = "deny(502)"
+      priority      = 11
+      description   = "Deny Malicious IP address from project honeypot"
+      src_ip_ranges = ["190.217.68.211", "45.116.227.68", "103.43.141.122", "123.11.215.36", ]
+      preview       = true
     }
+
+    "redirect_project_drop" = {
+      action        = "redirect"
+      priority      = 12
+      description   = "Redirect IP address from project drop"
+      src_ip_ranges = ["190.217.68.212", "45.116.227.69", ]
+      redirect_type = "GOOGLE_RECAPTCHA"
+    }
+
+    "rate_ban_project_dropten" = {
+      action        = "rate_based_ban"
+      priority      = 13
+      description   = "Rate based ban for address from project dropten as soon as they cross rate limit threshold"
+      src_ip_ranges = ["190.217.68.213", "45.116.227.70", ]
+      rate_limit_options = {
+        ban_duration_sec                     = 120
+        enforce_on_key                       = "ALL"
+        exceed_action                        = "deny(502)"
+        rate_limit_http_request_count        = 10
+        rate_limit_http_request_interval_sec = 60
+      }
+    }
+
+    "rate_ban_project_dropthirty" = {
+      action        = "rate_based_ban"
+      priority      = 14
+      description   = "Rate based ban for address from project dropthirty only if they cross banned threshold"
+      src_ip_ranges = ["190.217.68.213", "45.116.227.70", ]
+      rate_limit_options = {
+        ban_duration_sec                     = 300
+        enforce_on_key                       = "ALL"
+        exceed_action                        = "deny(502)"
+        rate_limit_http_request_count        = 10
+        rate_limit_http_request_interval_sec = 60
+        ban_http_request_count               = 1000
+        ban_http_request_interval_sec        = 300
+      }
+    }
+
     "throttle_project_droptwenty" = {
       action        = "throttle"
       priority      = 15
       description   = "Throttle IP addresses from project droptwenty"
       src_ip_ranges = ["190.217.68.214", "45.116.227.71", ]
-      preview       = false
-      redirect_type = null
       rate_limit_options = {
         exceed_action                        = "deny(502)"
         rate_limit_http_request_count        = 10
@@ -90,28 +141,62 @@ module "security_policy" {
 
   custom_rules = {
     allow_specific_regions = {
-      action             = "allow"
-      priority           = 21
-      description        = "Allow specific Regions"
-      preview            = false
-      expression         = <<-EOT
+      action      = "allow"
+      priority    = 21
+      description = "Allow specific Regions"
+      expression  = <<-EOT
         '[US,AU,BE]'.contains(origin.region_code)
       EOT
-      redirect_type      = null
-      rate_limit_options = {}
+    }
+
+    deny_specific_ip = {
+      action      = "deny(502)"
+      priority    = 22
+      description = "Deny Specific IP address"
+      expression  = <<-EOT
+        inIpRange(origin.ip, '47.185.201.155/32')
+      EOT
+    }
+    throttle_specific_ip = {
+      action      = "throttle"
+      priority    = 23
+      description = "Throttle specific IP address in US Region"
+      expression  = <<-EOT
+        origin.region_code == "US" && inIpRange(origin.ip, '47.185.201.159/32')
+      EOT
+      rate_limit_options = {
+        exceed_action                        = "deny(502)"
+        rate_limit_http_request_count        = 10
+        rate_limit_http_request_interval_sec = 60
+      }
+    }
+    rate_ban_specific_ip = {
+      action     = "rate_based_ban"
+      priority   = 24
+      expression = <<-EOT
+        inIpRange(origin.ip, '47.185.201.160/32')
+      EOT
+      rate_limit_options = {
+        ban_duration_sec                     = 120
+        enforce_on_key                       = "ALL"
+        exceed_action                        = "deny(502)"
+        rate_limit_http_request_count        = 10
+        rate_limit_http_request_interval_sec = 60
+        ban_http_request_count               = 10000
+        ban_http_request_interval_sec        = 600
+      }
     }
     test-sl = {
-      action             = "deny(502)"
-      priority           = 100
-      description        = "test Sensitivity level policies"
-      preview            = false
-      expression         = <<-EOT
+      action      = "deny(502)"
+      priority    = 100
+      description = "test Sensitivity level policies"
+      preview     = true
+      expression  = <<-EOT
         evaluatePreconfiguredWaf('xss-v33-stable', {'sensitivity': 4, 'opt_out_rule_ids': ['owasp-crs-v030301-id942350-sqli', 'owasp-crs-v030301-id942360-sqli']})
       EOT
-      redirect_type      = null
-      rate_limit_options = {}
     }
   }
+
   ##  threat_intelligence_rules needs manage protection plus
   threat_intelligence_rules = {
     deny_crawlers_ip = {
@@ -135,15 +220,15 @@ module "security_policy" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| custom\_rules | Custome security rules | `map(any)` | `{}` | no |
+| custom\_rules | Custome security rules | <pre>map(object({<br>    action        = string<br>    priority      = number<br>    description   = optional(string)<br>    preview       = optional(bool, false)<br>    expression    = string<br>    redirect_type = optional(string, null)<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>  }))</pre> | `{}` | no |
 | default\_rule\_action | default rule that allows/denies all traffic with the lowest priority (2,147,483,647) | `string` | `"deny(403)"` | no |
 | description | (Optional) An optional description of this security policy. Max size is 2048. | `string` | `null` | no |
 | layer\_7\_ddos\_defense\_enable | (Optional) If set to true, enables CAAP for L7 DDoS detection | `bool` | `false` | no |
 | layer\_7\_ddos\_defense\_rule\_visibility | (Optional) Rule visibility can be one of the following: STANDARD - opaque rules. PREMIUM - transparent rules | `string` | `"STANDARD"` | no |
 | name | (Required) The name of the security policy. | `string` | n/a | yes |
-| pre\_configured\_rules | Map of pre-configured rules Sensitivity levels | `map(any)` | `{}` | no |
+| pre\_configured\_rules | Map of pre-configured rules Sensitivity levels | <pre>map(object({<br>    action                  = string<br>    priority                = number<br>    description             = optional(string)<br>    preview                 = optional(bool, false)<br>    redirect_type           = optional(string, null)<br>    target_rule_set         = string<br>    sensitivity_level       = optional(number, 4)<br>    include_target_rule_ids = optional(list(string), [])<br>    exclude_target_rule_ids = optional(list(string), [])<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>  }))</pre> | `{}` | no |
 | project\_id | The project in which the resource belongs | `string` | n/a | yes |
-| security\_rules | Map of Security rules with list of IP addresses to block or unblock | `map(any)` | `{}` | no |
+| security\_rules | Map of Security rules with list of IP addresses to block or unblock | <pre>map(object({<br>    action        = string<br>    priority      = number<br>    description   = optional(string)<br>    preview       = optional(bool, false)<br>    redirect_type = optional(string, null)<br>    src_ip_ranges = list(string)<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>  }))</pre> | `{}` | no |
 | threat\_intelligence\_rules | Map of Threat Intelligence Feed rules | `map(any)` | `{}` | no |
 | type | Type indicates the intended use of the security policy. Possible values are CLOUD\_ARMOR and CLOUD\_ARMOR\_EDGE | `string` | `"CLOUD_ARMOR"` | no |
 

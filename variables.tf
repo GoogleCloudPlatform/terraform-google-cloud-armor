@@ -38,20 +38,74 @@ variable "default_rule_action" {
 
 variable "pre_configured_rules" {
   description = "Map of pre-configured rules Sensitivity levels"
-  type        = map(any)
-  default     = {}
+  type = map(object({
+    action                  = string
+    priority                = number
+    description             = optional(string)
+    preview                 = optional(bool, false)
+    redirect_type           = optional(string, null)
+    target_rule_set         = string
+    sensitivity_level       = optional(number, 4)
+    include_target_rule_ids = optional(list(string), [])
+    exclude_target_rule_ids = optional(list(string), [])
+    rate_limit_options = optional(object({
+      enforce_on_key                       = optional(string)
+      exceed_action                        = optional(string)
+      rate_limit_http_request_count        = optional(number)
+      rate_limit_http_request_interval_sec = optional(number)
+      ban_duration_sec                     = optional(number)
+      ban_http_request_count               = optional(number)
+      ban_http_request_interval_sec        = optional(number)
+      }),
+    {})
+  }))
+  default = {}
 }
 
 variable "security_rules" {
   description = "Map of Security rules with list of IP addresses to block or unblock"
-  type        = map(any)
-  default     = {}
+  type = map(object({
+    action        = string
+    priority      = number
+    description   = optional(string)
+    preview       = optional(bool, false)
+    redirect_type = optional(string, null)
+    src_ip_ranges = list(string)
+    rate_limit_options = optional(object({
+      enforce_on_key                       = optional(string)
+      exceed_action                        = optional(string)
+      rate_limit_http_request_count        = optional(number)
+      rate_limit_http_request_interval_sec = optional(number)
+      ban_duration_sec                     = optional(number)
+      ban_http_request_count               = optional(number)
+      ban_http_request_interval_sec        = optional(number)
+      }),
+    {})
+  }))
+  default = {}
 }
 
 variable "custom_rules" {
   description = "Custome security rules"
-  type        = map(any)
-  default     = {}
+  type = map(object({
+    action        = string
+    priority      = number
+    description   = optional(string)
+    preview       = optional(bool, false)
+    expression    = string
+    redirect_type = optional(string, null)
+    rate_limit_options = optional(object({
+      enforce_on_key                       = optional(string)
+      exceed_action                        = optional(string)
+      rate_limit_http_request_count        = optional(number)
+      rate_limit_http_request_interval_sec = optional(number)
+      ban_duration_sec                     = optional(number)
+      ban_http_request_count               = optional(number)
+      ban_http_request_interval_sec        = optional(number)
+      }),
+    {})
+  }))
+  default = {}
 }
 
 variable "threat_intelligence_rules" {
