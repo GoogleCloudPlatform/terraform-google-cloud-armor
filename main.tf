@@ -79,7 +79,7 @@ resource "google_compute_security_policy" "policy" {
 
       match {
         expr {
-          expression = local.pre_configured_rules_expr["${rule.key}"].expression
+          expression = local.pre_configured_rules_expr[rule.key].expression
         }
       }
 
