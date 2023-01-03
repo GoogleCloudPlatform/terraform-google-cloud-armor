@@ -1,0 +1,54 @@
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: blueprints.cloud.google.com/v1alpha1
+kind: BlueprintMetadata
+metadata:
+  name: terraform-google-cloud-armor
+  annotations:
+    config.kubernetes.io/local-config: "true"
+spec:
+  title: terraform-google-cloud-armor
+  source:
+    repo: https://github.com/googlestaging/terraform-google-cloud-armor.git
+    sourceType: git
+  version: 4.0.1
+  actuationTool:
+    type: Terraform
+    version: '>= 0.13'
+  examples:
+  - name: security_policy_all
+    location: examples/security_policy_all
+  variables:
+  - name: project_id
+    description: The project ID to manage the Pub/Sub resources.
+    type: string
+    required: true
+  outputs:
+  - name: name
+    description: The Name of the security policy
+  - name: security_policy
+    description: The security policy
+  - name: project_id
+    description: The security policy project id
+  roles:
+  - level: Project
+    roles:
+    - roles/roles/compute.orgSecurityPolicyAdmin
+    - roles/resourcemanager.projectIamAdmin
+  services:
+  - iam.googleapis.com
+  - cloudresourcemanager.googleapis.com
+  - compute.googleapis.com
+  - serviceusage.googleapis.com

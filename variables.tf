@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,12 @@ variable "project_id" {
 }
 
 variable "name" {
-  description = "(Required) The name of the security policy."
+  description = "Name of the security policy."
   type        = string
 }
 
 variable "description" {
-  description = "(Optional) An optional description of this security policy. Max size is 2048."
+  description = "An optional description of this security policy. Max size is 2048."
   type        = string
   default     = null
 }
@@ -33,7 +33,7 @@ variable "description" {
 variable "default_rule_action" {
   description = "default rule that allows/denies all traffic with the lowest priority (2,147,483,647)"
   type        = string
-  default     = "deny(403)"
+  default     = "allow"
 }
 
 variable "pre_configured_rules" {

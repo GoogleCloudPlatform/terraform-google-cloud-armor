@@ -1,5 +1,5 @@
 /**
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,4 +17,14 @@
 output "security_policy" {
   value       = module.cloud_armor.policy
   description = "Cloud Armor security policy created"
+}
+
+output "project_id" {
+  value       = var.project_id
+  description = "The project ID"
+}
+
+output "name" {
+  value       = module.cloud_armor.name
+  description = "The project ID"
 }

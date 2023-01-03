@@ -14,6 +14,8 @@ This example configures a single cloud armor policy with different types of rule
 
 | Name | Description |
 |------|-------------|
+| name | The project ID |
+| project\_id | The project ID |
 | security\_policy | Cloud Armor security policy created |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
