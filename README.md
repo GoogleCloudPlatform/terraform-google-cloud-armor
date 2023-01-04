@@ -1,7 +1,7 @@
 # Cloud Armor Terraform Module
 This module makes it easy to setup [Cloud Armor Security Policy](https://cloud.google.com/armor/docs/cloud-armor-overview#security_policies) with Security rules. There are four type of rules you can create in each policy:
 - [Pre-Configured Rules](#pre_conf_rules): These are based on [pre-configured waf rules](https://cloud.google.com/armor/docs/waf-rules)
-- [Security Rules](#security_rules): Allow or Deny traffice from set of IP addresses
+- [Security Rules](#security_rules): Allow or Deny traffic from set of IP addresses
 - [Custom Rules](#custom_rules): You can create your own rules using [Common Expression Language (CEL)](https://cloud.google.com/armor/docs/rules-language-reference)
 - [Threat Intelligence Rules](#threat_intelligence_rules): Add Rules based on [threat intelligence](https://cloud.google.com/armor/docs/threat-intelligence). You need to have managed protection plus enable to use this feature
 
