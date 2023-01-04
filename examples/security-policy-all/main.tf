@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+resource "random_id" "suffix" {
+  byte_length = 4
+}
 module "cloud_armor" {
   source = "../../"
 
   project_id                           = var.project_id
-  name                                 = "my-test-ca-policy-1"
+  name                                 = "test-casp-policy-${random_id.suffix.hex}"
   description                          = "Test Cloud Armor security policy with preconfigured rules, security rules and custom rules"
   default_rule_action                  = "allow"
   type                                 = "CLOUD_ARMOR"
@@ -81,7 +84,7 @@ module "cloud_armor" {
       action        = "deny(502)"
       priority      = 11
       description   = "Deny Malicious IP address from project honeypot"
-      src_ip_ranges = ["190.217.68.211", "45.116.227.68", "103.43.141.122", "123.11.215.36", ]
+      src_ip_ranges = ["190.217.68.211", "45.116.227.68", ]
       preview       = true
     }
 

@@ -14,7 +14,7 @@ This example configures a single cloud armor policy with different types of rule
 
 | Name | Description |
 |------|-------------|
-| name | The project ID |
+| policy\_name | Security Policy name |
 | project\_id | The project ID |
 | security\_policy | Cloud Armor security policy created |
 

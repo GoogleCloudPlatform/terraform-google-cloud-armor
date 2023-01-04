@@ -24,7 +24,7 @@ output "project_id" {
   description = "The project ID"
 }
 
-output "name" {
-  value       = module.cloud_armor.name
-  description = "The project ID"
+output "policy_name" {
+  value       = module.cloud_armor.policy.name
+  description = "Security Policy name"
 }
