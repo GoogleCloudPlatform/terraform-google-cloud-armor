@@ -17,7 +17,7 @@ There are examples included in the [examples](https://github.com/terraform-googl
 ```
 module "security_policy" {
   source = "GoogleCloudPlatform/cloud-armor/google"
-  version = "~> 1.0"
+  version = "~> 0.1.0"
 
   project_id                           = var.project_id
   name                                 = var.name
