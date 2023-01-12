@@ -10,9 +10,25 @@ This module makes it easy to setup [Cloud Armor Security Policy](https://cloud.g
 
 This module is meant for use with Terraform 1.3+ and tested using Terraform 1.3+. If you find incompatibilities using Terraform >=0.13, please open an issue.
 
+##  Module Format
+
+```
+module security_polcy {
+  source = "terraform-google-modules/cloud-armor/google"
+
+  project_id                   = "my-project-id"
+  name                         = my-test-ca-policy
+  description                  = "Test Cloud Armor security policy with preconfigured rules, security rules and custom rules"
+  default_rule_action          = "deny(403)"
+  pre_configured_rules         = {}
+  security_rules               = {}
+  custom_rules                 = {}
+  threat_intelligence_rules    = {}
+}
+```
+
 ## Usage
 There are examples included in the [examples](https://github.com/terraform-google-modules/terraform-google-cloud-armor/tree/master/examples) folder but simple usage is as follows:
-
 
 ```
 module "security_policy" {
@@ -241,23 +257,6 @@ module "security_policy" {
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 
-
-##  Module Format
-
-```
-module security_polcy {
-  source = "terraform-google-modules/cloud-armor/google"
-
-  project_id                   = "my-project-id"
-  name                         = my-test-ca-policy
-  description                  = "Test Cloud Armor security policy with preconfigured rules, security rules and custom rules"
-  default_rule_action          = "deny(403)"
-  pre_configured_rules         = {}
-  security_rules               = {}
-  custom_rules                 = {}
-  threat_intelligence_rules    = {}
-}
-```
 
 ###  Rules
 `pre_configured_rules`, `security_rules`, `custom_rules` and `threat_intelligence_rules` are maps of rules. Each rule is a map of strings which provides details about the rule. For example:
