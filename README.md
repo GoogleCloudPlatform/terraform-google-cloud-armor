@@ -14,7 +14,7 @@ This module is meant for use with Terraform 1.3+ and tested using Terraform 1.3+
 
 ```
 module security_polcy {
-  source = "terraform-google-modules/cloud-armor/google"
+  source = "GoogleCloudPlatform/cloud-armor/google"
 
   project_id                   = "my-project-id"
   name                         = my-test-ca-policy
