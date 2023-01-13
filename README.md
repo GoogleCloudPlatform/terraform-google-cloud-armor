@@ -420,7 +420,7 @@ custom_rules = {
   }
   test-sl = {
     action             = "deny(502)"
-    priority           = 100
+    priority           = 10
     description        = "test Sensitivity level policies"
     expression         = <<-EOT
       evaluatePreconfiguredWaf('xss-v33-stable', {'sensitivity': 4, 'opt_out_rule_ids': ['owasp-crs-v030301-id942350-sqli', 'owasp-crs-v030301-id942360-sqli']})
