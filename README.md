@@ -291,7 +291,7 @@ rate_limit_options = {
 }
 ```
 
-##  pre_conf_rules
+##  pre_configured_rules
 List of preconfigured rules are available [here](https://cloud.google.com/armor/docs/waf-rules). Following is the key value pairs for setting up pre configured rules
 
 ###  Format:
@@ -319,12 +319,9 @@ pre_configured_rules = {
     action                  = "rate_based_ban"
     priority                = 3
     description             = "PHP Sensitivity Level 1 with included rules"
-    preview                 = false
-    redirect_type           = null
     target_rule_set         = "xss-v33-stable"
     sensitivity_level       = 0
     include_target_rule_ids = ["owasp-crs-v030301-id933190-php", "owasp-crs-v030301-id933111-php"]
-    exclude_target_rule_ids = []
     rate_limit_options = {
       ban_duration_sec                     = 600
       enforce_on_key                       = "ALL"
@@ -339,13 +336,10 @@ pre_configured_rules = {
     action                  = "redirect"
     priority                = 4
     description             = "Remote file inclusion 4"
-    preview                 = false
+    preview                 = true
     redirect_type           = "GOOGLE_RECAPTCHA"
     target_rule_set         = "rfi-v33-stable"
     sensitivity_level       = 4
-    include_target_rule_ids = []
-    exclude_target_rule_ids = []
-    rate_limit_options      = {}
   }
 }
 ```
@@ -377,17 +371,13 @@ security_rules = {
     priority           = 11
     description        = "Deny Malicious IP address from project honeypot"
     src_ip_ranges      = ["190.217.68.211", "45.116.227.68", "103.43.141.122", "123.11.215.36", ]
-    preview            = false
-    redirect_type      = null
-    rate_limit_options = {}
   }
   "throttle_project_droptwenty" = {
     action        = "throttle"
     priority      = 15
     description   = "Throttle IP addresses from project droptwenty"
     src_ip_ranges = ["190.217.68.214", "45.116.227.71", ]
-    preview       = false
-    redirect_type = null
+    preview       = true
     rate_limit_options = {
       exceed_action                        = "deny(502)"
       rate_limit_http_request_count        = 10
@@ -423,23 +413,18 @@ custom_rules = {
     action             = "allow"
     priority           = 21
     description        = "Allow specific Regions"
-    preview            = false
+    preview            = true
     expression         = <<-EOT
       '[US,AU,BE]'.contains(origin.region_code)
     EOT
-    redirect_type      = null
-    rate_limit_options = {}
   }
   test-sl = {
     action             = "deny(502)"
-    priority           = 100
+    priority           = 10
     description        = "test Sensitivity level policies"
-    preview            = false
     expression         = <<-EOT
       evaluatePreconfiguredWaf('xss-v33-stable', {'sensitivity': 4, 'opt_out_rule_ids': ['owasp-crs-v030301-id942350-sqli', 'owasp-crs-v030301-id942360-sqli']})
     EOT
-    redirect_type      = null
-    rate_limit_options = {}
   }
 }
 ```
@@ -456,7 +441,7 @@ threat_intelligence_rules = {
     priority           = 31
     description        = "Deny IP addresses of search engine crawlers"
     preview            = false
-    feed               = "iplist-search-engines-crawlers" #https://cloud.google.com/armor/docs/threat-intelligence#configure-nti
+    feed               = "iplist-search-engines-crawlers"
     redirect_type      = null
     rate_limit_options = {}
   }
@@ -470,10 +455,8 @@ threat_intelligence_rules = {
     action             = "deny(502)"
     priority           = 31
     description        = "Deny IP addresses of search engine crawlers"
-    preview            = false
-    feed               = "iplist-search-engines-crawlers" #https://cloud.google.com/armor/docs/threat-intelligence#configure-nti
-    redirect_type      = null
-    rate_limit_options = {}
+    preview            = true
+    feed               = "iplist-search-engines-crawlers"
   }
 }
 ```
