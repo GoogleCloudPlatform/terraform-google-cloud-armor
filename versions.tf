@@ -32,4 +32,5 @@ terraform {
   provider_meta "google-beta" {
     module_name = "blueprints/terraform/terraform-google-cloud-armor/0.1.0"
   }
+  experiments = [module_variable_optional_attrs]
 }
