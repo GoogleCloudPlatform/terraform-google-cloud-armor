@@ -1,14 +1,14 @@
 # Cloud Armor Terraform Module
 This module makes it easy to setup [Cloud Armor Security Policy](https://cloud.google.com/armor/docs/cloud-armor-overview#security_policies) with Security rules. There are four type of rules you can create in each policy:
-- [Pre-Configured Rules](#pre_conf_rules): These are based on [pre-configured waf rules](https://cloud.google.com/armor/docs/waf-rules)
-- [Security Rules](#security_rules): Allow or Deny traffic from set of IP addresses
-- [Custom Rules](#custom_rules): You can create your own rules using [Common Expression Language (CEL)](https://cloud.google.com/armor/docs/rules-language-reference)
-- [Threat Intelligence Rules](#threat_intelligence_rules): Add Rules based on [threat intelligence](https://cloud.google.com/armor/docs/threat-intelligence). You need to have managed protection plus enable to use this feature
+- [Pre-Configured Rules](#pre_configured_rules): These are based on [pre-configured waf rules](https://cloud.google.com/armor/docs/waf-rules).
+- [Security Rules](#security_rules): Allow or Deny traffic from list of IP addresses or IP adress ranges.
+- [Custom Rules](#custom_rules): You can create your own rules using [Common Expression Language (CEL)](https://cloud.google.com/armor/docs/rules-language-reference).
+- [Threat Intelligence Rules](#threat_intelligence_rules): Add Rules based on [threat intelligence](https://cloud.google.com/armor/docs/threat-intelligence). [Managed protection plus](https://cloud.google.com/armor/docs/managed-protection-overview) subscription is needed to use this feature.
 
 
 ## Compatibility
 
-This module is meant for use with Terraform 1.3+ and tested using Terraform 1.3+. If you find incompatibilities using Terraform >=0.13, please open an issue.
+This module is meant for use with Terraform 1.3+ and tested using Terraform 1.3+. If you find incompatibilities using Terraform >=1.3, please open an issue.
 
 ##  Module Format
 
@@ -36,15 +36,15 @@ module "security_policy" {
   version = "~> 0.1.0"
 
   project_id                           = var.project_id
-  name                                 = var.name
-  description                          = var.description
-  default_rule_action                  = var.default_rule_action
+  name                                 = "my-test-security-policy"
+  description                          = "Test Security Policy"
+  default_rule_action                  = "allow"
   type                                 = "CLOUD_ARMOR"
   layer_7_ddos_defense_enable          = true
   layer_7_ddos_defense_rule_visibility = "STANDARD"
 
-
   pre_configured_rules = {
+
     "sqli_sensitivity_level_4" = {
       action          = "deny(502)"
       priority        = 1
@@ -52,100 +52,69 @@ module "security_policy" {
     }
 
     "xss-stable_level_2_with_exclude" = {
-      action                  = "throttle"
+      action                  = "deny(502)"
       priority                = 2
       description             = "XSS Sensitivity Level 2 with excluded rules"
       preview                 = true
       target_rule_set         = "xss-v33-stable"
       sensitivity_level       = 2
-      exclude_target_rule_ids = ["owasp-crs-v030301-id941380-xss", "owasp-crs-v030301-id941340-xss"]
-      rate_limit_options = {
-        exceed_action                        = "deny(502)"
-        rate_limit_http_request_count        = 10
-        rate_limit_http_request_interval_sec = 60
-      }
+      exclude_target_rule_ids = ["owasp-crs-v030301-id941380-xss", "owasp-crs-v030301-id941280-xss"]
     }
 
-    "php-stable_level_1_with_include" = {
-      action                  = "rate_based_ban"
+    "php-stable_level_0_with_include" = {
+      action                  = "deny(502)"
       priority                = 3
-      description             = "PHP Sensitivity Level 1 with included rules"
-      target_rule_set         = "xss-v33-stable"
-      sensitivity_level       = 0
+      description             = "PHP Sensitivity Level 0 with included rules"
+      target_rule_set         = "php-v33-stable"
       include_target_rule_ids = ["owasp-crs-v030301-id933190-php", "owasp-crs-v030301-id933111-php"]
-      exclude_target_rule_ids = []
-      rate_limit_options = {
-        ban_duration_sec                     = 600
-        enforce_on_key                       = "ALL"
-        exceed_action                        = "deny(502)"
-        rate_limit_http_request_count        = 10
-        rate_limit_http_request_interval_sec = 60
-        ban_http_request_count               = 1000
-        ban_http_request_interval_sec        = 300
-      }
-    }
-
-    "rfi_sensitivity_level_4" = {
-      action          = "redirect"
-      priority        = 4
-      description     = "Remote file inclusion 4"
-      redirect_type   = "GOOGLE_RECAPTCHA"
-      target_rule_set = "rfi-v33-stable"
     }
 
   }
 
   security_rules = {
-    "deny_project_honeypot" = {
+
+    "deny_project_bad_actor1" = {
       action        = "deny(502)"
       priority      = 11
-      description   = "Deny Malicious IP address from project honeypot"
-      src_ip_ranges = ["190.217.68.211", "45.116.227.68", "103.43.141.122", "123.11.215.36", ]
+      description   = "Deny Malicious IP address from project bad_actor1"
+      src_ip_ranges = ["190.217.68.211/32", "45.116.227.68/32", "103.43.141.122/32", "123.11.215.36", "123.11.215.37", ]
       preview       = true
     }
 
-    "redirect_project_drop" = {
-      action        = "redirect"
-      priority      = 12
-      description   = "Redirect IP address from project drop"
-      src_ip_ranges = ["190.217.68.212", "45.116.227.69", ]
-      redirect_type = "GOOGLE_RECAPTCHA"
-    }
-
-    "rate_ban_project_dropten" = {
+    "rate_ban_project_bad_actor2" = {
       action        = "rate_based_ban"
       priority      = 13
-      description   = "Rate based ban for address from project dropten as soon as they cross rate limit threshold"
-      src_ip_ranges = ["190.217.68.213", "45.116.227.70", ]
+      description   = "Rate based ban for address from project bad_actor2 as soon as they cross rate limit threshold"
+      src_ip_ranges = ["190.217.68.213/32", "45.116.227.70", ]
       rate_limit_options = {
+        exceed_action                        = "deny(502)"
+        rate_limit_http_request_count        = 10
+        rate_limit_http_request_interval_sec = 60
         ban_duration_sec                     = 120
         enforce_on_key                       = "ALL"
-        exceed_action                        = "deny(502)"
-        rate_limit_http_request_count        = 10
-        rate_limit_http_request_interval_sec = 60
       }
     }
 
-    "rate_ban_project_dropthirty" = {
+    "rate_ban_project_bad_actor3" = {
       action        = "rate_based_ban"
       priority      = 14
-      description   = "Rate based ban for address from project dropthirty only if they cross banned threshold"
+      description   = "Rate based ban for address from project bad_actor3 only if they cross banned threshold"
       src_ip_ranges = ["190.217.68.213", "45.116.227.70", ]
       rate_limit_options = {
-        ban_duration_sec                     = 300
-        enforce_on_key                       = "ALL"
         exceed_action                        = "deny(502)"
         rate_limit_http_request_count        = 10
         rate_limit_http_request_interval_sec = 60
+        ban_duration_sec                     = 600
         ban_http_request_count               = 1000
         ban_http_request_interval_sec        = 300
+        enforce_on_key                       = "ALL"
       }
     }
 
-    "throttle_project_droptwenty" = {
+    "throttle_project_bad_actor4" = {
       action        = "throttle"
       priority      = 15
-      description   = "Throttle IP addresses from project droptwenty"
+      description   = "Throttle IP addresses from project bad_actor4"
       src_ip_ranges = ["190.217.68.214", "45.116.227.71", ]
       rate_limit_options = {
         exceed_action                        = "deny(502)"
@@ -153,15 +122,17 @@ module "security_policy" {
         rate_limit_http_request_interval_sec = 60
       }
     }
+
   }
 
   custom_rules = {
-    allow_specific_regions = {
-      action      = "allow"
+
+    deny_specific_regions = {
+      action      = "deny(502)"
       priority    = 21
-      description = "Allow specific Regions"
+      description = "Deny specific Regions"
       expression  = <<-EOT
-        '[US,AU,BE]'.contains(origin.region_code)
+        '[AU,BE]'.contains(origin.region_code)
       EOT
     }
 
@@ -173,7 +144,8 @@ module "security_policy" {
         inIpRange(origin.ip, '47.185.201.155/32')
       EOT
     }
-    throttle_specific_ip = {
+
+    throttle_specific_ip_region = {
       action      = "throttle"
       priority    = 23
       description = "Throttle specific IP address in US Region"
@@ -186,6 +158,7 @@ module "security_policy" {
         rate_limit_http_request_interval_sec = 60
       }
     }
+
     rate_ban_specific_ip = {
       action     = "rate_based_ban"
       priority   = 24
@@ -193,41 +166,29 @@ module "security_policy" {
         inIpRange(origin.ip, '47.185.201.160/32')
       EOT
       rate_limit_options = {
-        ban_duration_sec                     = 120
-        enforce_on_key                       = "ALL"
         exceed_action                        = "deny(502)"
         rate_limit_http_request_count        = 10
         rate_limit_http_request_interval_sec = 60
+        ban_duration_sec                     = 120
         ban_http_request_count               = 10000
         ban_http_request_interval_sec        = 600
+        enforce_on_key                       = "ALL"
       }
     }
-    test-sl = {
+
+    deny_java_level3_with_exclude = {
       action      = "deny(502)"
       priority    = 100
-      description = "test Sensitivity level policies"
+      description = "Deny pre-configured rule java-v33-stable at sensitivity level 3"
       preview     = true
       expression  = <<-EOT
-        evaluatePreconfiguredWaf('xss-v33-stable', {'sensitivity': 4, 'opt_out_rule_ids': ['owasp-crs-v030301-id942350-sqli', 'owasp-crs-v030301-id942360-sqli']})
+        evaluatePreconfiguredWaf('java-v33-stable', {'sensitivity': 3, 'opt_out_rule_ids': ['owasp-crs-v030301-id944240-java', 'owasp-crs-v030301-id944120-java']})
       EOT
     }
-  }
 
-  ##  threat_intelligence_rules needs manage protection plus
-  threat_intelligence_rules = {
-    deny_crawlers_ip = {
-      action             = "deny(502)"
-      priority           = 31
-      description        = "Deny IP addresses of search engine crawlers"
-      preview            = false
-      feed               = "iplist-search-engines-crawlers" #https://cloud.google.com/armor/docs/threat-intelligence#configure-nti
-      redirect_type      = null
-      rate_limit_options = {}
-    }
   }
 
 }
-
 ```
 
 
@@ -259,7 +220,7 @@ module "security_policy" {
 
 
 ###  Rules
-`pre_configured_rules`, `security_rules`, `custom_rules` and `threat_intelligence_rules` are maps of rules. Each rule is a map of strings which provides details about the rule. For example:
+`pre_configured_rules`, `security_rules`, `custom_rules` and `threat_intelligence_rules` are maps of rules. Each rule is a map which provides details about the rule. For example:
 
 ```
   "my_rule" = {
@@ -276,23 +237,25 @@ module "security_policy" {
   }
 ```
 
-### Rate limit options
-`rate_limit_options` is a map of strings with following key pairs. You can find more details about rate limit [here](https://cloud.google.com/armor/docs/rate-limiting-overview)
+`action, priority, description, preview, rate_limit_options` are common in all the rule types.
+
+### Rate limit
+`rate_limit_options` is needed for the rules where action is set to `throttle` or `rate_based_ban`. `rate_limit_options` is a map of strings with following key pairs. You can find more details about rate limit [here](https://cloud.google.com/armor/docs/rate-limiting-overview)
 
 ```
 rate_limit_options = {
-  ban_duration_sec                     = 600    # needed only if action is rate_based_ban
-  enforce_on_key                       = "ALL"  # All is default value. If null is passed terraform will use ALL as the value
   exceed_action                        = "deny(502)"
   rate_limit_http_request_count        = 10
   rate_limit_http_request_interval_sec = 60    # must be one of 60, 120, 180, 240, 300, 600, 900, 1200, 1800, 2700, 3600 seconds
-  ban_http_request_count               = 1000
-  ban_http_request_interval_sec        = 300   # must be one of 60, 120, 180, 240, 300, 600, 900, 1200, 1800, 2700, 3600 seconds
+  ban_duration_sec                     = 600   # needed only if action is rate_based_ban
+  ban_http_request_count               = 1000  # needed only if action is rate_based_ban
+  ban_http_request_interval_sec        = 300   # must be one of 60, 120, 180, 240, 300, 600, 900, 1200, 1800, 2700, 3600 seconds. needed only if action is rate_based_ban
+  enforce_on_key                       = "ALL" # All is default value. If null is passed terraform will use ALL as the value
 }
 ```
 
 ##  pre_configured_rules
-List of preconfigured rules are available [here](https://cloud.google.com/armor/docs/waf-rules). Following is the key value pairs for setting up pre configured rules
+List of preconfigured rules are available [here](https://cloud.google.com/armor/docs/waf-rules). Following is the key value pairs for setting up pre configured rules. `include_target_rule_ids` and `exclude_target_rule_ids` are mutually exclusive. If `include_target_rule_ids` is provided, sensitivity_level is automatically set to 0 by the module as it is a [requirement for opt in rule signature](https://cloud.google.com/armor/docs/rule-tuning#opt_in_rule_signatures). `exclude_target_rule_ids` is ignored when `include_target_rule_ids` is provided.
 
 ###  Format:
 
@@ -313,25 +276,19 @@ List of preconfigured rules are available [here](https://cloud.google.com/armor/
 
 
 ###  Sample:
+
 ```
 pre_configured_rules = {
+
   "php-stable_level_1_with_include" = {
-    action                  = "rate_based_ban"
+    action                  = "deny(502)"
     priority                = 3
     description             = "PHP Sensitivity Level 1 with included rules"
     target_rule_set         = "xss-v33-stable"
     sensitivity_level       = 0
     include_target_rule_ids = ["owasp-crs-v030301-id933190-php", "owasp-crs-v030301-id933111-php"]
-    rate_limit_options = {
-      ban_duration_sec                     = 600
-      enforce_on_key                       = "ALL"
-      exceed_action                        = "deny(502)"
-      rate_limit_http_request_count        = 10
-      rate_limit_http_request_interval_sec = 60
-      ban_http_request_count               = 1000
-      ban_http_request_interval_sec        = 300
-    }
   }
+
   "rfi_sensitivity_level_4" = {
     action                  = "redirect"
     priority                = 4
@@ -341,6 +298,7 @@ pre_configured_rules = {
     target_rule_set         = "rfi-v33-stable"
     sensitivity_level       = 4
   }
+
 }
 ```
 
@@ -364,18 +322,21 @@ Each rule is key value pair where key is a unique name of the rule and value is 
 ```
 
 ###  Sample:
+
 ```
 security_rules = {
-  "deny_project_honeypot" = {
+
+  "deny_project_bad_actor" = {
     action             = "deny(502)"
     priority           = 11
-    description        = "Deny Malicious IP address from project honeypot"
+    description        = "Deny Malicious IP address from project bad_actor"
     src_ip_ranges      = ["190.217.68.211", "45.116.227.68", "103.43.141.122", "123.11.215.36", ]
   }
-  "throttle_project_droptwenty" = {
+
+  "throttle_project_bad_actor4" = {
     action        = "throttle"
     priority      = 15
-    description   = "Throttle IP addresses from project droptwenty"
+    description   = "Throttle IP addresses from project bad_actor4"
     src_ip_ranges = ["190.217.68.214", "45.116.227.71", ]
     preview       = true
     rate_limit_options = {
@@ -384,6 +345,7 @@ security_rules = {
       rate_limit_http_request_interval_sec = 60
     }
   }
+
 }
 ```
 
@@ -392,6 +354,7 @@ Add Custom Rules using [Common Expression Language (CEL)](https://cloud.google.c
 
 ###  Format:
 Each rule is key value pair where key is a unique name of the rule and value is the action associated with it.
+
 ```
 allow_specific_regions = {
   action             = "allow"
@@ -407,8 +370,10 @@ allow_specific_regions = {
 ```
 
 ###  Sample:
+
 ```
 custom_rules = {
+
   allow_specific_regions = {
     action             = "allow"
     priority           = 21
@@ -418,22 +383,26 @@ custom_rules = {
       '[US,AU,BE]'.contains(origin.region_code)
     EOT
   }
-  test-sl = {
-    action             = "deny(502)"
-    priority           = 10
-    description        = "test Sensitivity level policies"
-    expression         = <<-EOT
+
+  deny_xss_level4_with_exclude = {
+    action      = "deny(502)"
+    priority    = 100
+    description = "test preconfigured policy with Sensitivity level and opt out policies"
+    preview     = true
+    expression  = <<-EOT
       evaluatePreconfiguredWaf('xss-v33-stable', {'sensitivity': 4, 'opt_out_rule_ids': ['owasp-crs-v030301-id942350-sqli', 'owasp-crs-v030301-id942360-sqli']})
     EOT
   }
+
 }
 ```
 
 ##  threat_intelligence_rules:
-Add Rules based on [threat intelligence](https://cloud.google.com/armor/docs/threat-intelligence). You need to enable [managed protection plus](https://cloud.google.com/armor/docs/managed-protection-overview#standard_versus_plus) to use this feature
+Add Rules based on [threat intelligence](https://cloud.google.com/armor/docs/threat-intelligence). [Managed protection plus](https://cloud.google.com/armor/docs/managed-protection-overview) subscription is needed to use this feature.
 
 ###  Format:
 Each rule is key value pair where key is a unique name of the rule and value is the action associated with it.
+
 ```
 threat_intelligence_rules = {
   deny_crawlers_ip = {
@@ -449,8 +418,10 @@ threat_intelligence_rules = {
 ```
 
 ###  Sample:
+
 ```
 threat_intelligence_rules = {
+
   deny_crawlers_ip = {
     action             = "deny(502)"
     priority           = 31
@@ -458,6 +429,7 @@ threat_intelligence_rules = {
     preview            = true
     feed               = "iplist-search-engines-crawlers"
   }
+
 }
 ```
 
