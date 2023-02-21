@@ -8,6 +8,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [0.1.1](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v0.1.0...v0.1.1) (2023-02-21)
+
+
+### Bug Fixes
+
+* add simple example and updated README ([#5](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/5)) ([d39b5ed](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/d39b5eda9dce99fb54e24cbc28a87c2f8b8aa316))
+
 ## 0.1.0 (2023-01-17)
 
 
