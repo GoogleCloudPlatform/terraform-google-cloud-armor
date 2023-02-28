@@ -36,6 +36,12 @@ variable "default_rule_action" {
   default     = "allow"
 }
 
+variable "recaptcha_redirect_site_key" {
+  description = "reCAPTCHA site key to be used for all the rules using the redirect action with the redirect type of GOOGLE_RECAPTCHA"
+  type        = string
+  default     = null
+}
+
 variable "pre_configured_rules" {
   description = "Map of pre-configured rules Sensitivity levels"
   type = map(object({
@@ -44,6 +50,7 @@ variable "pre_configured_rules" {
     description             = optional(string)
     preview                 = optional(bool, false)
     redirect_type           = optional(string, null)
+    redirect_target         = optional(string, null)
     target_rule_set         = string
     sensitivity_level       = optional(number, 4)
     include_target_rule_ids = optional(list(string), [])
@@ -65,12 +72,13 @@ variable "pre_configured_rules" {
 variable "security_rules" {
   description = "Map of Security rules with list of IP addresses to block or unblock"
   type = map(object({
-    action        = string
-    priority      = number
-    description   = optional(string)
-    preview       = optional(bool, false)
-    redirect_type = optional(string, null)
-    src_ip_ranges = list(string)
+    action          = string
+    priority        = number
+    description     = optional(string)
+    preview         = optional(bool, false)
+    redirect_type   = optional(string, null)
+    redirect_target = optional(string, null)
+    src_ip_ranges   = list(string)
     rate_limit_options = optional(object({
       enforce_on_key                       = optional(string)
       exceed_action                        = optional(string)
@@ -88,12 +96,13 @@ variable "security_rules" {
 variable "custom_rules" {
   description = "Custome security rules"
   type = map(object({
-    action        = string
-    priority      = number
-    description   = optional(string)
-    preview       = optional(bool, false)
-    expression    = string
-    redirect_type = optional(string, null)
+    action          = string
+    priority        = number
+    description     = optional(string)
+    preview         = optional(bool, false)
+    expression      = string
+    redirect_type   = optional(string, null)
+    redirect_target = optional(string, null)
     rate_limit_options = optional(object({
       enforce_on_key                       = optional(string)
       exceed_action                        = optional(string)

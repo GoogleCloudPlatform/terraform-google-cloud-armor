@@ -14,9 +14,26 @@
  * limitations under the License.
  */
 
+resource "google_recaptcha_enterprise_key" "primary" {
+  display_name = "display-name"
+
+  labels = {
+    label-one = "value-one"
+  }
+
+  project = var.project_id
+
+  web_settings {
+    integration_type  = "INVISIBLE"
+    allow_all_domains = true
+    allowed_domains   = ["localhost"]
+  }
+}
+
 resource "random_id" "suffix" {
   byte_length = 4
 }
+
 module "cloud_armor" {
   source = "../../"
 
@@ -27,6 +44,7 @@ module "cloud_armor" {
   type                                 = "CLOUD_ARMOR"
   layer_7_ddos_defense_enable          = true
   layer_7_ddos_defense_rule_visibility = "STANDARD"
+  recaptcha_redirect_site_key          = google_recaptcha_enterprise_key.primary.name
 
   pre_configured_rules = {
 
@@ -64,6 +82,15 @@ module "cloud_armor" {
       description   = "Deny Malicious IP address from project honeypot"
       src_ip_ranges = ["190.217.68.211/32", "45.116.227.68/32", "103.43.141.122/32", "123.11.215.36", "123.11.215.37", ]
       preview       = true
+    }
+
+    "redirect_project_rd" = {
+      action          = "redirect"
+      priority        = 12
+      description     = "Redirect IP address from project RD"
+      src_ip_ranges   = ["190.217.68.215", "45.116.227.99", ]
+      redirect_type   = "EXTERNAL_302"
+      redirect_target = "https://www.example.com"
     }
 
     "rate_ban_project_dropten" = {

@@ -2,6 +2,19 @@
 
 This is a simple example. Configures a single cloud armor policy with different types of rules.
 
+## Usage
+
+To run this example you need to execute:
+
+```bash
+export TF_VAR_project_id="your_project_id"
+```
+
+```bash
+terraform init
+terraform plan
+terraform apply
+```
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Inputs

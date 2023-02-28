@@ -33,7 +33,7 @@ There are examples included in the [examples](https://github.com/terraform-googl
 ```
 module "security_policy" {
   source = "GoogleCloudPlatform/cloud-armor/google"
-  version = "~> 0.1.0"
+  version = "~> 0.2"
 
   project_id                           = var.project_id
   name                                 = "my-test-security-policy"
@@ -81,10 +81,19 @@ module "security_policy" {
       preview       = true
     }
 
-    "rate_ban_project_bad_actor2" = {
+    "redirect_project_rd" = {
+      action        = "redirect"
+      priority      = 12
+      description   = "Redirect IP address from project RD"
+      src_ip_ranges = ["190.217.68.215", "45.116.227.99", ]
+      redirect_type = "EXTERNAL_302"
+      redirect_target = "https://www.example.com"
+    }
+
+    "rate_ban_project_actor2" = {
       action        = "rate_based_ban"
       priority      = 13
-      description   = "Rate based ban for address from project bad_actor2 as soon as they cross rate limit threshold"
+      description   = "Rate based ban for address from project actor2 as soon as they cross rate limit threshold"
       src_ip_ranges = ["190.217.68.213/32", "45.116.227.70", ]
       rate_limit_options = {
         exceed_action                        = "deny(502)"
@@ -95,10 +104,10 @@ module "security_policy" {
       }
     }
 
-    "rate_ban_project_bad_actor3" = {
+    "rate_ban_project_actor3" = {
       action        = "rate_based_ban"
       priority      = 14
-      description   = "Rate based ban for address from project bad_actor3 only if they cross banned threshold"
+      description   = "Rate based ban for address from project actor3 only if they cross banned threshold"
       src_ip_ranges = ["190.217.68.213", "45.116.227.70", ]
       rate_limit_options = {
         exceed_action                        = "deny(502)"
@@ -111,10 +120,10 @@ module "security_policy" {
       }
     }
 
-    "throttle_project_bad_actor4" = {
+    "throttle_project_actor4" = {
       action        = "throttle"
       priority      = 15
-      description   = "Throttle IP addresses from project bad_actor4"
+      description   = "Throttle IP addresses from project actor4"
       src_ip_ranges = ["190.217.68.214", "45.116.227.71", ]
       rate_limit_options = {
         exceed_action                        = "deny(502)"
@@ -197,15 +206,16 @@ module "security_policy" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| custom\_rules | Custome security rules | <pre>map(object({<br>    action        = string<br>    priority      = number<br>    description   = optional(string)<br>    preview       = optional(bool, false)<br>    expression    = string<br>    redirect_type = optional(string, null)<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>  }))</pre> | `{}` | no |
+| custom\_rules | Custome security rules | <pre>map(object({<br>    action          = string<br>    priority        = number<br>    description     = optional(string)<br>    preview         = optional(bool, false)<br>    expression      = string<br>    redirect_type   = optional(string, null)<br>    redirect_target = optional(string, null)<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>  }))</pre> | `{}` | no |
 | default\_rule\_action | default rule that allows/denies all traffic with the lowest priority (2,147,483,647) | `string` | `"allow"` | no |
 | description | An optional description of this security policy. Max size is 2048. | `string` | `null` | no |
 | layer\_7\_ddos\_defense\_enable | (Optional) If set to true, enables CAAP for L7 DDoS detection | `bool` | `false` | no |
 | layer\_7\_ddos\_defense\_rule\_visibility | (Optional) Rule visibility can be one of the following: STANDARD - opaque rules. PREMIUM - transparent rules | `string` | `"STANDARD"` | no |
 | name | Name of the security policy. | `string` | n/a | yes |
-| pre\_configured\_rules | Map of pre-configured rules Sensitivity levels | <pre>map(object({<br>    action                  = string<br>    priority                = number<br>    description             = optional(string)<br>    preview                 = optional(bool, false)<br>    redirect_type           = optional(string, null)<br>    target_rule_set         = string<br>    sensitivity_level       = optional(number, 4)<br>    include_target_rule_ids = optional(list(string), [])<br>    exclude_target_rule_ids = optional(list(string), [])<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>  }))</pre> | `{}` | no |
+| pre\_configured\_rules | Map of pre-configured rules Sensitivity levels | <pre>map(object({<br>    action                  = string<br>    priority                = number<br>    description             = optional(string)<br>    preview                 = optional(bool, false)<br>    redirect_type           = optional(string, null)<br>    redirect_target         = optional(string, null)<br>    target_rule_set         = string<br>    sensitivity_level       = optional(number, 4)<br>    include_target_rule_ids = optional(list(string), [])<br>    exclude_target_rule_ids = optional(list(string), [])<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>  }))</pre> | `{}` | no |
 | project\_id | The project in which the resource belongs | `string` | n/a | yes |
-| security\_rules | Map of Security rules with list of IP addresses to block or unblock | <pre>map(object({<br>    action        = string<br>    priority      = number<br>    description   = optional(string)<br>    preview       = optional(bool, false)<br>    redirect_type = optional(string, null)<br>    src_ip_ranges = list(string)<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>  }))</pre> | `{}` | no |
+| recaptcha\_redirect\_site\_key | reCAPTCHA site key to be used for all the rules using the redirect action with the redirect type of GOOGLE\_RECAPTCHA | `string` | `null` | no |
+| security\_rules | Map of Security rules with list of IP addresses to block or unblock | <pre>map(object({<br>    action          = string<br>    priority        = number<br>    description     = optional(string)<br>    preview         = optional(bool, false)<br>    redirect_type   = optional(string, null)<br>    redirect_target = optional(string, null)<br>    src_ip_ranges   = list(string)<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>  }))</pre> | `{}` | no |
 | threat\_intelligence\_rules | Map of Threat Intelligence Feed rules | `map(any)` | `{}` | no |
 | type | Type indicates the intended use of the security policy. Possible values are CLOUD\_ARMOR and CLOUD\_ARMOR\_EDGE | `string` | `"CLOUD_ARMOR"` | no |
 
@@ -455,11 +465,14 @@ the resources of this module:
 - compute.securityPolicies.list
 - compute.securityPolicies.use
 - compute.securityPolicies.update
+- recaptchaenterprise.keys.list
+- recaptchaenterprise.keys.get
 
 Following roles contain above mentioned permissions. You can either assing one of the following role or create custom roles with above permissions.
 
 - Compute Organization Security Policy Admin: `roles/compute.orgSecurityPolicyAdmin`
 - Compute Security Admin: `roles/compute.securityAdmin`
+- reCAPTCHA Enterprise Admin: `roles/recaptchaenterprise.admin`
 
 ### Enable API's
 In order to operate with the Service Account you must activate the following API on the project where the Service Account was created:
