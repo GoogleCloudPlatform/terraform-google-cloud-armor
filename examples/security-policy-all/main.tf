@@ -137,6 +137,7 @@ module "cloud_armor" {
         rate_limit_http_request_interval_sec = 60
       }
     }
+
   }
 
   custom_rules = {
@@ -195,6 +196,7 @@ module "cloud_armor" {
         evaluatePreconfiguredWaf('xss-v33-stable', {'sensitivity': 4, 'opt_out_rule_ids': ['owasp-crs-v030301-id942350-sqli', 'owasp-crs-v030301-id942360-sqli']})
       EOT
     }
+
   }
 
 }

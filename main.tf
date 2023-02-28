@@ -68,6 +68,13 @@ resource "google_compute_security_policy" "policy" {
   project     = var.project_id
   type        = var.type
 
+  dynamic "recaptcha_options_config" {
+    for_each = var.recaptcha_redirect_site_key == null ? [] : ["redirect_site_key"]
+    content {
+      redirect_site_key = var.recaptcha_redirect_site_key
+    }
+  }
+
   ##### Preconfigured Rules Sensitivity level
   dynamic "rule" {
     for_each = var.pre_configured_rules

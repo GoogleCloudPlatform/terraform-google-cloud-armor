@@ -17,6 +17,7 @@
 locals {
   int_required_roles = [
     "roles/compute.orgSecurityPolicyAdmin",
+    "roles/recaptchaenterprise.admin",
   ]
 }
 

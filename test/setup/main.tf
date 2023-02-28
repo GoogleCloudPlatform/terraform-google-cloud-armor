@@ -28,6 +28,7 @@ module "project" {
     "iam.googleapis.com",
     "cloudresourcemanager.googleapis.com",
     "compute.googleapis.com",
-    "serviceusage.googleapis.com"
+    "serviceusage.googleapis.com",
+    "recaptchaenterprise.googleapis.com",
   ]
 }
