@@ -28,7 +28,7 @@ module security_polcy {
 }
 ```
 
-Rule details and example are available [here](#Usage)
+Rule details and example are available [here](#Rules)
 
 ## Usage
 There are examples included in the [examples](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/tree/main/examples) folder but simple usage is as follows:
