@@ -98,6 +98,7 @@ module "cloud_armor" {
       priority      = 13
       description   = "Rate based ban for address from project dropten as soon as they cross rate limit threshold"
       src_ip_ranges = ["190.217.68.213/32", "45.116.227.70", ]
+
       rate_limit_options = {
         exceed_action                        = "deny(502)"
         rate_limit_http_request_count        = 10
@@ -105,6 +106,7 @@ module "cloud_armor" {
         ban_duration_sec                     = 120
         enforce_on_key                       = "ALL"
       }
+
     }
 
     "rate_ban_project_dropthirty" = {
@@ -112,6 +114,7 @@ module "cloud_armor" {
       priority      = 14
       description   = "Rate based ban for address from project dropthirty only if they cross banned threshold"
       src_ip_ranges = ["190.217.68.213", "45.116.227.70", ]
+
       rate_limit_options = {
         exceed_action                        = "deny(502)"
         rate_limit_http_request_count        = 10
@@ -121,6 +124,7 @@ module "cloud_armor" {
         ban_http_request_interval_sec        = 300
         enforce_on_key                       = "ALL"
       }
+
     }
 
     "throttle_project_droptwenty" = {
@@ -128,11 +132,13 @@ module "cloud_armor" {
       priority      = 15
       description   = "Throttle IP addresses from project droptwenty"
       src_ip_ranges = ["190.217.68.214", "45.116.227.71", ]
+
       rate_limit_options = {
         exceed_action                        = "deny(502)"
         rate_limit_http_request_count        = 10
         rate_limit_http_request_interval_sec = 60
       }
+
     }
 
   }
@@ -143,40 +149,49 @@ module "cloud_armor" {
       action      = "deny(502)"
       priority    = 21
       description = "Deny specific Regions"
-      expression  = <<-EOT
+
+      expression = <<-EOT
         '[AU,BE]'.contains(origin.region_code)
       EOT
+
     }
 
     deny_specific_ip = {
       action      = "deny(502)"
       priority    = 22
       description = "Deny Specific IP address"
-      expression  = <<-EOT
+
+      expression = <<-EOT
         inIpRange(origin.ip, '47.185.201.155/32')
       EOT
+
     }
 
     throttle_specific_ip = {
       action      = "throttle"
       priority    = 23
       description = "Throttle specific IP address in US Region"
-      expression  = <<-EOT
+
+      expression = <<-EOT
         origin.region_code == "US" && inIpRange(origin.ip, '47.185.201.159/32')
       EOT
+
       rate_limit_options = {
         exceed_action                        = "deny(502)"
         rate_limit_http_request_count        = 10
         rate_limit_http_request_interval_sec = 60
       }
+
     }
 
     rate_ban_specific_ip = {
-      action     = "rate_based_ban"
-      priority   = 24
+      action   = "rate_based_ban"
+      priority = 24
+
       expression = <<-EOT
         inIpRange(origin.ip, '47.185.201.160/32')
       EOT
+
       rate_limit_options = {
         exceed_action                        = "deny(502)"
         rate_limit_http_request_count        = 10
@@ -186,16 +201,41 @@ module "cloud_armor" {
         ban_http_request_interval_sec        = 600
         enforce_on_key                       = "ALL"
       }
+
     }
 
-    deny_xss_level3_with_exclude = {
+    allow_path_token_header = {
+      action      = "allow"
+      priority    = 25
+      description = "Allow path and token match with addition of header"
+
+      expression = <<-EOT
+        request.path.matches('/login.html') && token.recaptcha_session.score < 0.2
+      EOT
+
+      header_action = [
+        {
+          header_name  = "reCAPTCHA-Warning"
+          header_value = "high"
+        },
+        {
+          header_name  = "X-Resource"
+          header_value = "test"
+        }
+      ]
+
+    }
+
+    deny_java_level3_with_exclude = {
       action      = "deny(502)"
       priority    = 100
-      description = "test Sensitivity level policies"
+      description = "Deny pre-configured rule java-v33-stable at sensitivity level 3"
       preview     = true
-      expression  = <<-EOT
+
+      expression = <<-EOT
         evaluatePreconfiguredWaf('java-v33-stable', {'sensitivity': 3, 'opt_out_rule_ids': ['owasp-crs-v030301-id944240-java', 'owasp-crs-v030301-id944120-java']})
       EOT
+
     }
 
   }

@@ -20,6 +20,7 @@ module security_polcy {
   name                         = my-test-ca-policy
   description                  = "Test Cloud Armor security policy with preconfigured rules, security rules and custom rules"
   default_rule_action          = "deny(403)"
+  recaptcha_redirect_site_key  = google_recaptcha_enterprise_key.primary.name
   pre_configured_rules         = {}
   security_rules               = {}
   custom_rules                 = {}
@@ -27,8 +28,10 @@ module security_polcy {
 }
 ```
 
+Rule details and example are available [here](#Usage)
+
 ## Usage
-There are examples included in the [examples](https://github.com/terraform-google-modules/terraform-google-cloud-armor/tree/master/examples) folder but simple usage is as follows:
+There are examples included in the [examples](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/tree/main/examples) folder but simple usage is as follows:
 
 ```
 module "security_policy" {
@@ -38,6 +41,7 @@ module "security_policy" {
   project_id                           = var.project_id
   name                                 = "my-test-security-policy"
   description                          = "Test Security Policy"
+  recaptcha_redirect_site_key          = google_recaptcha_enterprise_key.primary.name
   default_rule_action                  = "allow"
   type                                 = "CLOUD_ARMOR"
   layer_7_ddos_defense_enable          = true
@@ -185,6 +189,28 @@ module "security_policy" {
       }
     }
 
+    allow_path_token_header = {
+      action      = "allow"
+      priority    = 25
+      description = "Allow path and token match with addition of header"
+
+      expression = <<-EOT
+        request.path.matches('/login.html') && token.recaptcha_session.score < 0.2
+      EOT
+
+      header_action = [
+        {
+          header_name  = "reCAPTCHA-Warning"
+          header_value = "high"
+        },
+        {
+          header_name  = "X-Resource"
+          header_value = "test"
+        }
+      ]
+
+    }
+
     deny_java_level3_with_exclude = {
       action      = "deny(502)"
       priority    = 100
@@ -206,16 +232,16 @@ module "security_policy" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| custom\_rules | Custome security rules | <pre>map(object({<br>    action          = string<br>    priority        = number<br>    description     = optional(string)<br>    preview         = optional(bool, false)<br>    expression      = string<br>    redirect_type   = optional(string, null)<br>    redirect_target = optional(string, null)<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>  }))</pre> | `{}` | no |
+| custom\_rules | Custome security rules | <pre>map(object({<br>    action          = string<br>    priority        = number<br>    description     = optional(string)<br>    preview         = optional(bool, false)<br>    expression      = string<br>    redirect_type   = optional(string, null)<br>    redirect_target = optional(string, null)<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br>  }))</pre> | `{}` | no |
 | default\_rule\_action | default rule that allows/denies all traffic with the lowest priority (2,147,483,647) | `string` | `"allow"` | no |
 | description | An optional description of this security policy. Max size is 2048. | `string` | `null` | no |
 | layer\_7\_ddos\_defense\_enable | (Optional) If set to true, enables CAAP for L7 DDoS detection | `bool` | `false` | no |
 | layer\_7\_ddos\_defense\_rule\_visibility | (Optional) Rule visibility can be one of the following: STANDARD - opaque rules. PREMIUM - transparent rules | `string` | `"STANDARD"` | no |
 | name | Name of the security policy. | `string` | n/a | yes |
-| pre\_configured\_rules | Map of pre-configured rules Sensitivity levels | <pre>map(object({<br>    action                  = string<br>    priority                = number<br>    description             = optional(string)<br>    preview                 = optional(bool, false)<br>    redirect_type           = optional(string, null)<br>    redirect_target         = optional(string, null)<br>    target_rule_set         = string<br>    sensitivity_level       = optional(number, 4)<br>    include_target_rule_ids = optional(list(string), [])<br>    exclude_target_rule_ids = optional(list(string), [])<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>  }))</pre> | `{}` | no |
+| pre\_configured\_rules | Map of pre-configured rules Sensitivity levels | <pre>map(object({<br>    action                  = string<br>    priority                = number<br>    description             = optional(string)<br>    preview                 = optional(bool, false)<br>    redirect_type           = optional(string, null)<br>    redirect_target         = optional(string, null)<br>    target_rule_set         = string<br>    sensitivity_level       = optional(number, 4)<br>    include_target_rule_ids = optional(list(string), [])<br>    exclude_target_rule_ids = optional(list(string), [])<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br>  }))</pre> | `{}` | no |
 | project\_id | The project in which the resource belongs | `string` | n/a | yes |
 | recaptcha\_redirect\_site\_key | reCAPTCHA site key to be used for all the rules using the redirect action with the redirect type of GOOGLE\_RECAPTCHA | `string` | `null` | no |
-| security\_rules | Map of Security rules with list of IP addresses to block or unblock | <pre>map(object({<br>    action          = string<br>    priority        = number<br>    description     = optional(string)<br>    preview         = optional(bool, false)<br>    redirect_type   = optional(string, null)<br>    redirect_target = optional(string, null)<br>    src_ip_ranges   = list(string)<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>  }))</pre> | `{}` | no |
+| security\_rules | Map of Security rules with list of IP addresses to block or unblock | <pre>map(object({<br>    action          = string<br>    priority        = number<br>    description     = optional(string)<br>    preview         = optional(bool, false)<br>    redirect_type   = optional(string, null)<br>    redirect_target = optional(string, null)<br>    src_ip_ranges   = list(string)<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br>  }))</pre> | `{}` | no |
 | threat\_intelligence\_rules | Map of Threat Intelligence Feed rules | `map(any)` | `{}` | no |
 | type | Type indicates the intended use of the security policy. Possible values are CLOUD\_ARMOR and CLOUD\_ARMOR\_EDGE | `string` | `"CLOUD_ARMOR"` | no |
 
@@ -229,8 +255,9 @@ module "security_policy" {
 
 
 
-###  Rules
-`pre_configured_rules`, `security_rules`, `custom_rules` and `threat_intelligence_rules` are maps of rules. Each rule is a map which provides details about the rule. For example:
+## Rules
+
+[Pre-Configured Rules](#pre_configured_rules), [Security Rules](#security_rules), [Custom Rules](#custom_rules) and [Threat Intelligence Rules](#threat_intelligence_rules) are maps of rules. Each rule is a map which provides details about the rule. Here is an example of `pre_configured_rules`:
 
 ```
   "my_rule" = {
@@ -239,17 +266,19 @@ module "security_policy" {
     description             = "SQL Sensitivity Level 4"
     preview                 = false
     redirect_type           = null
+    redirect_target         = null
     target_rule_set         = "sqli-v33-stable"
     sensitivity_level       = 4
     include_target_rule_ids = []
     exclude_target_rule_ids = []
     rate_limit_options      = {}
+    header_action           = []
   }
 ```
 
-`action, priority, description, preview, rate_limit_options` are common in all the rule types.
+`action, priority, description, preview, rate_limit_options, header_action, redirect_type and redirect_target` are common in all the rule types. Some of then are optional and some have default value see [Input](#Inputs).
 
-### Rate limit
+## Rate limit
 `rate_limit_options` is needed for the rules where action is set to `throttle` or `rate_based_ban`. `rate_limit_options` is a map of strings with following key pairs. You can find more details about rate limit [here](https://cloud.google.com/armor/docs/rate-limiting-overview)
 
 ```
@@ -264,10 +293,10 @@ rate_limit_options = {
 }
 ```
 
-##  pre_configured_rules
+## pre_configured_rules
 List of preconfigured rules are available [here](https://cloud.google.com/armor/docs/waf-rules). Following is the key value pairs for setting up pre configured rules. `include_target_rule_ids` and `exclude_target_rule_ids` are mutually exclusive. If `include_target_rule_ids` is provided, sensitivity_level is automatically set to 0 by the module as it is a [requirement for opt in rule signature](https://cloud.google.com/armor/docs/rule-tuning#opt_in_rule_signatures). `exclude_target_rule_ids` is ignored when `include_target_rule_ids` is provided.
 
-###  Format:
+### Format:
 
 ```
   "sqli_sensitivity_level_4" = {
@@ -276,16 +305,18 @@ List of preconfigured rules are available [here](https://cloud.google.com/armor/
     description             = "SQL Sensitivity Level 4"
     preview                 = false
     redirect_type           = null
+    redirect_target         = null
     target_rule_set         = "sqli-v33-stable"
     sensitivity_level       = 4
     include_target_rule_ids = []
     exclude_target_rule_ids = []
     rate_limit_options      = {}
+    header_action           = []
   }
 ```
 
 
-###  Sample:
+### Sample:
 
 ```
 pre_configured_rules = {
@@ -313,10 +344,10 @@ pre_configured_rules = {
 ```
 
 
-##  security_rules:
+## security_rules:
 Set of IP addresses or ranges (IPV4 or IPV6) in CIDR notation to match against inbound traffic. There is a limit of 10 IP ranges per rule.
 
-###  Format:
+### Format:
 Each rule is key value pair where key is a unique name of the rule and value is the action associated with it.
 
 ```
@@ -327,11 +358,13 @@ Each rule is key value pair where key is a unique name of the rule and value is 
   src_ip_ranges      = ["A..B.C.D", "W.X.Y.Z",]
   preview            = false
   redirect_type      = null
+  redirect_target    = null
   rate_limit_options = {}
+  header_action      = []
 }
 ```
 
-###  Sample:
+### Sample:
 
 ```
 security_rules = {
@@ -359,10 +392,10 @@ security_rules = {
 }
 ```
 
-##  custom_rules:
+## custom_rules:
 Add Custom Rules using [Common Expression Language (CEL)](https://cloud.google.com/armor/docs/rules-language-reference)
 
-###  Format:
+### Format:
 Each rule is key value pair where key is a unique name of the rule and value is the action associated with it.
 
 ```
@@ -375,11 +408,13 @@ allow_specific_regions = {
     '[US,AU,BE]'.contains(origin.region_code)
   EOT
   redirect_type      = null
+  redirect_target    = null
   rate_limit_options = {}
+  header_action      = []
 }
 ```
 
-###  Sample:
+### Sample:
 
 ```
 custom_rules = {
@@ -407,10 +442,10 @@ custom_rules = {
 }
 ```
 
-##  threat_intelligence_rules:
+## threat_intelligence_rules:
 Add Rules based on [threat intelligence](https://cloud.google.com/armor/docs/threat-intelligence). [Managed protection plus](https://cloud.google.com/armor/docs/managed-protection-overview) subscription is needed to use this feature.
 
-###  Format:
+### Format:
 Each rule is key value pair where key is a unique name of the rule and value is the action associated with it.
 
 ```
@@ -422,22 +457,24 @@ threat_intelligence_rules = {
     preview            = false
     feed               = "iplist-search-engines-crawlers"
     redirect_type      = null
+    redirect_target    = null
     rate_limit_options = {}
+    header_action      = []
   }
 }
 ```
 
-###  Sample:
+### Sample:
 
 ```
 threat_intelligence_rules = {
 
-  deny_crawlers_ip = {
+  deny_malicious_ips = {
     action             = "deny(502)"
     priority           = 31
-    description        = "Deny IP addresses of search engine crawlers"
+    description        = "Deny IP addresses known to attack web applications"
     preview            = true
-    feed               = "iplist-search-engines-crawlers"
+    feed               = "iplist-known-malicious-ips"
   }
 
 }
