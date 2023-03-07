@@ -76,6 +76,7 @@ resource "google_compute_security_policy" "policy" {
   }
 
   ##### Preconfigured Rules Sensitivity level
+
   dynamic "rule" {
     for_each = var.pre_configured_rules
     content {
@@ -87,6 +88,20 @@ resource "google_compute_security_policy" "policy" {
       match {
         expr {
           expression = local.pre_configured_rules_expr[rule.key].expression
+        }
+      }
+
+      # Header Action Block. Only if header_action is provided
+      dynamic "header_action" {
+        for_each = length(rule.value["header_action"]) == 0 ? [] : ["header_action"]
+        content {
+          dynamic "request_headers_to_adds" {
+            for_each = { for x in rule.value["header_action"] : x.header_name => x }
+            content {
+              header_name  = request_headers_to_adds.value.header_name
+              header_value = request_headers_to_adds.value.header_value
+            }
+          }
         }
       }
 
@@ -134,6 +149,7 @@ resource "google_compute_security_policy" "policy" {
 
 
   ##### Security Rules IP
+
   dynamic "rule" {
     for_each = var.security_rules
     content {
@@ -145,6 +161,20 @@ resource "google_compute_security_policy" "policy" {
         versioned_expr = "SRC_IPS_V1"
         config {
           src_ip_ranges = rule.value["src_ip_ranges"]
+        }
+      }
+
+      # Header Action Block. Only if header_action is provided
+      dynamic "header_action" {
+        for_each = length(rule.value["header_action"]) == 0 ? [] : ["header_action"]
+        content {
+          dynamic "request_headers_to_adds" {
+            for_each = { for x in rule.value["header_action"] : x.header_name => x }
+            content {
+              header_name  = request_headers_to_adds.value.header_name
+              header_value = request_headers_to_adds.value.header_value
+            }
+          }
         }
       }
 
@@ -206,6 +236,21 @@ resource "google_compute_security_policy" "policy" {
         }
       }
 
+      # Header Action Block. Only if header_action is provided
+      dynamic "header_action" {
+        for_each = length(rule.value["header_action"]) == 0 ? [] : ["header_action"]
+        content {
+          dynamic "request_headers_to_adds" {
+            for_each = { for x in rule.value["header_action"] : x.header_name => x }
+            content {
+              header_name  = request_headers_to_adds.value.header_name
+              header_value = request_headers_to_adds.value.header_value
+            }
+          }
+        }
+      }
+
+      # Redirect option block
       dynamic "redirect_options" {
         for_each = rule.value["action"] == "redirect" ? ["redirect"] : []
         content {
@@ -260,6 +305,20 @@ resource "google_compute_security_policy" "policy" {
       match {
         expr {
           expression = "evaluateThreatIntelligence('${rule.value["feed"]}')" #rule.value["expression"]
+        }
+      }
+
+      # Header Action Block. Only if header_action is provided
+      dynamic "header_action" {
+        for_each = length(rule.value["header_action"]) == 0 ? [] : ["header_action"]
+        content {
+          dynamic "request_headers_to_adds" {
+            for_each = { for x in rule.value["header_action"] : x.header_name => x }
+            content {
+              header_name  = request_headers_to_adds.value.header_name
+              header_value = request_headers_to_adds.value.header_value
+            }
+          }
         }
       }
 

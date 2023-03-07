@@ -65,6 +65,10 @@ variable "pre_configured_rules" {
       ban_http_request_interval_sec        = optional(number)
       }),
     {})
+    header_action = optional(list(object({
+      header_name  = optional(string)
+      header_value = optional(string)
+    })), [])
   }))
   default = {}
 }
@@ -89,6 +93,10 @@ variable "security_rules" {
       ban_http_request_interval_sec        = optional(number)
       }),
     {})
+    header_action = optional(list(object({
+      header_name  = optional(string)
+      header_value = optional(string)
+    })), [])
   }))
   default = {}
 }
@@ -113,6 +121,10 @@ variable "custom_rules" {
       ban_http_request_interval_sec        = optional(number)
       }),
     {})
+    header_action = optional(list(object({
+      header_name  = optional(string)
+      header_value = optional(string)
+    })), [])
   }))
   default = {}
 }
