@@ -8,6 +8,14 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [0.2.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v0.1.1...v0.2.0) (2023-03-07)
+
+
+### Features
+
+* add header_action block in rules ([#16](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/16)) ([9c2c3ec](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/9c2c3ec7d14c0954a9ff818cefc7f09b5899b317))
+* Added recaptcha_redirect_site_key and fixed missing redirect_target parameter ([#13](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/13)) ([6ef7a65](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/6ef7a65072e3efc9eb33f76cafdd27970e3a3739))
+
 ## [0.1.1](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v0.1.0...v0.1.1) (2023-02-21)
 
 
