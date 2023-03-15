@@ -152,3 +152,21 @@ variable "layer_7_ddos_defense_rule_visibility" {
   type        = string
   default     = "STANDARD"
 }
+
+variable "json_parsing" {
+  description = "Whether or not to JSON parse the payload body. Possible values are DISABLED and STANDARD. Defaults to DISABLED"
+  type        = string
+  default     = "DISABLED"
+}
+
+variable "log_level" {
+  description = "Log level to use. Possible values are NORMAL and VERBOSE. Defaults to NORMAL"
+  type        = string
+  default     = "NORMAL"
+}
+
+variable "json_custom_config_content_types" {
+  description = "A list of custom Content-Type header values to apply the JSON parsing. Only applicable when json_parsing is set to STANDARD"
+  type        = list(string)
+  default     = []
+}

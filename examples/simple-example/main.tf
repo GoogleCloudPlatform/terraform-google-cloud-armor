@@ -45,6 +45,8 @@ module "cloud_armor" {
   layer_7_ddos_defense_enable          = true
   layer_7_ddos_defense_rule_visibility = "STANDARD"
   recaptcha_redirect_site_key          = google_recaptcha_enterprise_key.primary.name
+  json_parsing                         = "STANDARD"
+  log_level                            = "VERBOSE"
 
   pre_configured_rules = {
 
