@@ -75,6 +75,17 @@ resource "google_compute_security_policy" "policy" {
     }
   }
 
+  advanced_options_config {
+    json_parsing = var.json_parsing
+    log_level    = var.log_level
+    dynamic "json_custom_config" {
+      for_each = var.json_parsing == "STANDARD" && length(var.json_custom_config_content_types) > 0 ? ["json_custom_config"] : []
+      content {
+        content_types = var.json_custom_config_content_types
+      }
+    }
+  }
+
   ##### Preconfigured Rules Sensitivity level
 
   dynamic "rule" {
