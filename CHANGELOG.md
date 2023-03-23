@@ -8,6 +8,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [0.3.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v0.2.0...v0.3.0) (2023-03-16)
+
+
+### Features
+
+* added advanced_options_config ([#26](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/26)) ([af1d34e](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/af1d34e7405a05fef01783956c982432d5aed26a))
+
 ## [0.2.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v0.1.1...v0.2.0) (2023-03-07)
 
 
