@@ -63,13 +63,36 @@ variable "pre_configured_rules" {
       ban_duration_sec                     = optional(number)
       ban_http_request_count               = optional(number)
       ban_http_request_interval_sec        = optional(number)
-      }),
-    {})
+    }), {})
+
     header_action = optional(list(object({
       header_name  = optional(string)
       header_value = optional(string)
     })), [])
+
+    preconfigured_waf_config_exclusion = optional(object({
+      target_rule_set = string
+      target_rule_ids = optional(list(string), [])
+      request_header = optional(list(object({
+        operator = string
+        value    = optional(string, "test")
+      })))
+      request_cookie = optional(list(object({
+        operator = string
+        value    = optional(string, "test")
+      })))
+      request_uri = optional(list(object({
+        operator = string
+        value    = optional(string, "test")
+      })))
+      request_query_param = optional(list(object({
+        operator = string
+        value    = optional(string, "test")
+      })))
+    }), { target_rule_set = null })
+
   }))
+
   default = {}
 }
 

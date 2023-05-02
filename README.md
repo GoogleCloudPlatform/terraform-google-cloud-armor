@@ -10,6 +10,12 @@ This module makes it easy to setup [Cloud Armor Security Policy](https://cloud.g
 
 This module is meant for use with Terraform 1.3+ and tested using Terraform 1.3+. If you find incompatibilities using Terraform >=1.3, please open an issue.
 
+## Version
+
+Current version is 1.0. Upgrade guides:
+
+- [0.X -> 1.0.](/docs/upgrading_to_v1.0.md)
+
 ##  Module Format
 
 ```
@@ -241,7 +247,7 @@ module "security_policy" {
 | layer\_7\_ddos\_defense\_rule\_visibility | (Optional) Rule visibility can be one of the following: STANDARD - opaque rules. PREMIUM - transparent rules | `string` | `"STANDARD"` | no |
 | log\_level | Log level to use. Possible values are NORMAL and VERBOSE. Defaults to NORMAL | `string` | `"NORMAL"` | no |
 | name | Name of the security policy. | `string` | n/a | yes |
-| pre\_configured\_rules | Map of pre-configured rules Sensitivity levels | <pre>map(object({<br>    action                  = string<br>    priority                = number<br>    description             = optional(string)<br>    preview                 = optional(bool, false)<br>    redirect_type           = optional(string, null)<br>    redirect_target         = optional(string, null)<br>    target_rule_set         = string<br>    sensitivity_level       = optional(number, 4)<br>    include_target_rule_ids = optional(list(string), [])<br>    exclude_target_rule_ids = optional(list(string), [])<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br>  }))</pre> | `{}` | no |
+| pre\_configured\_rules | Map of pre-configured rules Sensitivity levels | <pre>map(object({<br>    action                  = string<br>    priority                = number<br>    description             = optional(string)<br>    preview                 = optional(bool, false)<br>    redirect_type           = optional(string, null)<br>    redirect_target         = optional(string, null)<br>    target_rule_set         = string<br>    sensitivity_level       = optional(number, 4)<br>    include_target_rule_ids = optional(list(string), [])<br>    exclude_target_rule_ids = optional(list(string), [])<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>    }), {})<br><br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br><br>    preconfigured_waf_config_exclusion = optional(object({<br>      target_rule_set = string<br>      target_rule_ids = optional(list(string), [])<br>      request_header = optional(list(object({<br>        operator = string<br>        value    = optional(string, "test")<br>      })))<br>      request_cookie = optional(list(object({<br>        operator = string<br>        value    = optional(string, "test")<br>      })))<br>      request_uri = optional(list(object({<br>        operator = string<br>        value    = optional(string, "test")<br>      })))<br>      request_query_param = optional(list(object({<br>        operator = string<br>        value    = optional(string, "test")<br>      })))<br>    }), { target_rule_set = null })<br><br>  }))</pre> | `{}` | no |
 | project\_id | The project in which the resource belongs | `string` | n/a | yes |
 | recaptcha\_redirect\_site\_key | reCAPTCHA site key to be used for all the rules using the redirect action with the redirect type of GOOGLE\_RECAPTCHA | `string` | `null` | no |
 | security\_rules | Map of Security rules with list of IP addresses to block or unblock | <pre>map(object({<br>    action          = string<br>    priority        = number<br>    description     = optional(string)<br>    preview         = optional(bool, false)<br>    redirect_type   = optional(string, null)<br>    redirect_target = optional(string, null)<br>    src_ip_ranges   = list(string)<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br>  }))</pre> | `{}` | no |
@@ -264,18 +270,19 @@ module "security_policy" {
 
 ```
   "my_rule" = {
-    action                  = "deny(502)"
-    priority                = 1
-    description             = "SQL Sensitivity Level 4"
-    preview                 = false
-    redirect_type           = null
-    redirect_target         = null
-    target_rule_set         = "sqli-v33-stable"
-    sensitivity_level       = 4
-    include_target_rule_ids = []
-    exclude_target_rule_ids = []
-    rate_limit_options      = {}
-    header_action           = []
+    action                             = "deny(502)"
+    priority                           = 1
+    description                        = "SQL Sensitivity Level 4"
+    preview                            = false
+    redirect_type                      = null
+    redirect_target                    = null
+    target_rule_set                    = "sqli-v33-stable"
+    sensitivity_level                  = 4
+    include_target_rule_ids            = []
+    exclude_target_rule_ids            = []
+    rate_limit_options                 = {}
+    header_action                      = []
+    preconfigured_waf_config_exclusion = {}
   }
 ```
 
@@ -303,18 +310,19 @@ List of preconfigured rules are available [here](https://cloud.google.com/armor/
 
 ```
   "sqli_sensitivity_level_4" = {
-    action                  = "deny(502)"
-    priority                = 1
-    description             = "SQL Sensitivity Level 4"
-    preview                 = false
-    redirect_type           = null
-    redirect_target         = null
-    target_rule_set         = "sqli-v33-stable"
-    sensitivity_level       = 4
-    include_target_rule_ids = []
-    exclude_target_rule_ids = []
-    rate_limit_options      = {}
-    header_action           = []
+    action                             = "deny(502)"
+    priority                           = 1
+    description                        = "SQL Sensitivity Level 4"
+    preview                            = false
+    redirect_type                      = null
+    redirect_target                    = null
+    target_rule_set                    = "sqli-v33-stable"
+    sensitivity_level                  = 4
+    include_target_rule_ids            = []
+    exclude_target_rule_ids            = []
+    rate_limit_options                 = {}
+    header_action                      = []
+    preconfigured_waf_config_exclusion = {}
   }
 ```
 
@@ -333,14 +341,30 @@ pre_configured_rules = {
     include_target_rule_ids = ["owasp-crs-v030301-id933190-php", "owasp-crs-v030301-id933111-php"]
   }
 
-  "rfi_sensitivity_level_4" = {
-    action                  = "redirect"
-    priority                = 4
-    description             = "Remote file inclusion 4"
-    preview                 = true
-    redirect_type           = "GOOGLE_RECAPTCHA"
-    target_rule_set         = "rfi-v33-stable"
-    sensitivity_level       = 4
+  "sqli_sensitivity_level_4" = {
+    action            = "deny(502)"
+    priority          = 1
+    target_rule_set   = "sqli-v33-stable"
+    sensitivity_level = 4
+
+    preconfigured_waf_config_exclusion = {
+      target_rule_set = "sqli-v33-stable"
+      request_cookie = [
+        {
+          operator = "EQUALS_ANY"
+        },
+        {
+          operator = "STARTS_WITH"
+          value    = "abc"
+        }
+      ]
+      request_header = [
+        {
+          operator = "STARTS_WITH"
+          value    = "xyz"
+        }
+      ]
+    }
   }
 
 }
