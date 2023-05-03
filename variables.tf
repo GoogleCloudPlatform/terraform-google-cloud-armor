@@ -87,7 +87,7 @@ variable "pre_configured_rules" {
       })))
       request_query_param = optional(list(object({
         operator = string
-        value    = optional(string, "test")
+        value    = optional(string)
       })))
     }), { target_rule_set = null })
 

@@ -160,31 +160,31 @@ resource "google_compute_security_policy" "policy" {
         for_each = rule.value.preconfigured_waf_config_exclusion.target_rule_set == null ? [] : ["preconfigured_waf_config_exclusion"]
         content {
           exclusion {
-            target_rule_set = rule.value.preconfigured_waf_config_exclusion.target_rule_set #rule.value["target_rule_set"]            #
+            target_rule_set = rule.value.preconfigured_waf_config_exclusion.target_rule_set
             target_rule_ids = rule.value.preconfigured_waf_config_exclusion.target_rule_ids
             dynamic "request_header" {
-              for_each = rule.value.preconfigured_waf_config_exclusion.request_header == null ? {} : { for x in rule.value.preconfigured_waf_config_exclusion.request_header : "${x.operator}-${x.value}" => x }
+              for_each = rule.value.preconfigured_waf_config_exclusion.request_header == null ? {} : { for x in rule.value.preconfigured_waf_config_exclusion.request_header : x.operator => x }
               content {
                 operator = request_header.value.operator
                 value    = request_header.value.operator == "EQUALS_ANY" ? null : request_header.value.value
               }
             }
             dynamic "request_cookie" {
-              for_each = rule.value.preconfigured_waf_config_exclusion.request_cookie == null ? {} : { for x in rule.value.preconfigured_waf_config_exclusion.request_cookie : "${x.operator}-${x.value}" => x }
+              for_each = rule.value.preconfigured_waf_config_exclusion.request_cookie == null ? {} : { for x in rule.value.preconfigured_waf_config_exclusion.request_cookie : x.operator => x }
               content {
                 operator = request_cookie.value.operator
                 value    = request_cookie.value.operator == "EQUALS_ANY" ? null : request_cookie.value.value
               }
             }
             dynamic "request_uri" {
-              for_each = rule.value.preconfigured_waf_config_exclusion.request_uri == null ? {} : { for x in rule.value.preconfigured_waf_config_exclusion.request_uri : "${x.operator}-${x.value}" => x }
+              for_each = rule.value.preconfigured_waf_config_exclusion.request_uri == null ? {} : { for x in rule.value.preconfigured_waf_config_exclusion.request_uri : x.operator => x }
               content {
                 operator = request_uri.value.operator
                 value    = request_uri.value.operator == "EQUALS_ANY" ? null : request_uri.value.value
               }
             }
             dynamic "request_query_param" {
-              for_each = rule.value.preconfigured_waf_config_exclusion.request_query_param == null ? {} : { for x in rule.value.preconfigured_waf_config_exclusion.request_query_param : "${x.operator}-${x.value}" => x }
+              for_each = rule.value.preconfigured_waf_config_exclusion.request_query_param == null ? {} : { for x in rule.value.preconfigured_waf_config_exclusion.request_query_param : x.operator => x }
               content {
                 operator = request_query_param.value.operator
                 value    = request_query_param.value.operator == "EQUALS_ANY" ? null : request_query_param.value.value
