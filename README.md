@@ -69,6 +69,30 @@ module "security_policy" {
       target_rule_set         = "xss-v33-stable"
       sensitivity_level       = 2
       exclude_target_rule_ids = ["owasp-crs-v030301-id941380-xss", "owasp-crs-v030301-id941280-xss"]
+      preconfigured_waf_config_exclusion = {
+        target_rule_set = "xss-v33-stable"
+        target_rule_ids = ["owasp-crs-v030301-id941140-xss", "owasp-crs-v030301-id941270-xss"]
+        request_header = [
+          {
+            operator = "STARTS_WITH"
+            value    = "abc"
+          },
+          {
+            operator = "ENDS_WITH"
+            value    = "xyz"
+          }
+        ]
+        request_uri = [
+          {
+            operator = "CONTAINS"
+            value    = "https://hashicorp.com"
+          },
+          {
+            operator = "CONTAINS"
+            value    = "https://xyz.com"
+          },
+        ]
+      }
     }
 
     "php-stable_level_0_with_include" = {
@@ -280,8 +304,8 @@ module "security_policy" {
     sensitivity_level                  = 4
     include_target_rule_ids            = []
     exclude_target_rule_ids            = []
-    rate_limit_options                 = {}
     header_action                      = []
+    rate_limit_options                 = {}
     preconfigured_waf_config_exclusion = {}
   }
 ```
@@ -300,6 +324,36 @@ rate_limit_options = {
   ban_http_request_count               = 1000  # needed only if action is rate_based_ban
   ban_http_request_interval_sec        = 300   # must be one of 60, 120, 180, 240, 300, 600, 900, 1200, 1800, 2700, 3600 seconds. needed only if action is rate_based_ban
   enforce_on_key                       = "ALL" # All is default value. If null is passed terraform will use ALL as the value
+}
+```
+
+## Preconfigured WAF Config
+`preconfigured_waf_config_exclusion` is needed for custom application that might contain content in request fields (like headers, cookies, query parameters, or URIs) that matches signatures in preconfigured WAF rules, but which you know is legitimate. In this case, you can reduce false positives by excluding those request fields from inspection by associating a list of exclusions for request fields with the security policy rule. You can pass `request_header`, `request_uri`, `request_cookie` and `request_query_param`. It is available in [Pre-Configured Rules](#pre_configured_rules). You can find more details about `preconfigured_waf_config` [here](https://cloud.google.com/armor/docs/rule-tuning#exclude_request_fields_from_inspection)
+
+```
+preconfigured_waf_config_exclusion = {
+  target_rule_set = "xss-v33-stable"
+  target_rule_ids = ["owasp-crs-v030301-id941140-xss", "owasp-crs-v030301-id941270-xss"]
+  request_header = [
+    {
+      operator = "STARTS_WITH"
+      value    = "abc"
+    },
+    {
+      operator = "ENDS_WITH"
+      value    = "xyz"
+    }
+  ]
+  request_uri = [
+    {
+      operator = "CONTAINS"
+      value    = "https://hashicorp.com"
+    },
+    {
+      operator = "CONTAINS"
+      value    = "https://xyz.com"
+    },
+  ]
 }
 ```
 
