@@ -71,6 +71,10 @@ module "cloud_armor" {
           {
             operator = "STARTS_WITH"
             value    = "xyz"
+          },
+          {
+            operator = "STARTS_WITH"
+            value    = "uvw"
           }
         ]
       }
@@ -98,6 +102,16 @@ module "cloud_armor" {
             operator = "ENDS_WITH"
             value    = "xyz"
           }
+        ]
+        request_uri = [
+          {
+            operator = "CONTAINS"
+            value    = "https://hashicorp.com"
+          },
+          {
+            operator = "CONTAINS"
+            value    = "https://xyz.com"
+          },
         ]
       }
 

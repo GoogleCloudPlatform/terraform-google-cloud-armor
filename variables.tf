@@ -75,15 +75,15 @@ variable "pre_configured_rules" {
       target_rule_ids = optional(list(string), [])
       request_header = optional(list(object({
         operator = string
-        value    = optional(string, "test")
+        value    = optional(string)
       })))
       request_cookie = optional(list(object({
         operator = string
-        value    = optional(string, "test")
+        value    = optional(string)
       })))
       request_uri = optional(list(object({
         operator = string
-        value    = optional(string, "test")
+        value    = optional(string)
       })))
       request_query_param = optional(list(object({
         operator = string
