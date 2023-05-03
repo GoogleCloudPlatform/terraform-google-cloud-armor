@@ -48,6 +48,15 @@ func TestSimpleExample(t *testing.T) {
 			assert.Equal("evaluatePreconfiguredWaf('sqli-v33-stable', {'sensitivity': 4})", sp.Get("match.expr.expression").String(), "priority 1 rule has expected rule expression")
 			assert.Empty(sp.Get("description").String(), "priority 2 rule has expected description")
 			assert.False(sp.Get("preview").Bool(), "priority 1 rule Preview is set to False")
+			for _, pce := range sp.Get("preconfiguredWafConfig.exclusions").Array() {
+				assert.Equal("EQUALS_ANY", pce.Get("requestCookiesToExclude").Array()[0].Get("op").String(), "priority 1 rule has expected requestCookiesToExclude")
+				assert.Equal("STARTS_WITH", pce.Get("requestCookiesToExclude").Array()[1].Get("op").String(), "priority 1 rule has expected requestCookiesToExclude")
+				assert.Equal("abc", pce.Get("requestCookiesToExclude").Array()[1].Get("val").String(), "priority 1 rule has expected requestCookiesToExclude")
+
+				assert.Equal("STARTS_WITH", pce.Get("requestHeadersToExclude").Array()[0].Get("op").String(), "priority 1 rule has expected requestHeadersToExclude")
+				assert.Equal("STARTS_WITH", pce.Get("requestHeadersToExclude").Array()[1].Get("op").String(), "priority 1 rule has expected requestHeadersToExclude")
+				assert.Equal("xyz", pce.Get("requestHeadersToExclude").Array()[1].Get("val").String(), "priority 1 rule has expected requestHeadersToExclude")
+			}
 		}
 
 		// 	Rule 2
@@ -57,7 +66,20 @@ func TestSimpleExample(t *testing.T) {
 			assert.Equal("evaluatePreconfiguredWaf('xss-v33-stable', {'sensitivity': 2, 'opt_out_rule_ids': ['owasp-crs-v030301-id941380-xss','owasp-crs-v030301-id941280-xss']})", sp.Get("match.expr.expression").String(), "priority 2 rule has expected rule expression")
 			assert.Equal("XSS Sensitivity Level 2 with excluded rules", sp.Get("description").String(), "priority 2 rule has expected description")
 			assert.True(sp.Get("preview").Bool(), "priority 2 rule Preview is set to True")
+
+			for _, pce := range sp.Get("preconfiguredWafConfig.exclusions").Array() {
+				assert.Equal("ENDS_WITH", pce.Get("requestHeadersToExclude").Array()[0].Get("op").String(), "priority 2 rule has expected requestHeadersToExclude")
+				assert.Equal("STARTS_WITH", pce.Get("requestHeadersToExclude").Array()[1].Get("op").String(), "priority 2 rule has expected requestHeadersToExclude")
+				assert.Equal("xyz", pce.Get("requestHeadersToExclude").Array()[0].Get("val").String(), "priority 2 rule has expected requestHeadersToExclude")
+				assert.Equal("abc", pce.Get("requestHeadersToExclude").Array()[1].Get("val").String(), "priority 2 rule has expected requestHeadersToExclude")
+
+				assert.Equal("CONTAINS", pce.Get("requestUrisToExclude").Array()[0].Get("op").String(), "priority 2 rule has expected requestUrisToExclude")
+				assert.Equal("CONTAINS", pce.Get("requestUrisToExclude").Array()[1].Get("op").String(), "priority 2 rule has expected requestUrisToExclude")
+				assert.Equal("https://xyz.com", pce.Get("requestUrisToExclude").Array()[0].Get("val").String(), "priority 2 rule has expected requestUrisToExclude")
+				assert.Equal("https://hashicorp.com", pce.Get("requestUrisToExclude").Array()[1].Get("val").String(), "priority 2 rule has expected requestUrisToExclude")
+			}
 		}
+
 		sp_rule3 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 3 --security-policy=%s --project %s", policyName, projectId))
 		for _, sp := range sp_rule3.Array() {
 			assert.Equal("deny(502)", sp.Get("action").String(), "priority 3 rule has expected action")
