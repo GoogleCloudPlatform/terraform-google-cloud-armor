@@ -157,7 +157,8 @@ module "cloud_armor" {
         rate_limit_http_request_count        = 10
         rate_limit_http_request_interval_sec = 60
         ban_duration_sec                     = 120
-        enforce_on_key                       = "ALL"
+        enforce_on_key                       = "HTTP_HEADER"
+        enforce_on_key_name                  = "X-API-KEY"
       }
 
     }

@@ -57,6 +57,7 @@ variable "pre_configured_rules" {
     exclude_target_rule_ids = optional(list(string), [])
     rate_limit_options = optional(object({
       enforce_on_key                       = optional(string)
+      enforce_on_key_name                  = optional(string)
       exceed_action                        = optional(string)
       rate_limit_http_request_count        = optional(number)
       rate_limit_http_request_interval_sec = optional(number)
@@ -108,6 +109,7 @@ variable "security_rules" {
     src_ip_ranges   = list(string)
     rate_limit_options = optional(object({
       enforce_on_key                       = optional(string)
+      enforce_on_key_name                  = optional(string)
       exceed_action                        = optional(string)
       rate_limit_http_request_count        = optional(number)
       rate_limit_http_request_interval_sec = optional(number)
@@ -136,6 +138,7 @@ variable "custom_rules" {
     redirect_target = optional(string, null)
     rate_limit_options = optional(object({
       enforce_on_key                       = optional(string)
+      enforce_on_key_name                  = optional(string)
       exceed_action                        = optional(string)
       rate_limit_http_request_count        = optional(number)
       rate_limit_http_request_interval_sec = optional(number)
