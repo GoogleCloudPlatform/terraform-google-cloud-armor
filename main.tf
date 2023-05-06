@@ -75,13 +75,17 @@ resource "google_compute_security_policy" "policy" {
     }
   }
 
-  advanced_options_config {
-    json_parsing = var.json_parsing
-    log_level    = var.log_level
-    dynamic "json_custom_config" {
-      for_each = var.json_parsing == "STANDARD" && length(var.json_custom_config_content_types) > 0 ? ["json_custom_config"] : []
-      content {
-        content_types = var.json_custom_config_content_types
+  # Advanced options for Cloud Armor are currently only supported for security policies with CLOUD_ARMOR type
+  dynamic "advanced_options_config" {
+    for_each = var.type == "CLOUD_ARMOR" ? ["CLOUD_ARMOR"] : []
+    content {
+      json_parsing = var.json_parsing
+      log_level    = var.log_level
+      dynamic "json_custom_config" {
+        for_each = var.json_parsing == "STANDARD" && length(var.json_custom_config_content_types) > 0 ? ["json_custom_config"] : []
+        content {
+          content_types = var.json_custom_config_content_types
+        }
       }
     }
   }
@@ -417,8 +421,9 @@ resource "google_compute_security_policy" "policy" {
     }
   }
 
+  # Cloud Armor Adaptive Protection is currently not supported for edge or network policies
   dynamic "adaptive_protection_config" {
-    for_each = var.layer_7_ddos_defense_enable == true ? ["adaptive_protection_config"] : []
+    for_each = var.layer_7_ddos_defense_enable && var.type != "CLOUD_ARMOR_EDGE" ? ["adaptive_protection_config"] : []
     content {
       layer_7_ddos_defense_config {
         enable          = var.layer_7_ddos_defense_enable

@@ -23,7 +23,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSecurityPolicy(t *testing.T) {
+func TestSecurityPolicyAll(t *testing.T) {
 	casp := tft.NewTFBlueprintTest(t)
 
 	casp.DefineVerify(func(assert *assert.Assertions) {
@@ -43,7 +43,7 @@ func TestSecurityPolicy(t *testing.T) {
 		for _, sp := range sp_rule1.Array() {
 			assert.Equal("deny(502)", sp.Get("action").String(), "priority 1 rule has expected action")
 			assert.Equal("evaluatePreconfiguredWaf('sqli-v33-stable', {'sensitivity': 4})", sp.Get("match.expr.expression").String(), "priority 1 rule has expected rule expression")
-			assert.Empty(sp.Get("description").String(), "priority 2 rule has expected description")
+			assert.Empty(sp.Get("description").String(), "priority 1 rule has expected description")
 			assert.False(sp.Get("preview").Bool(), "priority 1 rule Preview is set to False")
 		}
 
