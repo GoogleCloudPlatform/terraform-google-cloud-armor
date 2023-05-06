@@ -60,6 +60,22 @@ steps:
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
   args: ['/bin/bash', '-c', 'cft test run TestSimpleExample --stage teardown --verbose']
 
+- id: security-policy-edge-apply
+  waitFor:
+    - init-all
+  name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
+  args: ['/bin/bash', '-c', 'cft test run TestSecurityPolicyEdge --stage apply --verbose']
+- id: security-policy-edge-verify
+  waitFor:
+    - security-policy-edge-apply
+  name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
+  args: ['/bin/bash', '-c', 'cft test run TestSecurityPolicyEdge --stage verify --verbose']
+- id: security-policy-edge-teardown
+  waitFor:
+    - security-policy-edge-verify
+  name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
+  args: ['/bin/bash', '-c', 'cft test run TestSecurityPolicyEdge --stage teardown --verbose']
+
 tags:
 - 'ci'
 - 'integration'

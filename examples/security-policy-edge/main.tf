@@ -20,13 +20,11 @@ resource "random_id" "suffix" {
 module "cloud_armor" {
   source = "../../"
 
-  project_id                           = var.project_id
-  name                                 = "test-casp-edge-policy-${random_id.suffix.hex}"
-  description                          = "Test Cloud Armor Edge security policy"
-  default_rule_action                  = "deny(403)"
-  type                                 = "CLOUD_ARMOR_EDGE"
-  layer_7_ddos_defense_enable          = true
-  layer_7_ddos_defense_rule_visibility = "STANDARD"
+  project_id          = var.project_id
+  name                = "test-casp-edge-policy-${random_id.suffix.hex}"
+  description         = "Test Cloud Armor Edge security policy"
+  default_rule_action = "deny(403)"
+  type                = "CLOUD_ARMOR_EDGE"
 
   custom_rules = {
     allow_specific_regions = {
