@@ -46,7 +46,7 @@ steps:
 
 - id: simple-example-apply
   waitFor:
-    - init-all
+    - security-policy-all-teardown
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
   args: ['/bin/bash', '-c', 'cft test run TestSimpleExample --stage apply --verbose']
 - id: simple-example-verify
@@ -62,7 +62,7 @@ steps:
 
 - id: security-policy-edge-apply
   waitFor:
-    - init-all
+    - simple-example-teardown
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
   args: ['/bin/bash', '-c', 'cft test run TestSecurityPolicyEdge --stage apply --verbose']
 - id: security-policy-edge-verify
