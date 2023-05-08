@@ -32,21 +32,21 @@ steps:
   waitFor:
     - init-all
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
-  args: ['/bin/bash', '-c', 'cft test run TestSecurityPolicy --stage apply --verbose']
+  args: ['/bin/bash', '-c', 'cft test run TestSecurityPolicyAll --stage apply --verbose']
 - id: security-policy-all-verify
   waitFor:
     - security-policy-all-apply
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
-  args: ['/bin/bash', '-c', 'cft test run TestSecurityPolicy --stage verify --verbose']
+  args: ['/bin/bash', '-c', 'cft test run TestSecurityPolicyAll --stage verify --verbose']
 - id: security-policy-all-teardown
   waitFor:
     - security-policy-all-verify
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
-  args: ['/bin/bash', '-c', 'cft test run TestSecurityPolicy --stage teardown --verbose']
+  args: ['/bin/bash', '-c', 'cft test run TestSecurityPolicyAll --stage teardown --verbose']
 
 - id: simple-example-apply
   waitFor:
-    - init-all
+    - security-policy-all-teardown
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
   args: ['/bin/bash', '-c', 'cft test run TestSimpleExample --stage apply --verbose']
 - id: simple-example-verify
@@ -59,6 +59,22 @@ steps:
     - simple-example-verify
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
   args: ['/bin/bash', '-c', 'cft test run TestSimpleExample --stage teardown --verbose']
+
+- id: security-policy-edge-apply
+  waitFor:
+    - simple-example-teardown
+  name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
+  args: ['/bin/bash', '-c', 'cft test run TestSecurityPolicyEdge --stage apply --verbose']
+- id: security-policy-edge-verify
+  waitFor:
+    - security-policy-edge-apply
+  name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
+  args: ['/bin/bash', '-c', 'cft test run TestSecurityPolicyEdge --stage verify --verbose']
+- id: security-policy-edge-teardown
+  waitFor:
+    - security-policy-edge-verify
+  name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
+  args: ['/bin/bash', '-c', 'cft test run TestSecurityPolicyEdge --stage teardown --verbose']
 
 tags:
 - 'ci'

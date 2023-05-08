@@ -168,7 +168,7 @@ variable "type" {
 }
 
 variable "layer_7_ddos_defense_enable" {
-  description = "(Optional) If set to true, enables CAAP for L7 DDoS detection"
+  description = "(Optional) If set to true, enables Cloud Armor Adaptive Protection for L7 DDoS detection. Cloud Armor Adaptive Protection is currently not supported for CLOUD_ARMOR_EDGE policy type"
   type        = bool
   default     = false
 }
@@ -180,19 +180,19 @@ variable "layer_7_ddos_defense_rule_visibility" {
 }
 
 variable "json_parsing" {
-  description = "Whether or not to JSON parse the payload body. Possible values are DISABLED and STANDARD. Defaults to DISABLED"
+  description = "Whether or not to JSON parse the payload body. Possible values are DISABLED and STANDARD. Not supported for CLOUD_ARMOR_EDGE policy type"
   type        = string
   default     = "DISABLED"
 }
 
 variable "log_level" {
-  description = "Log level to use. Possible values are NORMAL and VERBOSE. Defaults to NORMAL"
+  description = "Log level to use. Possible values are NORMAL and VERBOSE. Not supported for CLOUD_ARMOR_EDGE policy type"
   type        = string
   default     = "NORMAL"
 }
 
 variable "json_custom_config_content_types" {
-  description = "A list of custom Content-Type header values to apply the JSON parsing. Only applicable when json_parsing is set to STANDARD"
+  description = "A list of custom Content-Type header values to apply the JSON parsing. Only applicable when json_parsing is set to STANDARD. Not supported for CLOUD_ARMOR_EDGE policy type"
   type        = list(string)
   default     = []
 }
