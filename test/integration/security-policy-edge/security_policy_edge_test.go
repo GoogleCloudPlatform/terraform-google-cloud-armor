@@ -32,8 +32,8 @@ func TestSecurityPolicyEdge(t *testing.T) {
 		projectId := casp.GetStringOutput("project_id")
 		policyName := casp.GetStringOutput("policy_name")
 
-		sp_name := gcloud.Run(t, fmt.Sprintf("compute security-policies describe %s --project %s", policyName, projectId))
-		for _, sp := range sp_name.Array() {
+		spName := gcloud.Run(t, fmt.Sprintf("compute security-policies describe %s --project %s", policyName, projectId))
+		for _, sp := range spName.Array() {
 			pname := sp.Get("name").String()
 			assert.Equal(policyName, pname, "has expected name")
 			assert.Equal("Test Cloud Armor Edge security policy", sp.Get("description").String(), "has expected description")
@@ -41,8 +41,8 @@ func TestSecurityPolicyEdge(t *testing.T) {
 		}
 
 		// 	Rule 1
-		sp_rule1 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 1 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range sp_rule1.Array() {
+		spRule1 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 1 --security-policy=%s --project %s", policyName, projectId))
+		for _, sp := range spRule1.Array() {
 			assert.Equal("allow", sp.Get("action").String(), "priority 1 rule has expected action")
 			assert.Equal("origin.region_code == \"US\"\n", sp.Get("match.expr.expression").String(), "priority 1 rule has expected expression")
 			assert.Equal("Allow specific Regions", sp.Get("description").String(), "priority 1 rule has expected description")

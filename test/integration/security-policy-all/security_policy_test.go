@@ -32,15 +32,15 @@ func TestSecurityPolicyAll(t *testing.T) {
 		projectId := casp.GetStringOutput("project_id")
 		policyName := casp.GetStringOutput("policy_name")
 
-		sp_name := gcloud.Run(t, fmt.Sprintf("compute security-policies describe %s --project %s", policyName, projectId))
-		for _, sp := range sp_name.Array() {
+		spName := gcloud.Run(t, fmt.Sprintf("compute security-policies describe %s --project %s", policyName, projectId))
+		for _, sp := range spName.Array() {
 			pname := sp.Get("name").String()
 			assert.Equal(policyName, pname, "has expected name")
 		}
 
 		// 	Rule 1
-		sp_rule1 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 1 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range sp_rule1.Array() {
+		spRule1 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 1 --security-policy=%s --project %s", policyName, projectId))
+		for _, sp := range spRule1.Array() {
 			assert.Equal("deny(502)", sp.Get("action").String(), "priority 1 rule has expected action")
 			assert.Equal("evaluatePreconfiguredWaf('sqli-v33-stable', {'sensitivity': 4})", sp.Get("match.expr.expression").String(), "priority 1 rule has expected rule expression")
 			assert.Empty(sp.Get("description").String(), "priority 1 rule has expected description")
@@ -48,8 +48,8 @@ func TestSecurityPolicyAll(t *testing.T) {
 		}
 
 		// 	Rule 2
-		sp_rule2 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 2 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range sp_rule2.Array() {
+		spRule2 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 2 --security-policy=%s --project %s", policyName, projectId))
+		for _, sp := range spRule2.Array() {
 			assert.True(sp.Get("preview").Bool(), "priority 2 rule Preview is set to True")
 			assert.Equal("throttle", sp.Get("action").String(), "priority 2 rule has expected action")
 			assert.Equal("XSS Sensitivity Level 2 with excluded rules", sp.Get("description").String(), "priority 2 rule has expected description")
@@ -61,8 +61,8 @@ func TestSecurityPolicyAll(t *testing.T) {
 		}
 
 		// 	Rule 3
-		sp_rule3 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 3 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range sp_rule3.Array() {
+		spRule3 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 3 --security-policy=%s --project %s", policyName, projectId))
+		for _, sp := range spRule3.Array() {
 			assert.False(sp.Get("preview").Bool(), " priority 3 rule Preview is set to False")
 			assert.Equal("rate_based_ban", sp.Get("action").String(), "priority 3 rule has expected action")
 			assert.Equal("PHP Sensitivity Level 1 with included rules", sp.Get("description").String(), "priority 3 rule has expected description")
@@ -77,8 +77,8 @@ func TestSecurityPolicyAll(t *testing.T) {
 		}
 
 		// 	Rule 4
-		sp_rule4 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 4 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range sp_rule4.Array() {
+		spRule4 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 4 --security-policy=%s --project %s", policyName, projectId))
+		for _, sp := range spRule4.Array() {
 			assert.False(sp.Get("preview").Bool(), "priority 4 rule Preview is set to False")
 			assert.Equal("redirect", sp.Get("action").String(), "priority 4 rule has expected action")
 			assert.Equal("Remote file inclusion 4", sp.Get("description").String(), "priority 4 rule has expected description")
@@ -87,8 +87,8 @@ func TestSecurityPolicyAll(t *testing.T) {
 		}
 
 		// 	Rule 11
-		sp_rule11 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 11 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range sp_rule11.Array() {
+		spRule11 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 11 --security-policy=%s --project %s", policyName, projectId))
+		for _, sp := range spRule11.Array() {
 			assert.True(sp.Get("preview").Bool(), "priority 11 rule Preview is set to True")
 			assert.Equal("deny(502)", sp.Get("action").String(), "priority 11 rule has expected action")
 			assert.Equal("Deny Malicious IP address from project honeypot", sp.Get("description").String(), "priority 11 rule has expected description")
@@ -101,8 +101,8 @@ func TestSecurityPolicyAll(t *testing.T) {
 		}
 
 		// 	Rule 12
-		sp_rule12 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 12 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range sp_rule12.Array() {
+		spRule12 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 12 --security-policy=%s --project %s", policyName, projectId))
+		for _, sp := range spRule12.Array() {
 			assert.False(sp.Get("preview").Bool(), "priority 12 rule Preview is set to False")
 			assert.Equal("redirect", sp.Get("action").String(), "priority 12 rule has expected action")
 			assert.Equal("Redirect IP address from project drop", sp.Get("description").String(), "priority 12 rule has expected description")
@@ -116,8 +116,8 @@ func TestSecurityPolicyAll(t *testing.T) {
 		}
 
 		// 	Rule 13
-		sp_rule13 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 13 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range sp_rule13.Array() {
+		spRule13 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 13 --security-policy=%s --project %s", policyName, projectId))
+		for _, sp := range spRule13.Array() {
 			assert.False(sp.Get("preview").Bool(), "priority 13 rule Preview is set to False")
 			assert.Equal("rate_based_ban", sp.Get("action").String(), "priority 13 rule has expected action")
 			assert.Equal("Rate based ban for address from project dropten as soon as they cross rate limit threshold", sp.Get("description").String(), "priority 13 rule has expected description")
@@ -136,8 +136,8 @@ func TestSecurityPolicyAll(t *testing.T) {
 		}
 
 		// 	Rule 14
-		sp_rule14 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 14 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range sp_rule14.Array() {
+		spRule14 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 14 --security-policy=%s --project %s", policyName, projectId))
+		for _, sp := range spRule14.Array() {
 			assert.False(sp.Get("preview").Bool(), "priority 14 rule Preview is set to False")
 			assert.Equal("rate_based_ban", sp.Get("action").String(), "priority 14 rule has expected action")
 			assert.Equal("Rate based ban for address from project dropthirty only if they cross banned threshold", sp.Get("description").String(), "priority 14 rule has expected description")
@@ -158,8 +158,8 @@ func TestSecurityPolicyAll(t *testing.T) {
 		}
 
 		// 	Rule 15
-		sp_rule15 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 15 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range sp_rule15.Array() {
+		spRule15 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 15 --security-policy=%s --project %s", policyName, projectId))
+		for _, sp := range spRule15.Array() {
 			assert.False(sp.Get("preview").Bool(), "priority 15 rule Preview is set to False")
 			assert.Equal("throttle", sp.Get("action").String(), "priority 15 rule has expected action")
 			assert.Equal("Throttle IP addresses from project droptwenty", sp.Get("description").String(), "priority 15 rule has expected description")
@@ -177,8 +177,8 @@ func TestSecurityPolicyAll(t *testing.T) {
 		}
 
 		// 	Rule 21
-		sp_rule21 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 21 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range sp_rule21.Array() {
+		spRule21 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 21 --security-policy=%s --project %s", policyName, projectId))
+		for _, sp := range spRule21.Array() {
 			assert.False(sp.Get("preview").Bool(), "priority 21 rule Preview is set to False")
 			assert.Equal("allow", sp.Get("action").String(), "priority 21 rule has expected action")
 			assert.Equal("Allow specific Regions", sp.Get("description").String(), "priority 21 rule has expected description")
@@ -186,8 +186,8 @@ func TestSecurityPolicyAll(t *testing.T) {
 		}
 
 		// 	Rule 22
-		sp_rule22 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 22 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range sp_rule22.Array() {
+		spRule22 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 22 --security-policy=%s --project %s", policyName, projectId))
+		for _, sp := range spRule22.Array() {
 			assert.False(sp.Get("preview").Bool(), "priority 22 rule Preview is set to False")
 			assert.Equal("deny(502)", sp.Get("action").String(), "priority 22 rule has expected action")
 			assert.Equal("Deny Specific IP address", sp.Get("description").String(), "priority 22 rule has expected description")
@@ -195,8 +195,8 @@ func TestSecurityPolicyAll(t *testing.T) {
 		}
 
 		// 	Rule 23
-		sp_rule23 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 23 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range sp_rule23.Array() {
+		spRule23 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 23 --security-policy=%s --project %s", policyName, projectId))
+		for _, sp := range spRule23.Array() {
 			assert.False(sp.Get("preview").Bool(), "priority 23 rule Preview is set to False")
 			assert.Equal("throttle", sp.Get("action").String(), "priority 23 rule has expected action")
 			assert.Equal("Throttle specific IP address in US Region", sp.Get("description").String(), "priority 23 rule has expected description")
@@ -209,8 +209,8 @@ func TestSecurityPolicyAll(t *testing.T) {
 		}
 
 		// 	Rule 24
-		sp_rule24 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 24 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range sp_rule24.Array() {
+		spRule24 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 24 --security-policy=%s --project %s", policyName, projectId))
+		for _, sp := range spRule24.Array() {
 			assert.False(sp.Get("preview").Bool(), "priority 24 rule Preview is set to False")
 			assert.Equal("rate_based_ban", sp.Get("action").String(), "priority 24 rule has expected action")
 			assert.Empty(sp.Get("description").String(), "priority 24 rule has expected description")
@@ -226,8 +226,8 @@ func TestSecurityPolicyAll(t *testing.T) {
 		}
 
 		// 	Rule 100
-		sp_rule100 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 100 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range sp_rule100.Array() {
+		spRule100 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 100 --security-policy=%s --project %s", policyName, projectId))
+		for _, sp := range spRule100.Array() {
 			assert.True(sp.Get("preview").Bool(), "priority 100 rule Preview is set to True")
 			assert.Equal("deny(502)", sp.Get("action").String(), "priority 100 rule has expected action")
 			assert.Equal("test Sensitivity level policies", sp.Get("description").String(), "priority 100 rule has expected description")
