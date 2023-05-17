@@ -154,18 +154,28 @@ module "security_policy" {
       }
     }
 
-    "throttle_project_actor4" = {
+    "throttle_project_droptwenty" = {
       action        = "throttle"
       priority      = 15
-      description   = "Throttle IP addresses from project actor4"
+      description   = "Throttle IP addresses from project droptwenty"
       src_ip_ranges = ["190.217.68.214", "45.116.227.71", ]
+
       rate_limit_options = {
         exceed_action                        = "deny(502)"
         rate_limit_http_request_count        = 10
         rate_limit_http_request_interval_sec = 60
+        enforce_on_key_configs = [
+          {
+            enforce_on_key_type = "HTTP_PATH"
+          },
+          {
+            enforce_on_key_type = "HTTP_COOKIE"
+            enforce_on_key_name = "site_id"
+          }
+        ]
       }
-    }
 
+    }
   }
 
   custom_rules = {
@@ -262,7 +272,7 @@ module "security_policy" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| custom\_rules | Custome security rules | <pre>map(object({<br>    action          = string<br>    priority        = number<br>    description     = optional(string)<br>    preview         = optional(bool, false)<br>    expression      = string<br>    redirect_type   = optional(string, null)<br>    redirect_target = optional(string, null)<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      enforce_on_key_name                  = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br>  }))</pre> | `{}` | no |
+| custom\_rules | Custome security rules | <pre>map(object({<br>    action          = string<br>    priority        = number<br>    description     = optional(string)<br>    preview         = optional(bool, false)<br>    expression      = string<br>    redirect_type   = optional(string, null)<br>    redirect_target = optional(string, null)<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br>  }))</pre> | `{}` | no |
 | default\_rule\_action | default rule that allows/denies all traffic with the lowest priority (2,147,483,647) | `string` | `"allow"` | no |
 | description | An optional description of this security policy. Max size is 2048. | `string` | `null` | no |
 | json\_custom\_config\_content\_types | A list of custom Content-Type header values to apply the JSON parsing. Only applicable when json\_parsing is set to STANDARD. Not supported for CLOUD\_ARMOR\_EDGE policy type | `list(string)` | `[]` | no |
@@ -271,10 +281,10 @@ module "security_policy" {
 | layer\_7\_ddos\_defense\_rule\_visibility | (Optional) Rule visibility can be one of the following: STANDARD - opaque rules. PREMIUM - transparent rules | `string` | `"STANDARD"` | no |
 | log\_level | Log level to use. Possible values are NORMAL and VERBOSE. Not supported for CLOUD\_ARMOR\_EDGE policy type | `string` | `"NORMAL"` | no |
 | name | Name of the security policy. | `string` | n/a | yes |
-| pre\_configured\_rules | Map of pre-configured rules Sensitivity levels | <pre>map(object({<br>    action                  = string<br>    priority                = number<br>    description             = optional(string)<br>    preview                 = optional(bool, false)<br>    redirect_type           = optional(string, null)<br>    redirect_target         = optional(string, null)<br>    target_rule_set         = string<br>    sensitivity_level       = optional(number, 4)<br>    include_target_rule_ids = optional(list(string), [])<br>    exclude_target_rule_ids = optional(list(string), [])<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      enforce_on_key_name                  = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>    }), {})<br><br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br><br>    preconfigured_waf_config_exclusion = optional(object({<br>      target_rule_set = string<br>      target_rule_ids = optional(list(string), [])<br>      request_header = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_cookie = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_uri = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_query_param = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>    }), { target_rule_set = null })<br><br>  }))</pre> | `{}` | no |
+| pre\_configured\_rules | Map of pre-configured rules Sensitivity levels | <pre>map(object({<br>    action                  = string<br>    priority                = number<br>    description             = optional(string)<br>    preview                 = optional(bool, false)<br>    redirect_type           = optional(string, null)<br>    redirect_target         = optional(string, null)<br>    target_rule_set         = string<br>    sensitivity_level       = optional(number, 4)<br>    include_target_rule_ids = optional(list(string), [])<br>    exclude_target_rule_ids = optional(list(string), [])<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>    }), {})<br><br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br><br>    preconfigured_waf_config_exclusion = optional(object({<br>      target_rule_set = string<br>      target_rule_ids = optional(list(string), [])<br>      request_header = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_cookie = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_uri = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_query_param = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>    }), { target_rule_set = null })<br><br>  }))</pre> | `{}` | no |
 | project\_id | The project in which the resource belongs | `string` | n/a | yes |
 | recaptcha\_redirect\_site\_key | reCAPTCHA site key to be used for all the rules using the redirect action with the redirect type of GOOGLE\_RECAPTCHA | `string` | `null` | no |
-| security\_rules | Map of Security rules with list of IP addresses to block or unblock | <pre>map(object({<br>    action          = string<br>    priority        = number<br>    description     = optional(string)<br>    preview         = optional(bool, false)<br>    redirect_type   = optional(string, null)<br>    redirect_target = optional(string, null)<br>    src_ip_ranges   = list(string)<br>    rate_limit_options = optional(object({<br>      enforce_on_key                       = optional(string)<br>      enforce_on_key_name                  = optional(string)<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br>  }))</pre> | `{}` | no |
+| security\_rules | Map of Security rules with list of IP addresses to block or unblock | <pre>map(object({<br>    action          = string<br>    priority        = number<br>    description     = optional(string)<br>    preview         = optional(bool, false)<br>    redirect_type   = optional(string, null)<br>    redirect_target = optional(string, null)<br>    src_ip_ranges   = list(string)<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br>  }))</pre> | `{}` | no |
 | threat\_intelligence\_rules | Map of Threat Intelligence Feed rules | `map(any)` | `{}` | no |
 | type | Type indicates the intended use of the security policy. Possible values are CLOUD\_ARMOR and CLOUD\_ARMOR\_EDGE | `string` | `"CLOUD_ARMOR"` | no |
 
@@ -323,7 +333,16 @@ rate_limit_options = {
   ban_duration_sec                     = 600   # needed only if action is rate_based_ban
   ban_http_request_count               = 1000  # needed only if action is rate_based_ban
   ban_http_request_interval_sec        = 300   # must be one of 60, 120, 180, 240, 300, 600, 900, 1200, 1800, 2700, 3600 seconds. needed only if action is rate_based_ban
-  enforce_on_key                       = "ALL" # All is default value. If null is passed terraform will use ALL as the value
+  enforce_on_key                       = "ALL" # All is default value. If null is passed terraform will use ALL as the value. Will be set to "" when `enforce_on_key_configs` is not null
+  enforce_on_key_configs = [
+    {
+      enforce_on_key_type = "HTTP_PATH"
+    },
+    {
+      enforce_on_key_type = "HTTP_COOKIE"
+      enforce_on_key_name = "site_id"
+    }
+  ]
 }
 ```
 
@@ -457,17 +476,27 @@ security_rules = {
     src_ip_ranges      = ["190.217.68.211", "45.116.227.68", "103.43.141.122", "123.11.215.36", ]
   }
 
-  "throttle_project_bad_actor4" = {
+  "throttle_project_droptwenty" = {
     action        = "throttle"
     priority      = 15
-    description   = "Throttle IP addresses from project bad_actor4"
+    description   = "Throttle IP addresses from project droptwenty"
     src_ip_ranges = ["190.217.68.214", "45.116.227.71", ]
-    preview       = true
+
     rate_limit_options = {
       exceed_action                        = "deny(502)"
       rate_limit_http_request_count        = 10
       rate_limit_http_request_interval_sec = 60
+      enforce_on_key_configs = [
+        {
+          enforce_on_key_type = "HTTP_PATH"
+        },
+        {
+          enforce_on_key_type = "HTTP_COOKIE"
+          enforce_on_key_name = "site_id"
+        }
+      ]
     }
+
   }
 
 }
@@ -510,14 +539,26 @@ custom_rules = {
     EOT
   }
 
-  deny_xss_level4_with_exclude = {
-    action      = "deny(502)"
-    priority    = 100
-    description = "test preconfigured policy with Sensitivity level and opt out policies"
-    preview     = true
-    expression  = <<-EOT
-      evaluatePreconfiguredWaf('xss-v33-stable', {'sensitivity': 4, 'opt_out_rule_ids': ['owasp-crs-v030301-id942350-sqli', 'owasp-crs-v030301-id942360-sqli']})
+  allow_path_token_header = {
+    action      = "allow"
+    priority    = 25
+    description = "Allow path and token match with addition of header"
+
+    expression = <<-EOT
+      request.path.matches('/login.html') && token.recaptcha_session.score < 0.2
     EOT
+
+    header_action = [
+      {
+        header_name  = "reCAPTCHA-Warning"
+        header_value = "high"
+      },
+      {
+        header_name  = "X-Resource"
+        header_value = "test"
+      }
+    ]
+
   }
 
 }

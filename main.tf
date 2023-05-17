@@ -90,7 +90,7 @@ resource "google_compute_security_policy" "policy" {
     }
   }
 
-  ##### Preconfigured Rules Sensitivity level
+  ##### Preconfigured WAF Rules
 
   dynamic "rule" {
     for_each = var.pre_configured_rules
@@ -136,8 +136,16 @@ resource "google_compute_security_policy" "policy" {
           conform_action      = "allow"
           ban_duration_sec    = rule.value["action"] == "rate_based_ban" ? lookup(rule.value["rate_limit_options"], "ban_duration_sec") : null
           exceed_action       = lookup(rule.value["rate_limit_options"], "exceed_action")
-          enforce_on_key      = lookup(rule.value["rate_limit_options"], "enforce_on_key", null)
-          enforce_on_key_name = lookup(rule.value["rate_limit_options"], "enforce_on_key_name", null)
+          enforce_on_key      = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key", null) : ""
+          enforce_on_key_name = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key_name", null) : null
+
+          dynamic "enforce_on_key_configs" {
+            for_each = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? {} : { for x in lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") : x.enforce_on_key_type => x }
+            content {
+              enforce_on_key_type = enforce_on_key_configs.value.enforce_on_key_type
+              enforce_on_key_name = enforce_on_key_configs.value.enforce_on_key_name
+            }
+          }
 
           ## Required for all rate limit options
           dynamic "rate_limit_threshold" {
@@ -247,8 +255,16 @@ resource "google_compute_security_policy" "policy" {
           conform_action      = "allow"
           ban_duration_sec    = rule.value["action"] == "rate_based_ban" ? lookup(rule.value["rate_limit_options"], "ban_duration_sec") : null
           exceed_action       = lookup(rule.value["rate_limit_options"], "exceed_action")
-          enforce_on_key      = lookup(rule.value["rate_limit_options"], "enforce_on_key", null)
-          enforce_on_key_name = lookup(rule.value["rate_limit_options"], "enforce_on_key_name", null)
+          enforce_on_key      = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key", null) : ""
+          enforce_on_key_name = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key_name", null) : null
+
+          dynamic "enforce_on_key_configs" {
+            for_each = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? {} : { for x in lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") : x.enforce_on_key_type => x }
+            content {
+              enforce_on_key_type = enforce_on_key_configs.value.enforce_on_key_type
+              enforce_on_key_name = enforce_on_key_configs.value.enforce_on_key_name
+            }
+          }
 
           ## Required for all rate limit options
           dynamic "rate_limit_threshold" {
@@ -319,8 +335,16 @@ resource "google_compute_security_policy" "policy" {
           conform_action      = "allow"
           ban_duration_sec    = rule.value["action"] == "rate_based_ban" ? lookup(rule.value["rate_limit_options"], "ban_duration_sec") : null
           exceed_action       = lookup(rule.value["rate_limit_options"], "exceed_action")
-          enforce_on_key      = lookup(rule.value["rate_limit_options"], "enforce_on_key", null)
-          enforce_on_key_name = lookup(rule.value["rate_limit_options"], "enforce_on_key_name", null)
+          enforce_on_key      = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key", null) : ""
+          enforce_on_key_name = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key_name", null) : null
+
+          dynamic "enforce_on_key_configs" {
+            for_each = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? {} : { for x in lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") : x.enforce_on_key_type => x }
+            content {
+              enforce_on_key_type = enforce_on_key_configs.value.enforce_on_key_type
+              enforce_on_key_name = enforce_on_key_configs.value.enforce_on_key_name
+            }
+          }
 
           ## Required for all rate limit options
           dynamic "rate_limit_threshold" {
@@ -382,8 +406,16 @@ resource "google_compute_security_policy" "policy" {
           conform_action      = "allow"
           ban_duration_sec    = rule.value["action"] == "rate_based_ban" ? lookup(rule.value["rate_limit_options"], "ban_duration_sec") : null
           exceed_action       = lookup(rule.value["rate_limit_options"], "exceed_action")
-          enforce_on_key      = lookup(rule.value["rate_limit_options"], "enforce_on_key", null)
-          enforce_on_key_name = lookup(rule.value["rate_limit_options"], "enforce_on_key_name", null)
+          enforce_on_key      = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key", null) : null
+          enforce_on_key_name = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key_name", null) : null
+
+          dynamic "enforce_on_key_configs" {
+            for_each = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? {} : { for x in lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") : x.enforce_on_key_type => x }
+            content {
+              enforce_on_key_type = enforce_on_key_configs.value.enforce_on_key_type
+              enforce_on_key_name = enforce_on_key_configs.value.enforce_on_key_name
+            }
+          }
 
           ## Required for all rate limit options
           dynamic "rate_limit_threshold" {
