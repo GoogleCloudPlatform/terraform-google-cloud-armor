@@ -8,6 +8,24 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [1.0.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v0.3.0...v1.0.0) (2023-05-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* **TPG >= 4.59:** added preconfigured_waf_config block ([#34](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/34))
+
+### Features
+
+* added support for rate limiting (rate_limit_options) on multiple keys (enforce_on_key_configs) ([#42](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/42)) ([189daa9](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/189daa9ec81734e87a24f496d4e6c55691343cf2))
+* **TPG >= 4.59:** added preconfigured_waf_config block ([#34](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/34)) ([b43cfc9](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/b43cfc930920136113dadc5a9a4eab09fd857526))
+
+
+### Bug Fixes
+
+* added enforce_on_key_name variable ([#37](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/37)) ([cc7c56f](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/cc7c56f4de4a6c208e8de0f96ac338e72d58e082))
+* make advanced_options_config optional for CLOUD_ARMOR_EDGE policy type ([#39](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/39)) ([c6ecc9e](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/c6ecc9e0823348cc4d407146b00219ce202d1986))
+
 ## [0.3.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v0.2.0...v0.3.0) (2023-03-16)
 
 
