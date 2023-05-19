@@ -56,8 +56,12 @@ variable "pre_configured_rules" {
     include_target_rule_ids = optional(list(string), [])
     exclude_target_rule_ids = optional(list(string), [])
     rate_limit_options = optional(object({
-      enforce_on_key                       = optional(string)
-      enforce_on_key_name                  = optional(string)
+      enforce_on_key      = optional(string)
+      enforce_on_key_name = optional(string)
+      enforce_on_key_configs = optional(list(object({
+        enforce_on_key_name = optional(string)
+        enforce_on_key_type = optional(string)
+      })))
       exceed_action                        = optional(string)
       rate_limit_http_request_count        = optional(number)
       rate_limit_http_request_interval_sec = optional(number)
@@ -108,8 +112,12 @@ variable "security_rules" {
     redirect_target = optional(string, null)
     src_ip_ranges   = list(string)
     rate_limit_options = optional(object({
-      enforce_on_key                       = optional(string)
-      enforce_on_key_name                  = optional(string)
+      enforce_on_key      = optional(string)
+      enforce_on_key_name = optional(string)
+      enforce_on_key_configs = optional(list(object({
+        enforce_on_key_name = optional(string)
+        enforce_on_key_type = optional(string)
+      })))
       exceed_action                        = optional(string)
       rate_limit_http_request_count        = optional(number)
       rate_limit_http_request_interval_sec = optional(number)
@@ -137,8 +145,12 @@ variable "custom_rules" {
     redirect_type   = optional(string, null)
     redirect_target = optional(string, null)
     rate_limit_options = optional(object({
-      enforce_on_key                       = optional(string)
-      enforce_on_key_name                  = optional(string)
+      enforce_on_key      = optional(string)
+      enforce_on_key_name = optional(string)
+      enforce_on_key_configs = optional(list(object({
+        enforce_on_key_name = optional(string)
+        enforce_on_key_type = optional(string)
+      })))
       exceed_action                        = optional(string)
       rate_limit_http_request_count        = optional(number)
       rate_limit_http_request_interval_sec = optional(number)

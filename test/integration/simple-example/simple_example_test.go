@@ -171,10 +171,12 @@ func TestSimpleExample(t *testing.T) {
 			assert.Equal(srcIpRanges[0].String(), "45.116.227.71", "priority 15 rule found first valid cidr range")
 			assert.Equal(srcIpRanges[1].String(), "190.217.68.214", "priority 15 rule found second valid cidr range")
 			assert.Equal("allow", sp.Get("rateLimitOptions.conformAction").String(), "priority 15 rule has Rate limit confirm action")
-			assert.Equal("ALL", sp.Get("rateLimitOptions.enforceOnKey").String(), "priority 15 rule has Rate limit Enforce on key")
 			assert.Equal("deny(502)", sp.Get("rateLimitOptions.exceedAction").String(), "priority 15 rule has Rate limit exceed action")
 			assert.Equal("10", sp.Get("rateLimitOptions.rateLimitThreshold.count").String(), "priority 15 rule has Rate limit threshold count")
 			assert.Equal("60", sp.Get("rateLimitOptions.rateLimitThreshold.intervalSec").String(), "priority 15 rule has Rate limit threshold interval")
+			assert.Equal("site_id", sp.Get("rateLimitOptions.enforceOnKeyConfigs").Array()[0].Get("enforceOnKeyName").String(), "priority 1 rule has expected requestCookiesToExclude")
+			assert.Equal("HTTP_COOKIE", sp.Get("rateLimitOptions.enforceOnKeyConfigs").Array()[0].Get("enforceOnKeyType").String(), "priority 1 rule has expected requestCookiesToExclude")
+			assert.Equal("HTTP_PATH", sp.Get("rateLimitOptions.enforceOnKeyConfigs").Array()[1].Get("enforceOnKeyType").String(), "priority 1 rule has expected requestCookiesToExclude")
 		}
 
 		// 	Rule 21
