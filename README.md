@@ -19,7 +19,7 @@ Current version is 1.0. Upgrade guides:
 ##  Module Format
 
 ```
-module security_polcy {
+module security_policy {
   source = "GoogleCloudPlatform/cloud-armor/google"
 
   project_id                   = "my-project-id"
