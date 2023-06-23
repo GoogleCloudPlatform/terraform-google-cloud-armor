@@ -34,6 +34,7 @@ variable "default_rule_action" {
   description = "default rule that allows/denies all traffic with the lowest priority (2,147,483,647)"
   type        = string
   default     = "allow"
+  nullable    = false
 }
 
 variable "recaptcha_redirect_site_key" {
@@ -177,30 +178,35 @@ variable "type" {
   description = "Type indicates the intended use of the security policy. Possible values are CLOUD_ARMOR and CLOUD_ARMOR_EDGE"
   type        = string
   default     = "CLOUD_ARMOR"
+  nullable    = false
 }
 
 variable "layer_7_ddos_defense_enable" {
   description = "(Optional) If set to true, enables Cloud Armor Adaptive Protection for L7 DDoS detection. Cloud Armor Adaptive Protection is currently not supported for CLOUD_ARMOR_EDGE policy type"
   type        = bool
   default     = false
+  nullable    = false
 }
 
 variable "layer_7_ddos_defense_rule_visibility" {
   description = "(Optional) Rule visibility can be one of the following: STANDARD - opaque rules. PREMIUM - transparent rules"
   type        = string
   default     = "STANDARD"
+  nullable    = false
 }
 
 variable "json_parsing" {
   description = "Whether or not to JSON parse the payload body. Possible values are DISABLED and STANDARD. Not supported for CLOUD_ARMOR_EDGE policy type"
   type        = string
   default     = "DISABLED"
+  nullable    = false
 }
 
 variable "log_level" {
   description = "Log level to use. Possible values are NORMAL and VERBOSE. Not supported for CLOUD_ARMOR_EDGE policy type"
   type        = string
   default     = "NORMAL"
+  nullable    = false
 }
 
 variable "json_custom_config_content_types" {

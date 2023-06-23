@@ -17,7 +17,8 @@
 resource "random_id" "suffix" {
   byte_length = 4
 }
-module "cloud_armor" {
+
+module "cloud_armor_edge" {
   source = "../../"
 
   project_id          = var.project_id

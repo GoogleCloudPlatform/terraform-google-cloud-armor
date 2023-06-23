@@ -15,7 +15,7 @@
  */
 
 output "security_policy" {
-  value       = module.cloud_armor.policy
+  value       = module.cloud_armor_edge.policy
   description = "Cloud Armor security policy created"
 }
 
@@ -25,6 +25,6 @@ output "project_id" {
 }
 
 output "policy_name" {
-  value       = module.cloud_armor.policy.name
+  value       = module.cloud_armor_edge.policy.name
   description = "Security Policy name"
 }
