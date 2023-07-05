@@ -69,7 +69,7 @@ module "security_policy" {
       target_rule_set         = "xss-v33-stable"
       sensitivity_level       = 2
       exclude_target_rule_ids = ["owasp-crs-v030301-id941380-xss", "owasp-crs-v030301-id941280-xss"]
-      preconfigured_waf_config_exclusion = {
+      preconfigured_waf_config_exclusion = [{
         target_rule_set = "xss-v33-stable"
         target_rule_ids = ["owasp-crs-v030301-id941140-xss", "owasp-crs-v030301-id941270-xss"]
         request_header = [
@@ -93,7 +93,7 @@ module "security_policy" {
           },
         ]
       }
-    }
+    }]
 
     "php-stable_level_0_with_include" = {
       action                  = "deny(502)"
