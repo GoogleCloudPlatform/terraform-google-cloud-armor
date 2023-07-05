@@ -75,7 +75,7 @@ variable "pre_configured_rules" {
       header_value = optional(string)
     })), [])
 
-    preconfigured_waf_config_exclusion = optional(object({
+    preconfigured_waf_config_exclusion = optional(list(object({
       target_rule_set = string
       target_rule_ids = optional(list(string), [])
       request_header = optional(list(object({
@@ -94,7 +94,7 @@ variable "pre_configured_rules" {
         operator = string
         value    = optional(string)
       })))
-    }), { target_rule_set = null })
+    })), [])
 
   }))
 
