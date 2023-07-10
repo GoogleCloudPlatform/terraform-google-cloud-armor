@@ -177,7 +177,7 @@ resource "google_compute_security_policy" "policy" {
               target_rule_set = exclusion.value.target_rule_set
               target_rule_ids = exclusion.value.target_rule_ids
               dynamic "request_header" {
-                for_each = exclusion.value.request_header == null ? {} : { for x in rule.value.request_header : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+                for_each = exclusion.value.request_header == null ? {} : { for x in exclusion.value.request_header : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
                 content {
                   operator = request_header.value.operator
                   value    = request_header.value.operator == "EQUALS_ANY" ? null : request_header.value.value
