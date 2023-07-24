@@ -578,6 +578,7 @@ threat_intelligence_rules = {
     description        = "Deny IP addresses of search engine crawlers"
     preview            = false
     feed               = "iplist-search-engines-crawlers"
+    exclude_ip         = null
     redirect_type      = null
     redirect_target    = null
     rate_limit_options = {}
@@ -597,6 +598,7 @@ threat_intelligence_rules = {
     description        = "Deny IP addresses known to attack web applications"
     preview            = true
     feed               = "iplist-known-malicious-ips"
+    exclude_ip         = ["47.100.100.100", "47.189.12.139"]
   }
 
 }
