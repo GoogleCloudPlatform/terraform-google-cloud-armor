@@ -131,6 +131,7 @@ variable "security_rules" {
       header_value = optional(string)
     })), [])
   }))
+
   default = {}
 }
 
@@ -169,8 +170,34 @@ variable "custom_rules" {
 
 variable "threat_intelligence_rules" {
   description = "Map of Threat Intelligence Feed rules"
-  type        = map(any)
-  default     = {}
+  type = map(object({
+    action      = string
+    priority    = number
+    description = optional(string)
+    preview     = optional(bool, false)
+    feed        = string
+    exclude_ip  = optional(list(string))
+    rate_limit_options = optional(object({
+      enforce_on_key      = optional(string)
+      enforce_on_key_name = optional(string)
+      enforce_on_key_configs = optional(list(object({
+        enforce_on_key_name = optional(string)
+        enforce_on_key_type = optional(string)
+      })))
+      exceed_action                        = optional(string)
+      rate_limit_http_request_count        = optional(number)
+      rate_limit_http_request_interval_sec = optional(number)
+      ban_duration_sec                     = optional(number)
+      ban_http_request_count               = optional(number)
+      ban_http_request_interval_sec        = optional(number)
+      }),
+    {})
+    header_action = optional(list(object({
+      header_name  = optional(string)
+      header_value = optional(string)
+    })), [])
+  }))
+  default = {}
 }
 
 variable "type" {
