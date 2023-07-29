@@ -250,23 +250,22 @@ module "security_policy" {
 
     deny_malicious_ips = {
       action      = "deny(502)"
-      priority    = 31
+      priority    = 200
       description = "Deny IP addresses known to attack web applications"
-      preview     = true
+      preview     = false
       feed        = "iplist-known-malicious-ips"
-      exclude_ip = ["47.100.100.100", "47.189.12.139"]
+      exclude_ip  = "['47.100.100.100', '47.189.12.139']"
     }
 
     deny_tor_exit_ips = {
       action      = "deny(502)"
-      priority    = 31
+      priority    = 210
       description = "Deny Tor exit nodes IP addresses"
-      preview     = true
+      preview     = false
       feed        = "iplist-tor-exit-nodes"
     }
 
   }
-
 
 }
 ```
@@ -290,7 +289,7 @@ module "security_policy" {
 | project\_id | The project in which the resource belongs | `string` | n/a | yes |
 | recaptcha\_redirect\_site\_key | reCAPTCHA site key to be used for all the rules using the redirect action with the redirect type of GOOGLE\_RECAPTCHA | `string` | `null` | no |
 | security\_rules | Map of Security rules with list of IP addresses to block or unblock | <pre>map(object({<br>    action          = string<br>    priority        = number<br>    description     = optional(string)<br>    preview         = optional(bool, false)<br>    redirect_type   = optional(string, null)<br>    redirect_target = optional(string, null)<br>    src_ip_ranges   = list(string)<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br>  }))</pre> | `{}` | no |
-| threat\_intelligence\_rules | Map of Threat Intelligence Feed rules | <pre>map(object({<br>    action      = string<br>    priority    = number<br>    description = optional(string)<br>    preview     = optional(bool, false)<br>    feed        = string<br>    exclude_ip  = optional(list(string))<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br>  }))</pre> | `{}` | no |
+| threat\_intelligence\_rules | Map of Threat Intelligence Feed rules | <pre>map(object({<br>    action      = string<br>    priority    = number<br>    description = optional(string)<br>    preview     = optional(bool, false)<br>    feed        = string<br>    exclude_ip  = optional(string)<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br>  }))</pre> | `{}` | no |
 | type | Type indicates the intended use of the security policy. Possible values are CLOUD\_ARMOR and CLOUD\_ARMOR\_EDGE | `string` | `"CLOUD_ARMOR"` | no |
 
 ## Outputs
@@ -573,7 +572,7 @@ custom_rules = {
 Add Rules based on [threat intelligence](https://cloud.google.com/armor/docs/threat-intelligence). [Managed protection plus](https://cloud.google.com/armor/docs/managed-protection-overview) subscription is needed to use this feature.
 
 ### Format:
-Each rule is key value pair where key is a unique name of the rule and value is the action associated with it.
+Each rule is key value pair where key is a unique name of the rule and value is the action associated with it. NOTE: `exclude_ip` is a string with IP addresse(s) in single quotes and enclused within a sqare bracket (You can find detail [here](https://cloud.google.com/armor/docs/threat-intelligence#configure-nti)).
 
 ```
 threat_intelligence_rules = {
@@ -601,7 +600,7 @@ threat_intelligence_rules = {
     description = "Deny IP addresses known to attack web applications"
     preview     = true
     feed        = "iplist-known-malicious-ips"
-    exclude_ip  = ["47.100.100.100", "47.189.12.139"]
+    exclude_ip  = "['47.100.100.100', '47.189.12.139']"
   }
 
   deny_tor_exit_ips = {

@@ -176,7 +176,7 @@ variable "threat_intelligence_rules" {
     description = optional(string)
     preview     = optional(bool, false)
     feed        = string
-    exclude_ip  = optional(list(string))
+    exclude_ip  = optional(string)
     rate_limit_options = optional(object({
       enforce_on_key      = optional(string)
       enforce_on_key_name = optional(string)
