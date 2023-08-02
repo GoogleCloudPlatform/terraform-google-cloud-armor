@@ -22,15 +22,21 @@ Current version is 1.0. Upgrade guides:
 module security_policy {
   source = "GoogleCloudPlatform/cloud-armor/google"
 
-  project_id                   = "my-project-id"
-  name                         = my-test-ca-policy
-  description                  = "Test Cloud Armor security policy with preconfigured rules, security rules and custom rules"
-  default_rule_action          = "deny(403)"
-  recaptcha_redirect_site_key  = google_recaptcha_enterprise_key.primary.name
-  pre_configured_rules         = {}
-  security_rules               = {}
-  custom_rules                 = {}
-  threat_intelligence_rules    = {}
+  project_id                           = "my-project-id"
+  name                                 = "my-test-ca-policy"
+  description                          = "Test Cloud Armor security policy with preconfigured rules, security rules and custom rules"
+  default_rule_action                  = "deny(403)"
+  type                                 = "CLOUD_ARMOR"
+  layer_7_ddos_defense_enable          = true
+  layer_7_ddos_defense_rule_visibility = "STANDARD"
+  recaptcha_redirect_site_key          = google_recaptcha_enterprise_key.primary.name
+  json_parsing                         = "STANDARD"
+  log_level                            = "VERBOSE"
+
+  pre_configured_rules                 = {}
+  security_rules                       = {}
+  custom_rules                         = {}
+  threat_intelligence_rules            = {}
 }
 ```
 
@@ -52,6 +58,8 @@ module "security_policy" {
   type                                 = "CLOUD_ARMOR"
   layer_7_ddos_defense_enable          = true
   layer_7_ddos_defense_rule_visibility = "STANDARD"
+
+  # Pre-configured WAF Rules
 
   pre_configured_rules = {
 
@@ -105,13 +113,15 @@ module "security_policy" {
 
   }
 
+  # Action against specific IP addresses or IP adress ranges
+
   security_rules = {
 
     "deny_project_bad_actor1" = {
       action        = "deny(502)"
       priority      = 11
       description   = "Deny Malicious IP address from project bad_actor1"
-      src_ip_ranges = ["190.217.68.211/32", "45.116.227.68/32", "103.43.141.122/32", "123.11.215.36", "123.11.215.37", ]
+      src_ip_ranges = ["190.217.68.211/32", "45.116.227.68/32", "103.43.141.122", "123.11.215.36", "123.11.215.37", ]
       preview       = true
     }
 
@@ -122,20 +132,6 @@ module "security_policy" {
       src_ip_ranges = ["190.217.68.215", "45.116.227.99", ]
       redirect_type = "EXTERNAL_302"
       redirect_target = "https://www.example.com"
-    }
-
-    "rate_ban_project_actor2" = {
-      action        = "rate_based_ban"
-      priority      = 13
-      description   = "Rate based ban for address from project actor2 as soon as they cross rate limit threshold"
-      src_ip_ranges = ["190.217.68.213/32", "45.116.227.70", ]
-      rate_limit_options = {
-        exceed_action                        = "deny(502)"
-        rate_limit_http_request_count        = 10
-        rate_limit_http_request_interval_sec = 60
-        ban_duration_sec                     = 120
-        enforce_on_key                       = "ALL"
-      }
     }
 
     "rate_ban_project_actor3" = {
@@ -178,6 +174,8 @@ module "security_policy" {
     }
   }
 
+  # Custom Rules using CEL
+
   custom_rules = {
 
     deny_specific_regions = {
@@ -192,9 +190,9 @@ module "security_policy" {
     deny_specific_ip = {
       action      = "deny(502)"
       priority    = 22
-      description = "Deny Specific IP address"
+      description = "Deny specific IP address in US Region"
       expression  = <<-EOT
-        inIpRange(origin.ip, '47.185.201.155/32')
+        origin.region_code == "US" && inIpRange(origin.ip, '47.185.201.159/32')
       EOT
     }
 
@@ -209,23 +207,6 @@ module "security_policy" {
         exceed_action                        = "deny(502)"
         rate_limit_http_request_count        = 10
         rate_limit_http_request_interval_sec = 60
-      }
-    }
-
-    rate_ban_specific_ip = {
-      action     = "rate_based_ban"
-      priority   = 24
-      expression = <<-EOT
-        inIpRange(origin.ip, '47.185.201.160/32')
-      EOT
-      rate_limit_options = {
-        exceed_action                        = "deny(502)"
-        rate_limit_http_request_count        = 10
-        rate_limit_http_request_interval_sec = 60
-        ban_duration_sec                     = 120
-        ban_http_request_count               = 10000
-        ban_http_request_interval_sec        = 600
-        enforce_on_key                       = "ALL"
       }
     }
 
@@ -263,6 +244,29 @@ module "security_policy" {
 
   }
 
+  # Threat Intelligence Rules
+
+  threat_intelligence_rules = {
+
+    deny_malicious_ips = {
+      action      = "deny(502)"
+      priority    = 200
+      description = "Deny IP addresses known to attack web applications"
+      preview     = false
+      feed        = "iplist-known-malicious-ips"
+      exclude_ip  = "['47.100.100.100', '47.189.12.139']"
+    }
+
+    deny_tor_exit_ips = {
+      action      = "deny(502)"
+      priority    = 210
+      description = "Deny Tor exit nodes IP addresses"
+      preview     = false
+      feed        = "iplist-tor-exit-nodes"
+    }
+
+  }
+
 }
 ```
 
@@ -285,7 +289,7 @@ module "security_policy" {
 | project\_id | The project in which the resource belongs | `string` | n/a | yes |
 | recaptcha\_redirect\_site\_key | reCAPTCHA site key to be used for all the rules using the redirect action with the redirect type of GOOGLE\_RECAPTCHA | `string` | `null` | no |
 | security\_rules | Map of Security rules with list of IP addresses to block or unblock | <pre>map(object({<br>    action          = string<br>    priority        = number<br>    description     = optional(string)<br>    preview         = optional(bool, false)<br>    redirect_type   = optional(string, null)<br>    redirect_target = optional(string, null)<br>    src_ip_ranges   = list(string)<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br>  }))</pre> | `{}` | no |
-| threat\_intelligence\_rules | Map of Threat Intelligence Feed rules | `map(any)` | `{}` | no |
+| threat\_intelligence\_rules | Map of Threat Intelligence Feed rules | <pre>map(object({<br>    action      = string<br>    priority    = number<br>    description = optional(string)<br>    preview     = optional(bool, false)<br>    feed        = string<br>    exclude_ip  = optional(string)<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br>  }))</pre> | `{}` | no |
 | type | Type indicates the intended use of the security policy. Possible values are CLOUD\_ARMOR and CLOUD\_ARMOR\_EDGE | `string` | `"CLOUD_ARMOR"` | no |
 
 ## Outputs
@@ -473,7 +477,7 @@ security_rules = {
     action             = "deny(502)"
     priority           = 11
     description        = "Deny Malicious IP address from project bad_actor"
-    src_ip_ranges      = ["190.217.68.211", "45.116.227.68", "103.43.141.122", "123.11.215.36", ]
+    src_ip_ranges      = ["190.217.68.211/32", "45.116.227.68/32", "103.43.141.122", "123.11.215.36", ]
   }
 
   "throttle_project_droptwenty" = {
@@ -568,7 +572,7 @@ custom_rules = {
 Add Rules based on [threat intelligence](https://cloud.google.com/armor/docs/threat-intelligence). [Managed protection plus](https://cloud.google.com/armor/docs/managed-protection-overview) subscription is needed to use this feature.
 
 ### Format:
-Each rule is key value pair where key is a unique name of the rule and value is the action associated with it.
+Each rule is key value pair where key is a unique name of the rule and value is the action associated with it. NOTE: `exclude_ip` is a string with IP addresse(s) in single quotes and enclused within a sqare bracket (You can find detail [here](https://cloud.google.com/armor/docs/threat-intelligence#configure-nti)).
 
 ```
 threat_intelligence_rules = {
@@ -579,8 +583,6 @@ threat_intelligence_rules = {
     preview            = false
     feed               = "iplist-search-engines-crawlers"
     exclude_ip         = null
-    redirect_type      = null
-    redirect_target    = null
     rate_limit_options = {}
     header_action      = []
   }
@@ -593,12 +595,20 @@ threat_intelligence_rules = {
 threat_intelligence_rules = {
 
   deny_malicious_ips = {
-    action             = "deny(502)"
-    priority           = 31
-    description        = "Deny IP addresses known to attack web applications"
-    preview            = true
-    feed               = "iplist-known-malicious-ips"
-    exclude_ip         = ["47.100.100.100", "47.189.12.139"]
+    action      = "deny(502)"
+    priority    = 31
+    description = "Deny IP addresses known to attack web applications"
+    preview     = true
+    feed        = "iplist-known-malicious-ips"
+    exclude_ip  = "['47.100.100.100', '47.189.12.139']"
+  }
+
+  deny_tor_exit_ips = {
+    action      = "deny(502)"
+    priority    = 31
+    description = "Deny Tor exit nodes IP addresses"
+    preview     = true
+    feed        = "iplist-tor-exit-nodes"
   }
 
 }

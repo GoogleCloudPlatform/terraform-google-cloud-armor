@@ -381,7 +381,7 @@ resource "google_compute_security_policy" "policy" {
 
       match {
         expr {
-          expression = rule.value["exclude_ip"] == null ? "evaluateThreatIntelligence('${rule.value["feed"]}')" : "evaluateThreatIntelligence('${rule.value["feed"]}',${rule.value["exclude_ip"]})"
+          expression = lookup(rule.value, "exclude_ip", null) == null ? "evaluateThreatIntelligence('${rule.value["feed"]}')" : "evaluateThreatIntelligence('${rule.value["feed"]}', ${rule.value["exclude_ip"]})"
         }
       }
 
