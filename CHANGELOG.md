@@ -8,6 +8,18 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [1.1.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v1.0.0...v1.1.0) (2023-08-02)
+
+
+### Features
+
+* add exclude_ip filter for threat intelligence ([#55](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/55)) ([b92b9a3](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/b92b9a3ad21684ff5b19ae9966518bd47dda8fe6))
+
+
+### Bug Fixes
+
+* fixed exclude_ip variable and change threat_intelligence_rules to object ([#57](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/57)) ([e7c4219](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/e7c4219a62e61917da321fe8a5b884ddb9ee2a96))
+
 ## [1.0.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v0.3.0...v1.0.0) (2023-05-19)
 
 
