@@ -48,7 +48,7 @@ There are examples included in the [examples](https://github.com/GoogleCloudPlat
 ```
 module "security_policy" {
   source = "GoogleCloudPlatform/cloud-armor/google"
-  version = "~> 1.0"
+  version = "~> 1.1"
 
   project_id                           = var.project_id
   name                                 = "my-test-security-policy"
