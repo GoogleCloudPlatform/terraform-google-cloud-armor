@@ -79,8 +79,9 @@ resource "google_compute_security_policy" "policy" {
   dynamic "advanced_options_config" {
     for_each = var.type == "CLOUD_ARMOR" ? ["CLOUD_ARMOR"] : []
     content {
-      json_parsing = var.json_parsing
-      log_level    = var.log_level
+      json_parsing            = var.json_parsing
+      log_level               = var.log_level
+      user_ip_request_headers = var.user_ip_request_headers
       dynamic "json_custom_config" {
         for_each = var.json_parsing == "STANDARD" && length(var.json_custom_config_content_types) > 0 ? ["json_custom_config"] : []
         content {

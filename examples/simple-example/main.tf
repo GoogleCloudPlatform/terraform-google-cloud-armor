@@ -47,6 +47,7 @@ module "cloud_armor" {
   recaptcha_redirect_site_key          = google_recaptcha_enterprise_key.primary.name
   json_parsing                         = "STANDARD"
   log_level                            = "VERBOSE"
+  user_ip_request_headers              = ["True-Client-IP", ]
 
   pre_configured_rules = {
 

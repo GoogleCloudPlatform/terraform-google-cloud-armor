@@ -272,3 +272,9 @@ variable "json_custom_config_content_types" {
   type        = list(string)
   default     = []
 }
+
+variable "user_ip_request_headers" {
+  description = "An optional list of case-insensitive request header names to use for resolving the callers client IP address"
+  type        = list(string)
+  default     = []
+}
