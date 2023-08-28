@@ -14,22 +14,6 @@
  * limitations under the License.
  */
 
-resource "google_recaptcha_enterprise_key" "primary" {
-  display_name = "display-name"
-
-  labels = {
-    label-one = "value-one"
-  }
-
-  project = var.project_id
-
-  web_settings {
-    integration_type  = "INVISIBLE"
-    allow_all_domains = true
-    allowed_domains   = ["localhost"]
-  }
-}
-
 resource "random_id" "suffix" {
   byte_length = 4
 }
@@ -44,7 +28,6 @@ module "cloud_armor" {
   type                                 = "CLOUD_ARMOR"
   layer_7_ddos_defense_enable          = true
   layer_7_ddos_defense_rule_visibility = "STANDARD"
-  recaptcha_redirect_site_key          = google_recaptcha_enterprise_key.primary.name
   json_parsing                         = "STANDARD"
   log_level                            = "VERBOSE"
   user_ip_request_headers              = ["True-Client-IP", ]
