@@ -8,6 +8,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [1.2.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v1.1.0...v1.2.0) (2023-08-29)
+
+
+### Features
+
+* Add support for Automatically deploy Adaptive Protection suggested rules ([#61](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/61)) ([1dd4e0c](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/1dd4e0c397965999460f18fffa76fe5c6dc2802d))
+
 ## [1.1.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v1.0.0...v1.1.0) (2023-08-02)
 
 
