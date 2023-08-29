@@ -79,8 +79,9 @@ resource "google_compute_security_policy" "policy" {
   dynamic "advanced_options_config" {
     for_each = var.type == "CLOUD_ARMOR" ? ["CLOUD_ARMOR"] : []
     content {
-      json_parsing = var.json_parsing
-      log_level    = var.log_level
+      json_parsing            = var.json_parsing
+      log_level               = var.log_level
+      user_ip_request_headers = var.user_ip_request_headers
       dynamic "json_custom_config" {
         for_each = var.json_parsing == "STANDARD" && length(var.json_custom_config_content_types) > 0 ? ["json_custom_config"] : []
         content {
@@ -461,6 +462,72 @@ resource "google_compute_security_policy" "policy" {
         enable          = var.layer_7_ddos_defense_enable
         rule_visibility = var.layer_7_ddos_defense_rule_visibility
       }
+    }
+  }
+
+  ##### Automatic Adaptive protection rule deploy
+
+  dynamic "rule" {
+    for_each = var.layer_7_ddos_defense_enable && var.adaptive_protection_auto_deploy.enable && var.type != "CLOUD_ARMOR_EDGE" ? { auto_deploy = var.adaptive_protection_auto_deploy } : {}
+    content {
+      action      = rule.value["action"]
+      priority    = rule.value["priority"]
+      preview     = rule.value["preview"]
+      description = rule.value["description"]
+
+      match {
+        expr {
+          expression = "evaluateAdaptiveProtectionAutoDeploy()"
+        }
+      }
+
+      # Redirect option block
+      dynamic "redirect_options" {
+        for_each = rule.value["action"] == "redirect" ? ["redirect"] : []
+        content {
+          type   = rule.value["redirect_type"]
+          target = rule.value["redirect_type"] == "EXTERNAL_302" ? rule.value["redirect_target"] : null
+        }
+      }
+
+      ### Rate limit. Execute only if Action is "rate_based_ban" or "throttle"
+      dynamic "rate_limit_options" {
+        for_each = rule.value["action"] == "rate_based_ban" || rule.value["action"] == "throttle" ? ["rate_limits"] : []
+        content {
+          conform_action      = "allow"
+          ban_duration_sec    = rule.value["action"] == "rate_based_ban" ? lookup(rule.value["rate_limit_options"], "ban_duration_sec") : null
+          exceed_action       = lookup(rule.value["rate_limit_options"], "exceed_action")
+          enforce_on_key      = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key", null) : ""
+          enforce_on_key_name = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key_name", null) : null
+
+          dynamic "enforce_on_key_configs" {
+            for_each = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? {} : { for x in lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") : x.enforce_on_key_type => x }
+            content {
+              enforce_on_key_type = enforce_on_key_configs.value.enforce_on_key_type
+              enforce_on_key_name = enforce_on_key_configs.value.enforce_on_key_name
+            }
+          }
+
+          ## Required for all rate limit options
+          dynamic "rate_limit_threshold" {
+            for_each = rule.value["action"] == "rate_based_ban" || rule.value["action"] == "throttle" ? ["rate_limit_options"] : []
+            content {
+              count        = rule.value["rate_limit_options"].rate_limit_http_request_count
+              interval_sec = rule.value["rate_limit_options"].rate_limit_http_request_interval_sec
+            }
+          }
+
+          ## Optional. Can be provided for for rate based ban. Not needed for throttle
+          dynamic "ban_threshold" {
+            for_each = rule.value["action"] == "rate_based_ban" && lookup(rule.value["rate_limit_options"], "ban_http_request_count", null) != null && lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec", null) != null ? ["ban_threshold"] : []
+            content {
+              count        = lookup(rule.value["rate_limit_options"], "ban_http_request_count")
+              interval_sec = lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec")
+            }
+          }
+        }
+      }
+
     }
   }
 

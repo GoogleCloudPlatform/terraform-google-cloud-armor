@@ -27,6 +27,7 @@ module "cloud_armor" {
   type                                 = "CLOUD_ARMOR"
   layer_7_ddos_defense_enable          = true
   layer_7_ddos_defense_rule_visibility = "STANDARD"
+  user_ip_request_headers              = ["True-Client-IP", ]
 
   pre_configured_rules = {
     "sqli_sensitivity_level_4" = {
