@@ -1,6 +1,6 @@
-# Cloud Armor Policy with preconfigured rules, custom rules and security rules
+# Cloud Armor Edge Security Policy with custom rule
 
-This example configures a single cloud armor policy with different types of rules.
+This example configures a single Cloud Armor Edge Security Policy with a custom rule.
 
 ## Usage
 

@@ -1,6 +1,6 @@
-# Cloud Armor Policy with preconfigured rules, custom rules and security rules
+# Cloud Armor Policy with [Recaptcha Enterprise](https://cloud.google.com/armor/docs/bot-management#enforce-bot-assessment)
 
-This is a simple example. Configures a single cloud armor policy with different types of rules.
+This example configures a single cloud armor policy with recaptcha enterprise.
 
 ## Usage
 
