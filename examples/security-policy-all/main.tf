@@ -55,7 +55,7 @@ module "cloud_armor" {
       action                  = "rate_based_ban"
       priority                = 3
       description             = "PHP Sensitivity Level 1 with included rules"
-      target_rule_set         = "xss-v33-stable"
+      target_rule_set         = "php-v33-stable"
       sensitivity_level       = 0
       include_target_rule_ids = ["owasp-crs-v030301-id933190-php", "owasp-crs-v030301-id933111-php"]
       exclude_target_rule_ids = []
