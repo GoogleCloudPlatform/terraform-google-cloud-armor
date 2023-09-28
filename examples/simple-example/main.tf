@@ -285,6 +285,25 @@ module "cloud_armor" {
 
     }
 
+    "methodenforcement-v33-stable_level_1" = {
+      action      = "deny(403)"
+      priority    = 6
+      description = "Method enforcement Level 1"
+      preview     = true
+      expression  = "evaluatePreconfiguredWaf('methodenforcement-v33-stable', {'sensitivity': 1}) && !request.path.matches('/keyword/here/')"
+
+      preconfigured_waf_config_exclusion = {
+        target_rule_set = "methodenforcement-v33-stable"
+        target_rule_ids = ["owasp-crs-v030301-id911100-methodenforcement"]
+        request_uri = [
+          {
+            operator = "CONTAINS"
+            value    = "/keyword/here/"
+          },
+        ]
+      }
+    }
+
   }
 
 }
