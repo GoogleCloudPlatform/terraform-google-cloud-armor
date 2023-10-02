@@ -164,6 +164,28 @@ variable "custom_rules" {
       header_name  = optional(string)
       header_value = optional(string)
     })), [])
+
+    preconfigured_waf_config_exclusion = optional(object({
+      target_rule_set = string
+      target_rule_ids = optional(list(string), [])
+      request_header = optional(list(object({
+        operator = string
+        value    = optional(string)
+      })))
+      request_cookie = optional(list(object({
+        operator = string
+        value    = optional(string)
+      })))
+      request_uri = optional(list(object({
+        operator = string
+        value    = optional(string)
+      })))
+      request_query_param = optional(list(object({
+        operator = string
+        value    = optional(string)
+      })))
+    }), { target_rule_set = null })
+
   }))
   default = {}
 }
