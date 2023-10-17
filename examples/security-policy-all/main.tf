@@ -48,7 +48,6 @@ module "cloud_armor" {
         exceed_action                        = "deny(502)"
         rate_limit_http_request_count        = 10
         rate_limit_http_request_interval_sec = 60
-        enforce_on_key                       = "ALL"
       }
     }
 
