@@ -54,7 +54,7 @@ func TestSecurityPolicyAll(t *testing.T) {
 			assert.Equal("throttle", sp.Get("action").String(), "priority 2 rule has expected action")
 			assert.Equal("XSS Sensitivity Level 2 with excluded rules", sp.Get("description").String(), "priority 2 rule has expected description")
 			assert.Equal("allow", sp.Get("rateLimitOptions.conformAction").String(), "priority 2 rule has expected Rate limit confirm action")
-			assert.Equal("ALL", sp.Get("rateLimitOptions.enforceOnKey").String(), "priority 2 rule has expected Rate limit enforce on key")
+			assert.Equal("", sp.Get("rateLimitOptions.enforceOnKey").String(), "priority 2 rule has expected Rate limit enforce on key")
 			assert.Equal("deny(502)", sp.Get("rateLimitOptions.exceedAction").String(), "priority 2 rule has expected Rate limit exceed action")
 			assert.Equal("10", sp.Get("rateLimitOptions.rateLimitThreshold.count").String(), "priority 2 rule has expected Rate limit threshold count")
 			assert.Equal("60", sp.Get("rateLimitOptions.rateLimitThreshold.intervalSec").String(), "priority 2 rule has expected Rate limit threshold interval")
