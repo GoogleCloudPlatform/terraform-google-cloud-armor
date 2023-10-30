@@ -8,6 +8,24 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [2.0.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v1.2.0...v2.0.0) (2023-10-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* **tpg v5:** rule.rate_limit_options.enforce_on_key has not default value ([#77](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/77))
+* **TPG >= 4.79:** added preconfigured_waf_config block in custom_rule ([#71](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/71))
+
+### Features
+
+* **TPG >= 4.79:** added preconfigured_waf_config block in custom_rule ([#71](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/71)) ([56e9386](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/56e938658380f556c1dfe8dd7b169b1ab4449fbe))
+
+
+### Bug Fixes
+
+* rule set name for php ([#69](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/69)) ([de86b4d](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/de86b4d487c6160a67737d8f381af3ab6cc9d6b4))
+* **tpg v5:** rule.rate_limit_options.enforce_on_key has not default value ([#77](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/77)) ([a9a0198](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/a9a01982c496779c863db6f1e146eb07871319d1))
+
 ## [1.2.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v1.1.0...v1.2.0) (2023-08-29)
 
 
