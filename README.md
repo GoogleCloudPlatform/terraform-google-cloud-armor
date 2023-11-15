@@ -13,7 +13,7 @@ This module is meant for use with Terraform 1.3+ and tested using Terraform 1.3+
 
 ## Version
 
-Current version is 12.0. Upgrade guides:
+Current version is 2.X. Upgrade guides:
 
 - [0.X -> 1.0.](/docs/upgrading_to_v1.0.md)
 - [1.X -> 2.0.](/docs/upgrading_to_v2.0.md)
