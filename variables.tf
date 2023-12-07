@@ -15,7 +15,7 @@
  */
 
 variable "project_id" {
-  description = "The project in which the resource belongs"
+  description = "The project in which the resource belongs."
   type        = string
 }
 
@@ -31,13 +31,13 @@ variable "description" {
 }
 
 variable "default_rule_action" {
-  description = "default rule that allows/denies all traffic with the lowest priority (2,147,483,647)"
+  description = "default rule that allows/denies all traffic with the lowest priority (2,147,483,647)."
   type        = string
   default     = "allow"
 }
 
 variable "recaptcha_redirect_site_key" {
-  description = "reCAPTCHA site key to be used for all the rules using the redirect action with the redirect type of GOOGLE_RECAPTCHA"
+  description = "reCAPTCHA site key to be used for all the rules using the redirect action with the redirect type of GOOGLE_RECAPTCHA."
   type        = string
   default     = null
 }
@@ -102,7 +102,7 @@ variable "pre_configured_rules" {
 }
 
 variable "security_rules" {
-  description = "Map of Security rules with list of IP addresses to block or unblock"
+  description = "Map of Security rules with list of IP addresses to block or unblock."
   type = map(object({
     action          = string
     priority        = number
@@ -223,13 +223,13 @@ variable "threat_intelligence_rules" {
 }
 
 variable "type" {
-  description = "Type indicates the intended use of the security policy. Possible values are CLOUD_ARMOR and CLOUD_ARMOR_EDGE"
+  description = "Type indicates the intended use of the security policy. Possible values are CLOUD_ARMOR and CLOUD_ARMOR_EDGE."
   type        = string
   default     = "CLOUD_ARMOR"
 }
 
 variable "layer_7_ddos_defense_enable" {
-  description = "(Optional) If set to true, enables Cloud Armor Adaptive Protection for L7 DDoS detection. Cloud Armor Adaptive Protection is only supported in Global Security Policies of type CLOUD_ARMOR"
+  description = "(Optional) If set to true, enables Cloud Armor Adaptive Protection for L7 DDoS detection. Cloud Armor Adaptive Protection is only supported in Global Security Policies of type CLOUD_ARMOR. Set this variable `true` for Adaptive Protection Auto Deploy."
   type        = bool
   default     = false
 }
@@ -241,17 +241,17 @@ variable "layer_7_ddos_defense_rule_visibility" {
 }
 
 variable "adaptive_protection_auto_deploy" {
-  description = "Configuration for Automatically deploy Cloud Armor Adaptive Protection suggested rules. priority and action fields are required if enable is set to true"
+  description = "Configuration for Automatically deploy Cloud Armor Adaptive Protection suggested rules. `priority` and `action` fields are required if `enable` is set to true. Requires `layer_7_ddos_defense_enable` set to `true`."
   type = object({
     enable                      = bool
     priority                    = optional(number, null)
     action                      = optional(string, null)
     preview                     = optional(bool, false)
     description                 = optional(string, "Adaptive Protection auto-deploy")
-    load_threshold              = optional(number, 0.1)
-    confidence_threshold        = optional(number, 0.5)
-    impacted_baseline_threshold = optional(number, 0.01)
-    expiration_sec              = optional(number, 7200)
+    load_threshold              = optional(number)
+    confidence_threshold        = optional(number)
+    impacted_baseline_threshold = optional(number)
+    expiration_sec              = optional(number)
     redirect_type               = optional(string)
     redirect_target             = optional(string)
 
@@ -272,31 +272,32 @@ variable "adaptive_protection_auto_deploy" {
       ban_http_request_interval_sec        = optional(number)
     }), {})
   })
+
   default = {
     enable = false
   }
 }
 
 variable "json_parsing" {
-  description = "Whether or not to JSON parse the payload body. Possible values are DISABLED and STANDARD. Not supported for CLOUD_ARMOR_EDGE policy type"
+  description = "Whether or not to JSON parse the payload body. Possible values are DISABLED and STANDARD. Not supported for CLOUD_ARMOR_EDGE policy type."
   type        = string
   default     = "DISABLED"
 }
 
 variable "log_level" {
-  description = "Log level to use. Possible values are NORMAL and VERBOSE. Not supported for CLOUD_ARMOR_EDGE policy type"
+  description = "Log level to use. Possible values are NORMAL and VERBOSE. Not supported for CLOUD_ARMOR_EDGE policy type."
   type        = string
   default     = "NORMAL"
 }
 
 variable "json_custom_config_content_types" {
-  description = "A list of custom Content-Type header values to apply the JSON parsing. Only applicable when json_parsing is set to STANDARD. Not supported for CLOUD_ARMOR_EDGE policy type"
+  description = "A list of custom Content-Type header values to apply the JSON parsing. Only applicable when json_parsing is set to STANDARD. Not supported for CLOUD_ARMOR_EDGE policy type."
   type        = list(string)
   default     = []
 }
 
 variable "user_ip_request_headers" {
-  description = "An optional list of case-insensitive request header names to use for resolving the callers client IP address"
+  description = "An optional list of case-insensitive request header names to use for resolving the callers client IP address."
   type        = list(string)
   default     = []
 }

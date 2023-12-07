@@ -502,6 +502,16 @@ resource "google_compute_security_policy" "policy" {
         enable          = var.layer_7_ddos_defense_enable
         rule_visibility = var.layer_7_ddos_defense_rule_visibility
       }
+      dynamic "auto_deploy_config" {
+        for_each = var.adaptive_protection_auto_deploy.enable ? { auto_deploy = var.adaptive_protection_auto_deploy } : {}
+        content {
+          load_threshold              = auto_deploy_config.value["load_threshold"]
+          confidence_threshold        = auto_deploy_config.value["confidence_threshold"]
+          impacted_baseline_threshold = auto_deploy_config.value["impacted_baseline_threshold"]
+          expiration_sec              = auto_deploy_config.value["expiration_sec"]
+        }
+
+      }
     }
   }
 

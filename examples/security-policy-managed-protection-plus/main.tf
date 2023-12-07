@@ -30,9 +30,11 @@ module "cloud_armor" {
 
   ## This is an example of deny policy. Examples for redirect and throttle policies are in README.
   adaptive_protection_auto_deploy = {
-    enable   = true
-    priority = 100000
-    action   = "deny(403)"
+    enable               = true
+    priority             = 100000
+    action               = "deny(403)"
+    load_threshold       = 0.3
+    confidence_threshold = 0.6
   }
 
   threat_intelligence_rules = {
