@@ -18,7 +18,8 @@ resource "random_id" "suffix" {
   byte_length = 4
 }
 module "cloud_armor" {
-  source = "../../"
+  source  = "GoogleCloudPlatform/cloud-armor/google"
+  version = "~> 2.0"
 
   project_id          = var.project_id
   name                = "test-casp-edge-policy-${random_id.suffix.hex}"
