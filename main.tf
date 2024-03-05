@@ -206,6 +206,50 @@ resource "google_compute_security_policy" "policy" {
           }
         }
       }
+
+      # Optional preconfigured_waf_config Block if preconfigured_waf_config_exclusion is provided
+      dynamic "preconfigured_waf_config" {
+        for_each = rule.value.preconfigured_waf_config_exclusions == null ? [] : ["preconfigured_waf_config_exclusions"] #rule.value.preconfigured_waf_config_exclusions
+        content {
+          dynamic "exclusion" {
+            for_each = rule.value.preconfigured_waf_config_exclusions
+            content {
+              target_rule_set = exclusion.value.target_rule_set
+              target_rule_ids = exclusion.value.target_rule_ids
+              dynamic "request_header" {
+                for_each = exclusion.value.request_header == null ? {} : { for x in exclusion.value.request_header : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+                content {
+                  operator = request_header.value.operator
+                  value    = request_header.value.operator == "EQUALS_ANY" ? null : request_header.value.value
+                }
+              }
+              dynamic "request_cookie" {
+                for_each = exclusion.value.request_cookie == null ? {} : { for x in exclusion.value.request_cookie : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+                content {
+                  operator = request_cookie.value.operator
+                  value    = request_cookie.value.operator == "EQUALS_ANY" ? null : request_cookie.value.value
+                }
+              }
+              dynamic "request_uri" {
+                for_each = exclusion.value.request_uri == null ? {} : { for x in exclusion.value.request_uri : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+                content {
+                  operator = request_uri.value.operator
+                  value    = request_uri.value.operator == "EQUALS_ANY" ? null : request_uri.value.value
+                }
+              }
+              dynamic "request_query_param" {
+                for_each = exclusion.value.request_query_param == null ? {} : { for x in exclusion.value.request_query_param : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+                content {
+                  operator = request_query_param.value.operator
+                  value    = request_query_param.value.operator == "EQUALS_ANY" ? null : request_query_param.value.value
+                }
+              }
+            }
+          }
+
+        }
+      }
+
     }
   }
 
@@ -403,6 +447,49 @@ resource "google_compute_security_policy" "policy" {
               }
             }
           }
+        }
+      }
+
+      # Optional preconfigured_waf_config Block if preconfigured_waf_config_exclusion is provided
+      dynamic "preconfigured_waf_config" {
+        for_each = rule.value.preconfigured_waf_config_exclusions == null ? [] : ["preconfigured_waf_config_exclusions"] #rule.value.preconfigured_waf_config_exclusions
+        content {
+          dynamic "exclusion" {
+            for_each = rule.value.preconfigured_waf_config_exclusions
+            content {
+              target_rule_set = exclusion.value.target_rule_set
+              target_rule_ids = exclusion.value.target_rule_ids
+              dynamic "request_header" {
+                for_each = exclusion.value.request_header == null ? {} : { for x in exclusion.value.request_header : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+                content {
+                  operator = request_header.value.operator
+                  value    = request_header.value.operator == "EQUALS_ANY" ? null : request_header.value.value
+                }
+              }
+              dynamic "request_cookie" {
+                for_each = exclusion.value.request_cookie == null ? {} : { for x in exclusion.value.request_cookie : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+                content {
+                  operator = request_cookie.value.operator
+                  value    = request_cookie.value.operator == "EQUALS_ANY" ? null : request_cookie.value.value
+                }
+              }
+              dynamic "request_uri" {
+                for_each = exclusion.value.request_uri == null ? {} : { for x in exclusion.value.request_uri : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+                content {
+                  operator = request_uri.value.operator
+                  value    = request_uri.value.operator == "EQUALS_ANY" ? null : request_uri.value.value
+                }
+              }
+              dynamic "request_query_param" {
+                for_each = exclusion.value.request_query_param == null ? {} : { for x in exclusion.value.request_query_param : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+                content {
+                  operator = request_query_param.value.operator
+                  value    = request_query_param.value.operator == "EQUALS_ANY" ? null : request_query_param.value.value
+                }
+              }
+            }
+          }
+
         }
       }
 

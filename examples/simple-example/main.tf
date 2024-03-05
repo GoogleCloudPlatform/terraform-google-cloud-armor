@@ -40,66 +40,65 @@ module "cloud_armor" {
       priority          = 1
       target_rule_set   = "sqli-v33-stable"
       sensitivity_level = 4
+      description       = "sqli-v33-stable Sensitivity Level 4 and 2 preconfigured_waf_config_exclusions"
 
-      preconfigured_waf_config_exclusion = {
-        target_rule_set = "sqli-v33-stable"
-        request_cookie = [
-          {
-            operator = "EQUALS_ANY"
-          },
-          {
-            operator = "STARTS_WITH"
-            value    = "abc"
-          }
-        ]
-        request_header = [
-          {
-            operator = "STARTS_WITH"
-            value    = "xyz"
-          },
-          {
-            operator = "STARTS_WITH"
-            value    = "uvw"
-          }
-        ]
+      # 2 exclusions
+      preconfigured_waf_config_exclusions = {
+        exclusion_1 = {
+          target_rule_set = "sqli-v33-stable"
+          target_rule_ids = ["owasp-crs-v030301-id942120-sqli", "owasp-crs-v030301-id942130-sqli"]
+          request_cookie = [
+            {
+              operator = "STARTS_WITH"
+              value    = "abc"
+            }
+          ]
+          request_header = [
+            {
+              operator = "STARTS_WITH"
+              value    = "xyz"
+            },
+            {
+              operator = "STARTS_WITH"
+              value    = "uvw"
+            }
+          ]
+        }
+        exclusion_2 = {
+          target_rule_set = "sqli-v33-stable"
+          target_rule_ids = ["owasp-crs-v030301-id942150-sqli", "owasp-crs-v030301-id942180-sqli"]
+          request_header = [
+            {
+              operator = "STARTS_WITH"
+              value    = "lmn"
+            },
+            {
+              operator = "ENDS_WITH"
+              value    = "opq"
+            }
+          ]
+          request_uri = [
+            {
+              operator = "CONTAINS"
+              value    = "https://hashicorp.com"
+            },
+            {
+              operator = "CONTAINS"
+              value    = "https://xyz.com"
+            },
+          ]
+        }
+
       }
-
     }
 
     "xss-stable_level_2_with_exclude" = {
       action                  = "deny(502)"
       priority                = 2
-      description             = "XSS Sensitivity Level 2 with excluded rules"
       preview                 = true
       target_rule_set         = "xss-v33-stable"
       sensitivity_level       = 2
       exclude_target_rule_ids = ["owasp-crs-v030301-id941380-xss", "owasp-crs-v030301-id941280-xss"]
-
-      preconfigured_waf_config_exclusion = {
-        target_rule_set = "xss-v33-stable"
-        target_rule_ids = ["owasp-crs-v030301-id941140-xss", "owasp-crs-v030301-id941270-xss"]
-        request_header = [
-          {
-            operator = "STARTS_WITH"
-            value    = "abc"
-          },
-          {
-            operator = "ENDS_WITH"
-            value    = "xyz"
-          }
-        ]
-        request_uri = [
-          {
-            operator = "CONTAINS"
-            value    = "https://hashicorp.com"
-          },
-          {
-            operator = "CONTAINS"
-            value    = "https://xyz.com"
-          },
-        ]
-      }
-
     }
 
     "php-stable_level_0_with_include" = {

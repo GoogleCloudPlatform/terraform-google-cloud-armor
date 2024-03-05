@@ -43,7 +43,7 @@ variable "recaptcha_redirect_site_key" {
 }
 
 variable "pre_configured_rules" {
-  description = "Map of pre-configured rules Sensitivity levels"
+  description = "Map of pre-configured rules with Sensitivity levels. preconfigured_waf_config_exclusion is obsolete and available for backward compatibility. Use preconfigured_waf_config_exclusions which allows multiple exclusions"
   type = map(object({
     action                  = string
     priority                = number
@@ -94,7 +94,28 @@ variable "pre_configured_rules" {
         operator = string
         value    = optional(string)
       })))
-    }), { target_rule_set = null })
+    }), { target_rule_set = null }) # Obsolete. Use preconfigured_waf_config_exclusions
+
+    preconfigured_waf_config_exclusions = optional(map(object({
+      target_rule_set = string
+      target_rule_ids = optional(list(string), [])
+      request_header = optional(list(object({
+        operator = string
+        value    = optional(string)
+      })))
+      request_cookie = optional(list(object({
+        operator = string
+        value    = optional(string)
+      })))
+      request_uri = optional(list(object({
+        operator = string
+        value    = optional(string)
+      })))
+      request_query_param = optional(list(object({
+        operator = string
+        value    = optional(string)
+      })))
+    })), null)
 
   }))
 
@@ -184,7 +205,28 @@ variable "custom_rules" {
         operator = string
         value    = optional(string)
       })))
-    }), { target_rule_set = null })
+    }), { target_rule_set = null }) # Obsolete. Use preconfigured_waf_config_exclusions
+
+    preconfigured_waf_config_exclusions = optional(map(object({
+      target_rule_set = string
+      target_rule_ids = optional(list(string), [])
+      request_header = optional(list(object({
+        operator = string
+        value    = optional(string)
+      })))
+      request_cookie = optional(list(object({
+        operator = string
+        value    = optional(string)
+      })))
+      request_uri = optional(list(object({
+        operator = string
+        value    = optional(string)
+      })))
+      request_query_param = optional(list(object({
+        operator = string
+        value    = optional(string)
+      })))
+    })), null)
 
   }))
   default = {}
