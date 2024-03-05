@@ -46,17 +46,26 @@ func TestSimpleExample(t *testing.T) {
 		for _, sp := range spRule1.Array() {
 			assert.Equal("deny(502)", sp.Get("action").String(), "priority 1 rule has expected action")
 			assert.Equal("evaluatePreconfiguredWaf('sqli-v33-stable', {'sensitivity': 4})", sp.Get("match.expr.expression").String(), "priority 1 rule has expected rule expression")
-			assert.Empty(sp.Get("description").String(), "priority 2 rule has expected description")
+			assert.Equal("sqli-v33-stable Sensitivity Level 4 and 2 preconfigured_waf_config_exclusions", sp.Get("description").String(), "priority 1 rule has expected description")
 			assert.False(sp.Get("preview").Bool(), "priority 1 rule Preview is set to False")
-			for _, pce := range sp.Get("preconfiguredWafConfig.exclusions").Array() {
-				assert.Equal("EQUALS_ANY", pce.Get("requestCookiesToExclude").Array()[0].Get("op").String(), "priority 1 rule has expected requestCookiesToExclude")
-				assert.Equal("STARTS_WITH", pce.Get("requestCookiesToExclude").Array()[1].Get("op").String(), "priority 1 rule has expected requestCookiesToExclude")
-				assert.Equal("abc", pce.Get("requestCookiesToExclude").Array()[1].Get("val").String(), "priority 1 rule has expected requestCookiesToExclude")
 
-				assert.Equal("STARTS_WITH", pce.Get("requestHeadersToExclude").Array()[0].Get("op").String(), "priority 1 rule has expected requestHeadersToExclude")
-				assert.Equal("STARTS_WITH", pce.Get("requestHeadersToExclude").Array()[1].Get("op").String(), "priority 1 rule has expected requestHeadersToExclude")
-				assert.Equal("xyz", pce.Get("requestHeadersToExclude").Array()[1].Get("val").String(), "priority 1 rule has expected requestHeadersToExclude")
-			}
+			pce :=	sp.Get("preconfiguredWafConfig.exclusions").Array()
+			assert.Equal("STARTS_WITH", pce[0].Get("requestCookiesToExclude").Array()[0].Get("op").String(), "priority 1 rule has expected requestCookiesToExclude")
+			assert.Equal("abc", pce[0].Get("requestCookiesToExclude").Array()[0].Get("val").String(), "priority 1 rule has expected requestCookiesToExclude")
+			assert.Equal("STARTS_WITH", pce[0].Get("requestHeadersToExclude").Array()[0].Get("op").String(), "priority 1 rule has expected requestHeadersToExclude")
+			assert.Equal("uvw", pce[0].Get("requestHeadersToExclude").Array()[0].Get("val").String(), "priority 1 rule has expected requestHeadersToExclude")
+			assert.Equal("STARTS_WITH", pce[0].Get("requestHeadersToExclude").Array()[1].Get("op").String(), "priority 1 rule has expected requestHeadersToExclude")
+			assert.Equal("xyz", pce[0].Get("requestHeadersToExclude").Array()[1].Get("val").String(), "priority 1 rule has expected requestHeadersToExclude")
+
+			assert.Equal("ENDS_WITH", pce[1].Get("requestHeadersToExclude").Array()[0].Get("op").String(), "priority 1 rule has expected requestHeadersToExclude")
+			assert.Equal("opq", pce[1].Get("requestHeadersToExclude").Array()[0].Get("val").String(), "priority 1 rule has expected requestHeadersToExclude")
+			assert.Equal("STARTS_WITH", pce[1].Get("requestHeadersToExclude").Array()[1].Get("op").String(), "priority 1 rule has expected requestHeadersToExclude")
+			assert.Equal("lmn", pce[1].Get("requestHeadersToExclude").Array()[1].Get("val").String(), "priority 1 rule has expected requestHeadersToExclude")
+
+			assert.Equal("CONTAINS", pce[1].Get("requestUrisToExclude").Array()[0].Get("op").String(), "priority 1 rule has expected requestUrisToExclude")
+			assert.Equal("https://xyz.com", pce[1].Get("requestUrisToExclude").Array()[0].Get("val").String(), "priority 1 rule has expected requestUrisToExclude")
+			assert.Equal("CONTAINS", pce[1].Get("requestUrisToExclude").Array()[1].Get("op").String(), "priority 1 rule has expected requestUrisToExclude")
+			assert.Equal("https://hashicorp.com", pce[1].Get("requestUrisToExclude").Array()[1].Get("val").String(), "priority 1 rule has expected requestUrisToExclude")
 		}
 
 		// 	Rule 2
@@ -64,20 +73,8 @@ func TestSimpleExample(t *testing.T) {
 		for _, sp := range spRule2.Array() {
 			assert.Equal("deny(502)", sp.Get("action").String(), "priority 2 rule has expected action")
 			assert.Equal("evaluatePreconfiguredWaf('xss-v33-stable', {'sensitivity': 2, 'opt_out_rule_ids': ['owasp-crs-v030301-id941380-xss','owasp-crs-v030301-id941280-xss']})", sp.Get("match.expr.expression").String(), "priority 2 rule has expected rule expression")
-			assert.Equal("XSS Sensitivity Level 2 with excluded rules", sp.Get("description").String(), "priority 2 rule has expected description")
+			assert.Empty(sp.Get("description").String(), "priority 2 rule has expected description")
 			assert.True(sp.Get("preview").Bool(), "priority 2 rule Preview is set to True")
-
-			for _, pce := range sp.Get("preconfiguredWafConfig.exclusions").Array() {
-				assert.Equal("ENDS_WITH", pce.Get("requestHeadersToExclude").Array()[0].Get("op").String(), "priority 2 rule has expected requestHeadersToExclude")
-				assert.Equal("STARTS_WITH", pce.Get("requestHeadersToExclude").Array()[1].Get("op").String(), "priority 2 rule has expected requestHeadersToExclude")
-				assert.Equal("xyz", pce.Get("requestHeadersToExclude").Array()[0].Get("val").String(), "priority 2 rule has expected requestHeadersToExclude")
-				assert.Equal("abc", pce.Get("requestHeadersToExclude").Array()[1].Get("val").String(), "priority 2 rule has expected requestHeadersToExclude")
-
-				assert.Equal("CONTAINS", pce.Get("requestUrisToExclude").Array()[0].Get("op").String(), "priority 2 rule has expected requestUrisToExclude")
-				assert.Equal("CONTAINS", pce.Get("requestUrisToExclude").Array()[1].Get("op").String(), "priority 2 rule has expected requestUrisToExclude")
-				assert.Equal("https://xyz.com", pce.Get("requestUrisToExclude").Array()[0].Get("val").String(), "priority 2 rule has expected requestUrisToExclude")
-				assert.Equal("https://hashicorp.com", pce.Get("requestUrisToExclude").Array()[1].Get("val").String(), "priority 2 rule has expected requestUrisToExclude")
-			}
 		}
 
 		spRule3 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 3 --security-policy=%s --project %s", policyName, projectId))

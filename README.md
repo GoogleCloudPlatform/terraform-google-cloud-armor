@@ -1,10 +1,10 @@
 # Cloud Armor Terraform Module
-This module makes it easy to setup [Cloud Armor Security Policy](https://cloud.google.com/armor/docs/cloud-armor-overview#security_policies) with Security rules. There are five type of rules you can create in each policy:
-- [Pre-Configured Rules](#pre_configured_rules): These are based on [pre-configured waf rules](https://cloud.google.com/armor/docs/waf-rules).
-- [Security Rules](#security_rules): Allow or Deny traffic from list of IP addresses or IP adress ranges.
-- [Custom Rules](#custom_rules): You can create your own rules using [Common Expression Language (CEL)](https://cloud.google.com/armor/docs/rules-language-reference).
-- [Threat Intelligence Rules](#threat_intelligence_rules): Add Rules based on [threat intelligence](https://cloud.google.com/armor/docs/threat-intelligence). [Managed protection plus](https://cloud.google.com/armor/docs/managed-protection-overview) subscription is needed to use this feature.
-- [Automatically deploy Adaptive Protection suggested rules](#adaptive_protection_auto_deploy); When enable module will create a rule for automatically deploying the suggested rules that [Adaptive Protection generates](https://cloud.google.com/armor/docs/adaptive-protection-auto-deploy).
+This module makes it easy to setup [Cloud Armor Security Policy](https://cloud.google.com/armor/docs/cloud-armor-overview#security_policies) with Security rules. There are `five` type of rules you can create in each policy:
+1) [Pre-Configured Rules](#pre_configured_rules): These are based on [pre-configured waf rules](https://cloud.google.com/armor/docs/waf-rules).
+2) [Security Rules](#security_rules): Allow or Deny traffic from list of IP addresses or IP adress ranges.
+3) [Custom Rules](#custom_rules): You can create your own rules using [Common Expression Language (CEL)](https://cloud.google.com/armor/docs/rules-language-reference).
+4) [Threat Intelligence Rules](#threat_intelligence_rules): Add Rules based on [threat intelligence](https://cloud.google.com/armor/docs/threat-intelligence). [Managed protection plus](https://cloud.google.com/armor/docs/managed-protection-overview) subscription is needed to use this feature.
+5) [Automatically deploy Adaptive Protection Suggested Rules](#adaptive_protection_auto_deploy); When enable module will create a rule for automatically deploying the suggested rules that [Adaptive Protection generates](https://cloud.google.com/armor/docs/adaptive-protection-auto-deploy).
 
 
 ## Compatibility
@@ -17,6 +17,7 @@ Current version is 2.X. Upgrade guides:
 
 - [0.X -> 1.0.](/docs/upgrading_to_v1.0.md)
 - [1.X -> 2.0.](/docs/upgrading_to_v2.0.md)
+- [2.X -> 2.1.](/docs/upgrading_to_v2.1.md)
 
 ##  Module Format
 
@@ -39,6 +40,7 @@ module security_policy {
   security_rules                       = {}
   custom_rules                         = {}
   threat_intelligence_rules            = {}
+  adaptive_protection_auto_deploy      = {}
 }
 ```
 
@@ -69,6 +71,58 @@ module "security_policy" {
       action          = "deny(502)"
       priority        = 1
       target_rule_set = "sqli-v33-stable"
+
+      sensitivity_level = 4
+      description       = "sqli-v33-stable Sensitivity Level 4 and 2 preconfigured_waf_config_exclusions"
+
+      preconfigured_waf_config_exclusions = {
+        exclusion_1 = {
+          target_rule_set = "sqli-v33-stable"
+          target_rule_ids = ["owasp-crs-v030301-id942120-sqli", "owasp-crs-v030301-id942130-sqli"]
+          request_cookie = [
+            {
+              operator = "STARTS_WITH"
+              value    = "abc"
+            }
+          ]
+          request_header = [
+            {
+              operator = "STARTS_WITH"
+              value    = "xyz"
+            },
+            {
+              operator = "STARTS_WITH"
+              value    = "uvw"
+            }
+          ]
+        }
+
+        exclusion_2 = {
+          target_rule_set = "sqli-v33-stable"
+          target_rule_ids = ["owasp-crs-v030301-id942150-sqli", "owasp-crs-v030301-id942180-sqli"]
+          request_header = [
+            {
+              operator = "STARTS_WITH"
+              value    = "lmn"
+            },
+            {
+              operator = "ENDS_WITH"
+              value    = "opq"
+            }
+          ]
+          request_uri = [
+            {
+              operator = "CONTAINS"
+              value    = "https://hashicorp.com"
+            },
+            {
+              operator = "CONTAINS"
+              value    = "https://xyz.com"
+            },
+          ]
+        }
+
+      }
     }
 
     "xss-stable_level_2_with_exclude" = {
@@ -79,30 +133,6 @@ module "security_policy" {
       target_rule_set         = "xss-v33-stable"
       sensitivity_level       = 2
       exclude_target_rule_ids = ["owasp-crs-v030301-id941380-xss", "owasp-crs-v030301-id941280-xss"]
-      preconfigured_waf_config_exclusion = {
-        target_rule_set = "xss-v33-stable"
-        target_rule_ids = ["owasp-crs-v030301-id941140-xss", "owasp-crs-v030301-id941270-xss"]
-        request_header = [
-          {
-            operator = "STARTS_WITH"
-            value    = "abc"
-          },
-          {
-            operator = "ENDS_WITH"
-            value    = "xyz"
-          }
-        ]
-        request_uri = [
-          {
-            operator = "CONTAINS"
-            value    = "https://hashicorp.com"
-          },
-          {
-            operator = "CONTAINS"
-            value    = "https://xyz.com"
-          },
-        ]
-      }
     }
 
     "php-stable_level_0_with_include" = {
@@ -279,7 +309,7 @@ module "security_policy" {
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | adaptive\_protection\_auto\_deploy | Configuration for Automatically deploy Cloud Armor Adaptive Protection suggested rules. `priority` and `action` fields are required if `enable` is set to true. Requires `layer_7_ddos_defense_enable` set to `true`. | <pre>object({<br>    enable                      = bool<br>    priority                    = optional(number, null)<br>    action                      = optional(string, null)<br>    preview                     = optional(bool, false)<br>    description                 = optional(string, "Adaptive Protection auto-deploy")<br>    load_threshold              = optional(number)<br>    confidence_threshold        = optional(number)<br>    impacted_baseline_threshold = optional(number)<br>    expiration_sec              = optional(number)<br>    redirect_type               = optional(string)<br>    redirect_target             = optional(string)<br><br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br><br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br><br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>    }), {})<br>  })</pre> | <pre>{<br>  "enable": false<br>}</pre> | no |
-| custom\_rules | Custome security rules | <pre>map(object({<br>    action          = string<br>    priority        = number<br>    description     = optional(string)<br>    preview         = optional(bool, false)<br>    expression      = string<br>    redirect_type   = optional(string, null)<br>    redirect_target = optional(string, null)<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br><br>    preconfigured_waf_config_exclusion = optional(object({<br>      target_rule_set = string<br>      target_rule_ids = optional(list(string), [])<br>      request_header = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_cookie = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_uri = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_query_param = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>    }), { target_rule_set = null })<br><br>  }))</pre> | `{}` | no |
+| custom\_rules | Custome security rules | <pre>map(object({<br>    action          = string<br>    priority        = number<br>    description     = optional(string)<br>    preview         = optional(bool, false)<br>    expression      = string<br>    redirect_type   = optional(string, null)<br>    redirect_target = optional(string, null)<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br><br>    preconfigured_waf_config_exclusion = optional(object({<br>      target_rule_set = string<br>      target_rule_ids = optional(list(string), [])<br>      request_header = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_cookie = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_uri = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_query_param = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>    }), { target_rule_set = null }) # Obsolete. Use preconfigured_waf_config_exclusions<br><br>    preconfigured_waf_config_exclusions = optional(map(object({<br>      target_rule_set = string<br>      target_rule_ids = optional(list(string), [])<br>      request_header = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_cookie = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_uri = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_query_param = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>    })), null)<br><br>  }))</pre> | `{}` | no |
 | default\_rule\_action | default rule that allows/denies all traffic with the lowest priority (2,147,483,647). | `string` | `"allow"` | no |
 | description | An optional description of this security policy. Max size is 2048. | `string` | `null` | no |
 | json\_custom\_config\_content\_types | A list of custom Content-Type header values to apply the JSON parsing. Only applicable when json\_parsing is set to STANDARD. Not supported for CLOUD\_ARMOR\_EDGE policy type. | `list(string)` | `[]` | no |
@@ -288,7 +318,7 @@ module "security_policy" {
 | layer\_7\_ddos\_defense\_rule\_visibility | (Optional) Rule visibility can be one of the following: STANDARD - opaque rules. PREMIUM - transparent rules. This field is only supported in Global Security Policies of type CLOUD\_ARMOR. | `string` | `"STANDARD"` | no |
 | log\_level | Log level to use. Possible values are NORMAL and VERBOSE. Not supported for CLOUD\_ARMOR\_EDGE policy type. | `string` | `"NORMAL"` | no |
 | name | Name of the security policy. | `string` | n/a | yes |
-| pre\_configured\_rules | Map of pre-configured rules Sensitivity levels | <pre>map(object({<br>    action                  = string<br>    priority                = number<br>    description             = optional(string)<br>    preview                 = optional(bool, false)<br>    redirect_type           = optional(string, null)<br>    redirect_target         = optional(string, null)<br>    target_rule_set         = string<br>    sensitivity_level       = optional(number, 4)<br>    include_target_rule_ids = optional(list(string), [])<br>    exclude_target_rule_ids = optional(list(string), [])<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>    }), {})<br><br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br><br>    preconfigured_waf_config_exclusion = optional(object({<br>      target_rule_set = string<br>      target_rule_ids = optional(list(string), [])<br>      request_header = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_cookie = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_uri = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_query_param = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>    }), { target_rule_set = null })<br><br>  }))</pre> | `{}` | no |
+| pre\_configured\_rules | Map of pre-configured rules with Sensitivity levels. preconfigured\_waf\_config\_exclusion is obsolete and available for backward compatibility. Use preconfigured\_waf\_config\_exclusions which allows multiple exclusions | <pre>map(object({<br>    action                  = string<br>    priority                = number<br>    description             = optional(string)<br>    preview                 = optional(bool, false)<br>    redirect_type           = optional(string, null)<br>    redirect_target         = optional(string, null)<br>    target_rule_set         = string<br>    sensitivity_level       = optional(number, 4)<br>    include_target_rule_ids = optional(list(string), [])<br>    exclude_target_rule_ids = optional(list(string), [])<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>    }), {})<br><br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br><br>    preconfigured_waf_config_exclusion = optional(object({<br>      target_rule_set = string<br>      target_rule_ids = optional(list(string), [])<br>      request_header = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_cookie = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_uri = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_query_param = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>    }), { target_rule_set = null }) # Obsolete. Use preconfigured_waf_config_exclusions<br><br>    preconfigured_waf_config_exclusions = optional(map(object({<br>      target_rule_set = string<br>      target_rule_ids = optional(list(string), [])<br>      request_header = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_cookie = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_uri = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_query_param = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>    })), null)<br><br>  }))</pre> | `{}` | no |
 | project\_id | The project in which the resource belongs. | `string` | n/a | yes |
 | recaptcha\_redirect\_site\_key | reCAPTCHA site key to be used for all the rules using the redirect action with the redirect type of GOOGLE\_RECAPTCHA. | `string` | `null` | no |
 | security\_rules | Map of Security rules with list of IP addresses to block or unblock. | <pre>map(object({<br>    action          = string<br>    priority        = number<br>    description     = optional(string)<br>    preview         = optional(bool, false)<br>    redirect_type   = optional(string, null)<br>    redirect_target = optional(string, null)<br>    src_ip_ranges   = list(string)<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br>  }))</pre> | `{}` | no |
@@ -313,18 +343,18 @@ module "security_policy" {
 ```
   "my_rule" = {
     action                             = "deny(502)"
-    priority                           = 1
-    description                        = "SQL Sensitivity Level 4"
-    preview                            = false
-    redirect_type                      = null
-    redirect_target                    = null
-    target_rule_set                    = "sqli-v33-stable"
-    sensitivity_level                  = 4
-    include_target_rule_ids            = []
-    exclude_target_rule_ids            = []
-    header_action                      = []
-    rate_limit_options                 = {}
-    preconfigured_waf_config_exclusion = {}
+    priority                             = 1
+    description                          = "SQL Sensitivity Level 4"
+    preview                              = false
+    redirect_type                        = null
+    redirect_target                      = null
+    target_rule_set                      = "sqli-v33-stable"
+    sensitivity_level                    = 4
+    include_target_rule_ids              = []
+    exclude_target_rule_ids              = []
+    header_action                        = []
+    rate_limit_options                   = {}
+    preconfigured_waf_config_exclusions  = {}
   }
 ```
 
@@ -356,32 +386,59 @@ rate_limit_options = {
 ```
 
 ## Preconfigured WAF Config
-`preconfigured_waf_config_exclusion` is needed for custom application that might contain content in request fields (like headers, cookies, query parameters, or URIs) that matches signatures in preconfigured WAF rules, but which you know is legitimate. In this case, you can reduce false positives by excluding those request fields from inspection by associating a list of exclusions for request fields with the security policy rule. You can pass `request_header`, `request_uri`, `request_cookie` and `request_query_param`. It is available in [Pre-Configured Rules](#pre_configured_rules). You can find more details about `preconfigured_waf_config` [here](https://cloud.google.com/armor/docs/rule-tuning#exclude_request_fields_from_inspection)
+:bangbang: **NOTE:** `preconfigured_waf_config_exclusion` in `pre_configured_rules` and `custom_rules` is obsolete and available for backward compatibility only. Use `pre_configured_rules.preconfigured_waf_config_exclusions` which allows multiple exclusions. They are mutually exclusive.
+
+`preconfigured_waf_config_exclusions` is needed for custom application that might contain content in request fields (like headers, cookies, query parameters, or URIs) that matches signatures in preconfigured WAF rules, but which you know is legitimate. In this case, you can reduce false positives by excluding those request fields from inspection by associating a list of exclusions for request fields with the security policy rule. You can pass `request_header`, `request_uri`, `request_cookie` and `request_query_param`. It is available in [Pre-Configured Rules](#pre_configured_rules). You can find more details about `preconfigured_waf_config` [here](https://cloud.google.com/armor/docs/rule-tuning#exclude_request_fields_from_inspection)
 
 ```
-preconfigured_waf_config_exclusion = {
-  target_rule_set = "xss-v33-stable"
-  target_rule_ids = ["owasp-crs-v030301-id941140-xss", "owasp-crs-v030301-id941270-xss"]
-  request_header = [
-    {
-      operator = "STARTS_WITH"
-      value    = "abc"
-    },
-    {
-      operator = "ENDS_WITH"
-      value    = "xyz"
-    }
-  ]
-  request_uri = [
-    {
-      operator = "CONTAINS"
-      value    = "https://hashicorp.com"
-    },
-    {
-      operator = "CONTAINS"
-      value    = "https://xyz.com"
-    },
-  ]
+preconfigured_waf_config_exclusions = {
+
+  exclusion_1 = {
+    target_rule_set = "sqli-v33-stable"
+    target_rule_ids = ["owasp-crs-v030301-id942120-sqli", "owasp-crs-v030301-id942130-sqli"]
+    request_cookie = [
+      {
+        operator = "STARTS_WITH"
+        value    = "abc"
+      }
+    ]
+    request_header = [
+      {
+        operator = "STARTS_WITH"
+        value    = "xyz"
+      },
+      {
+        operator = "STARTS_WITH"
+        value    = "uvw"
+      }
+    ]
+  }
+
+  exclusion_2 = {
+    target_rule_set = "sqli-v33-stable"
+    target_rule_ids = ["owasp-crs-v030301-id942150-sqli", "owasp-crs-v030301-id942180-sqli"]
+    request_header = [
+      {
+        operator = "STARTS_WITH"
+        value    = "lmn"
+      },
+      {
+        operator = "ENDS_WITH"
+        value    = "opq"
+      }
+    ]
+    request_uri = [
+      {
+        operator = "CONTAINS"
+        value    = "https://hashicorp.com"
+      },
+      {
+        operator = "CONTAINS"
+        value    = "https://xyz.com"
+      },
+    ]
+  }
+
 }
 ```
 
@@ -392,19 +449,19 @@ List of preconfigured rules are available [here](https://cloud.google.com/armor/
 
 ```
   "sqli_sensitivity_level_4" = {
-    action                             = "deny(502)"
-    priority                           = 1
-    description                        = "SQL Sensitivity Level 4"
-    preview                            = false
-    redirect_type                      = null
-    redirect_target                    = null
-    target_rule_set                    = "sqli-v33-stable"
-    sensitivity_level                  = 4
-    include_target_rule_ids            = []
-    exclude_target_rule_ids            = []
-    rate_limit_options                 = {}
-    header_action                      = []
-    preconfigured_waf_config_exclusion = {}
+    action                               = "deny(502)"
+    priority                             = 1
+    description                          = "SQL Sensitivity Level 4"
+    preview                              = false
+    redirect_type                        = null
+    redirect_target                      = null
+    target_rule_set                      = "sqli-v33-stable"
+    sensitivity_level                    = 4
+    include_target_rule_ids              = []
+    exclude_target_rule_ids              = []
+    rate_limit_options                   = {}
+    header_action                        = []
+    preconfigured_waf_config_exclusions  = {}
   }
 ```
 
@@ -429,24 +486,56 @@ pre_configured_rules = {
     target_rule_set   = "sqli-v33-stable"
     sensitivity_level = 4
 
-    preconfigured_waf_config_exclusion = {
-      target_rule_set = "sqli-v33-stable"
-      request_cookie = [
-        {
-          operator = "EQUALS_ANY"
-        },
-        {
-          operator = "STARTS_WITH"
-          value    = "abc"
-        }
-      ]
-      request_header = [
-        {
-          operator = "STARTS_WITH"
-          value    = "xyz"
-        }
-      ]
+    preconfigured_waf_config_exclusions = {
+
+      exclusion_1 = {
+        target_rule_set = "sqli-v33-stable"
+        target_rule_ids = ["owasp-crs-v030301-id942120-sqli", "owasp-crs-v030301-id942130-sqli"]
+        request_cookie = [
+          {
+            operator = "STARTS_WITH"
+            value    = "abc"
+          }
+        ]
+        request_header = [
+          {
+            operator = "STARTS_WITH"
+            value    = "xyz"
+          },
+          {
+            operator = "STARTS_WITH"
+            value    = "uvw"
+          }
+        ]
+      }
+
+      exclusion_2 = {
+        target_rule_set = "sqli-v33-stable"
+        target_rule_ids = ["owasp-crs-v030301-id942150-sqli", "owasp-crs-v030301-id942180-sqli"]
+        request_header = [
+          {
+            operator = "STARTS_WITH"
+            value    = "lmn"
+          },
+          {
+            operator = "ENDS_WITH"
+            value    = "opq"
+          }
+        ]
+        request_uri = [
+          {
+            operator = "CONTAINS"
+            value    = "https://hashicorp.com"
+          },
+          {
+            operator = "CONTAINS"
+            value    = "https://xyz.com"
+          },
+        ]
+      }
+
     }
+
   }
 
 }
