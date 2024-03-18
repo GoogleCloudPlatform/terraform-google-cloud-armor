@@ -8,6 +8,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [2.1.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v2.0.1...v2.1.0) (2024-03-18)
+
+
+### Features
+
+* add preconfigured_waf_config_exclusions to allow multiple exclusions ([#105](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/105)) ([66f079f](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/66f079fdc8097a971cca2aeb1778d6af061fcaac))
+
 ## [2.0.1](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v2.0.0...v2.0.1) (2023-12-07)
 
 
