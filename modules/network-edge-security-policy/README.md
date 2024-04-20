@@ -7,12 +7,12 @@ You can attch network edge security policy to [external passthrough Network Load
 
 ```
 module "network_edge_security_policy" {
-  source  = "GoogleCloudPlatform/cloud-armor/google//modules/advanced-network-ddos-protection"
+  source  = "GoogleCloudPlatform/cloud-armor/google//modules/network-edge-security-policy"
   version = "~> 2.0"
 
   project_id  = var.project_id
   region      = "us-central1"
-  policy_name = "test-nw-edge-security-policy-${random_id.suffix.hex}"
+  policy_name = "test-nw-edge-security-policy"
 
   policy_user_defined_fields = [
     {},
@@ -34,12 +34,12 @@ There are examples included in the [examples](https://github.com/GoogleCloudPlat
 
 ```
 module "network_edge_security_policy" {
-  source  = "GoogleCloudPlatform/cloud-armor/google//modules/advanced-network-ddos-protection"
+  source  = "GoogleCloudPlatform/cloud-armor/google//modules/network-edge-security-policy"
   version = "~> 2.0"
 
   project_id  = var.project_id
   region      = "us-central1"
-  policy_name = "test-nw-edge-security-policy-${random_id.suffix.hex}"
+  policy_name = "test-nw-edge-security-policy"
 
   policy_user_defined_fields = [
     {
