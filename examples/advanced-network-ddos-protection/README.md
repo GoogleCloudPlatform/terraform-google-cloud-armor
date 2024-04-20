@@ -27,7 +27,7 @@ terraform apply
 
 | Name | Description |
 |------|-------------|
-| adv\_ddos\_protection\_policies | n/a |
-| network\_edge\_security\_services | n/a |
+| adv\_ddos\_protection\_policies | Advanced Network DDoS protection Security policies created |
+| network\_edge\_security\_services | Network edge security services created |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

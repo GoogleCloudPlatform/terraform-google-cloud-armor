@@ -1,10 +1,19 @@
 # Cloud Armor Terraform Module
-This module makes it easy to setup [Cloud Armor Security Policy](https://cloud.google.com/armor/docs/cloud-armor-overview#security_policies) with Security rules. There are `five` type of rules you can create in each policy:
+This module makes it easy to setup [Cloud Armor global Security Policy](https://cloud.google.com/armor/docs/cloud-armor-overview#security_policies) with Security rules. You can attach the global Security Policy policy to backend services exposed by the following load balancer types:
+- Global external Application Load Balancer (HTTP/HTTPS)
+- Classic Application Load Balancer (HTTP/HTTPS)
+- Global external proxy Network Load Balancer (TCP/SSL)
+- Classic proxy Network Load Balancer (TCP/SSL)
+
+There are `five` type of rules you can create in each policy:
 1) [Pre-Configured Rules](#pre_configured_rules): These are based on [pre-configured waf rules](https://cloud.google.com/armor/docs/waf-rules).
 2) [Security Rules](#security_rules): Allow or Deny traffic from list of IP addresses or IP adress ranges.
 3) [Custom Rules](#custom_rules): You can create your own rules using [Common Expression Language (CEL)](https://cloud.google.com/armor/docs/rules-language-reference).
 4) [Threat Intelligence Rules](#threat_intelligence_rules): Add Rules based on [threat intelligence](https://cloud.google.com/armor/docs/threat-intelligence). [Managed protection plus](https://cloud.google.com/armor/docs/managed-protection-overview) subscription is needed to use this feature.
 5) [Automatically deploy Adaptive Protection Suggested Rules](#adaptive_protection_auto_deploy); When enable module will create a rule for automatically deploying the suggested rules that [Adaptive Protection generates](https://cloud.google.com/armor/docs/adaptive-protection-auto-deploy).
+
+
+NOTE: For `external passthrough Network Load Balancers`, `protocol forwarding` and `VMs with public IP addresses` create [network Edge Security policy](https://cloud.google.com/armor/docs/security-policy-overview#network-edge-policies) using [advanced network DDoS protection](./modules/advanced-network-ddos-protection/) and [network edge security policy](./modules/network-edge-security-policy/) sub-modules.
 
 
 ## Compatibility

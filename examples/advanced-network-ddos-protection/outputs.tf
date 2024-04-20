@@ -15,9 +15,11 @@
  */
 
 output "adv_ddos_protection_policies" {
-  value = module.advanced_network_ddos_protection.adv_ddos_protection_policies
+  value       = module.advanced_network_ddos_protection.adv_ddos_protection_policies
+  description = "Advanced Network DDoS protection Security policies created"
 }
 
 output "network_edge_security_services" {
-  value = module.advanced_network_ddos_protection.network_edge_security_services
+  value       = module.advanced_network_ddos_protection.network_edge_security_services
+  description = "Network edge security services created"
 }

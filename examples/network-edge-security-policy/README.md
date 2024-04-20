@@ -1,6 +1,6 @@
 # Enable Cloud Armor Network Edge Security Policy
 
-This example creates network edge security policy with policy rules. Feature is only availalable to projects enrolled in [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview) with [Advanced network DDoS protection](https://cloud.google.com/armor/docs/advanced-network-ddos#activate-advanced-ddos-protection) enabled. You can use [example](../advanced-network-ddos-protection/) to deploy advanced newtork ddos protection.
+This example creates network edge security policy with policy rules. Feature is only availalable to projects enrolled in [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview) with [Advanced network DDoS protection](https://cloud.google.com/armor/docs/advanced-network-ddos#activate-advanced-ddos-protection) enabled. You can use [example](../advanced-network-ddos-protection/) sub-module to deploy advanced newtork ddos protection.
 
 ## Usage
 

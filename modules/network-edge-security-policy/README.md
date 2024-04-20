@@ -1,4 +1,4 @@
-# Cloud Armor Terraform Module
+# Cloud Armor Terraform Module for Network Edge Security Policy
 This module creates [network edge security policy](https://cloud.google.com/armor/docs/network-edge-policies) in specified region. Network edge security policy is only availalable to projects enrolled in [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview) with [Advanced network DDoS protection](https://cloud.google.com/armor/docs/advanced-network-ddos#activate-advanced-ddos-protection) enabled. You can use [this](../advanced-network-ddos-protection/) sub-module to deploy `advanced network ddos protection `.
 
 You can attch network edge security policy to [external passthrough Network Load Balancers](https://cloud.google.com/load-balancing/docs/network), [protocol forwarding](https://cloud.google.com/load-balancing/docs/protocol-forwarding), or VMs with public IP addresses. Network edge security policy supports [byte offset filtering](https://cloud.google.com/armor/docs/network-edge-policies#byte-offset). This module creates security policy of type `CLOUD_ARMOR_NETWORK` optionally attach security policy rules to the policy.
