@@ -785,6 +785,11 @@ The following dependencies must be available:
 A service account with the following permission must be used to provision
 the resources of this module:
 
+- compute.networkEdgeSecurityServices.create
+- compute.networkEdgeSecurityServices.update
+- compute.networkEdgeSecurityServices.get
+- compute.networkEdgeSecurityServices.delete
+- compute.networkEdgeSecurityServices.list
 - compute.securityPolicies.create
 - compute.securityPolicies.delete
 - compute.securityPolicies.get

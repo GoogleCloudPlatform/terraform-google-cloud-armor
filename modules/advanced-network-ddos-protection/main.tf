@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-### Adding custom rules to network security policies requires advanced network DDoS protection to be enabled in the region. Advanced protection can be enabled in preview mode.
-
 resource "google_compute_region_security_policy" "adv_ddos_protection" {
   provider = google-beta
   for_each = toset(var.regions)

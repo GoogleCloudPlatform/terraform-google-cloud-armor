@@ -1,4 +1,4 @@
-# Cloud Armor Terraform Module
+# Enable Cloud Armor Advanced Network DDoS Protection
 This module enables [advanced network DDoS protection](https://cloud.google.com/armor/docs/armor-enterprise-overview#advanced_network_ddos_protection) in specified region(s). Advanced network DDoS protection is only availalable to projects enrolled in [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview). Advanced network DDoS protection feature protects workloads using [external passthrough Network Load Balancers](https://cloud.google.com/load-balancing/docs/network), [protocol forwarding](https://cloud.google.com/load-balancing/docs/protocol-forwarding), or VMs with public IP addresses. When enabled for a particular region, Google Cloud Armor provides always-on targeted volumetric attack detection and mitigation for external passthrough Network Load Balancer, protocol forwarding, and VMs with public IP addresses in that region. This module creates security policy of type `CLOUD_ARMOR_NETWORK` and a a network edge security service in the specified region(s).
 
 ## Compatibility
@@ -45,46 +45,3 @@ module "advanced_network_ddos_protection" {
 | network\_edge\_security\_services | Network edge security services created |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-
-## Requirements
-
-These sections describe requirements for using this module.
-
-### Software
-
-The following dependencies must be available:
-
-- [Terraform][terraform] v1.3+
-- [Terraform Provider for GCP][terraform-provider-gcp] plugin v4.80+
-
-### Service Account
-
-A service account with the following permission must be used to provision
-the resources of this module:
-
-- compute.networkEdgeSecurityServices.create
-- compute.networkEdgeSecurityServices.update
-- compute.networkEdgeSecurityServices.get
-- compute.networkEdgeSecurityServices.delete
-- compute.networkEdgeSecurityServices.list
-- compute.regionSecurityPolicies.create
-- compute.regionSecurityPolicies.delete
-- compute.regionSecurityPolicies.get
-- compute.regionSecurityPolicies.list
-- compute.regionSecurityPolicies.use
-- compute.regionSecurityPolicies.update
-
-Following roles contain above mentioned permissions. You can either assing one of the following role or create custom roles with above permissions.
-
-- Compute Security Admin: `roles/compute.securityAdmin`
-- Compute Admin: `roles/compute.admin`
-
-### Enable API's
-In order to operate with the Service Account you must activate the following API on the project where the Service Account was created:
-
-- Compute Engine API - compute.googleapis.com
-
-## Contributing
-
-Refer to the [contribution guidelines](./CONTRIBUTING.md) for
-information on contributing to this module.
