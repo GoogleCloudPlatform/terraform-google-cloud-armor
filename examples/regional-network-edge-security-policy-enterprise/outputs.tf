@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,4 +22,9 @@ output "security_policy" {
 output "policy_rules" {
   value       = module.network_edge_security_policy.policy_rules
   description = "Security policy rules created"
+}
+
+output "network_edge_security_policy_no_rules" {
+  value       = module.network_edge_security_policy_no_rules.security_policy
+  description = "Regional Network Security policy created"
 }

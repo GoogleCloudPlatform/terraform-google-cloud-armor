@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,8 @@ resource "google_compute_region_security_policy_rule" "policy_rules" {
   description     = each.value.description
   priority        = each.value.priority
   network_match {
-    src_ip_ranges    = lookup(each.value, "source_ip_ranges", null)
+    src_ip_ranges    = lookup(each.value, "src_ip_ranges", null)
+    src_ports        = lookup(each.value, "src_ports", null)
     src_asns         = lookup(each.value, "src_asns", null)
     src_region_codes = lookup(each.value, "src_region_codes", null)
     ip_protocols     = lookup(each.value, "ip_protocols", null)

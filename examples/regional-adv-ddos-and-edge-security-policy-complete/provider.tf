@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 
-terraform {
-  required_version = ">= 1.3.0"
-  required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = ">= 4.80, < 6"
-    }
-    google-beta = {
-      source  = "hashicorp/google-beta"
-      version = ">= 4.80, < 6"
-    }
-  }
-  provider_meta "google" {
-    module_name = "blueprints/terraform/terraform-google-cloud-armor:network-edge-security-policy/v2.1.0"
-  }
-  provider_meta "google-beta" {
-    module_name = "blueprints/terraform/terraform-google-cloud-armor:network-edge-security-policy/v2.1.0"
-  }
+locals {
+  tf_sa = "gcp-sinprj-terraform@sinprj.iam.gserviceaccount.com"
+}
+
+/******************************************
+  Provider credential configuration
+ *****************************************/
+provider "google" {
+  impersonate_service_account = local.tf_sa
+}
+
+provider "google-beta" {
+  impersonate_service_account = local.tf_sa
 }

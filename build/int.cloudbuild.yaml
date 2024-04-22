@@ -35,17 +35,17 @@ steps:
   waitFor:
     - init-all
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
-  args: ['/bin/bash', '-c', 'cft test run TestSecurityPolicyAll --stage apply --verbose']
+  args: ['/bin/bash', '-c', 'cft test run TestGlobalSecurityPolicyComplete --stage apply --verbose']
 - id: security-policy-all-verify
   waitFor:
     - security-policy-all-apply
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
-  args: ['/bin/bash', '-c', 'cft test run TestSecurityPolicyAll --stage verify --verbose']
+  args: ['/bin/bash', '-c', 'cft test run TestGlobalSecurityPolicyComplete --stage verify --verbose']
 - id: security-policy-all-teardown
   waitFor:
     - security-policy-all-verify
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
-  args: ['/bin/bash', '-c', 'cft test run TestSecurityPolicyAll --stage teardown --verbose']
+  args: ['/bin/bash', '-c', 'cft test run TestGlobalSecurityPolicyComplete --stage teardown --verbose']
 
 - id: simple-example-apply
   waitFor:

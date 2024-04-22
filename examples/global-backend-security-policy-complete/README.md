@@ -1,9 +1,10 @@
 # Cloud Armor Policy with preconfigured rules, custom rules and security rules
 
-This example configures a single cloud armor policy with following types of rules:
-- Pre-configured rules
-- Custom rules
-- Security rules
+This example performs the following:
+- Network (VPC/Subnets/Firewall-rules/NAT).
+- Creates a `global cloud armor security policy`.
+- Creates a VM instance behind a `global external application load balancer`.
+- Attaches `security policy` to the backend service.
 
 ## Usage
 

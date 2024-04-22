@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-output "adv_ddos_protection_policies" {
-  value       = module.advanced_network_ddos_protection.adv_ddos_protection_policies
-  description = "Advanced Network DDoS protection Security policies created"
-}
-
-output "network_edge_security_services" {
-  value       = module.advanced_network_ddos_protection.network_edge_security_services
-  description = "Network edge security services created"
+variable "project_id" {
+  description = "The project in which the resource belongs"
+  type        = string
 }

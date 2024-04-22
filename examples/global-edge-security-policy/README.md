@@ -1,6 +1,6 @@
-# Cloud Armor Edge Security Policy with custom rule
+# Global Cloud Armor Edge Security Policy with custom rule
 
-This example configures a single Cloud Armor Edge Security Policy with a custom rule.
+This example configures a single [Global Cloud Armor Edge Security Policy](https://cloud.google.com/armor/docs/security-policy-overview#edge-policies) with a custom rule.
 
 ## Usage
 

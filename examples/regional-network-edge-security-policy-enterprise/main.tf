@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,4 +81,13 @@ module "network_edge_security_policy" {
       dest_ip_ranges = ["10.100.0.0/16"]
     },
   ]
+}
+
+module "network_edge_security_policy_no_rules" {
+  source  = "GoogleCloudPlatform/cloud-armor/google//modules/network-edge-security-policy"
+  version = "~> 2.0"
+
+  project_id  = var.project_id
+  region      = "us-central1"
+  policy_name = "nw-edge-security-policy-no-rules${random_id.suffix.hex}"
 }

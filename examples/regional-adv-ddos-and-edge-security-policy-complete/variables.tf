@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,4 +17,9 @@
 variable "project_id" {
   description = "The project in which the resource belongs"
   type        = string
+}
+
+variable "whitelisted_ingress_ip_ranges" {
+  description = "whitelisted ingress ip ranges. Replace it with your own IP address"
+  type        = list(string)
 }

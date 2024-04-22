@@ -14,22 +14,12 @@
  * limitations under the License.
  */
 
-terraform {
-  required_version = ">= 1.3.0"
-  required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = ">= 4.80, < 6"
-    }
-    google-beta = {
-      source  = "hashicorp/google-beta"
-      version = ">= 4.80, < 6"
-    }
-  }
-  provider_meta "google" {
-    module_name = "blueprints/terraform/terraform-google-cloud-armor:network-edge-security-policy/v2.1.0"
-  }
-  provider_meta "google-beta" {
-    module_name = "blueprints/terraform/terraform-google-cloud-armor:network-edge-security-policy/v2.1.0"
-  }
+output "adv_ddos_protection_policies" {
+  value       = module.advanced_network_ddos_protection.adv_ddos_protection_policies
+  description = "Advanced Network DDoS protection Security policies created"
+}
+
+output "network_edge_security_services" {
+  value       = module.advanced_network_ddos_protection.network_edge_security_services
+  description = "Network edge security services created"
 }
