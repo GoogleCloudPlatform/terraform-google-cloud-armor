@@ -8,6 +8,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [2.2.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v2.1.0...v2.2.0) (2024-04-23)
+
+
+### Features
+
+* added advanced network ddos protection & network edge security policy sub-modules ([#113](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/113)) ([8e1ecb5](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/8e1ecb5cd7df1371545d0ded157fea130dce8cb8))
+
 ## [2.1.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v2.0.1...v2.1.0) (2024-03-18)
 
 

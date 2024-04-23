@@ -16,7 +16,7 @@ There are examples included in the [examples](https://github.com/GoogleCloudPlat
 ```
 module "advanced_network_ddos_protection" {
   source  = "GoogleCloudPlatform/cloud-armor/google//modules/advanced-network-ddos-protection"
-  version = "~> 2.0"
+  version = "~> 2.2"
 
   project_id                         = var.project_id
   adv_ddos_policy_regions            = ["us-central1", "us-east1"]
