@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+locals {
+  primary_region   = "us-central1"
+  secondary_region = "us-east1"
+}
+
 resource "random_id" "suffix" {
   byte_length = 4
 }
@@ -24,70 +29,19 @@ module "cloud_armor" {
   project_id                           = var.project_id
   name                                 = "test-casp-policy-${random_id.suffix.hex}"
   description                          = "Test Cloud Armor security policy with preconfigured rules, security rules and custom rules"
-  default_rule_action                  = "allow"
+  default_rule_action                  = "deny(502)"
   type                                 = "CLOUD_ARMOR"
   layer_7_ddos_defense_enable          = true
   layer_7_ddos_defense_rule_visibility = "STANDARD"
   user_ip_request_headers              = ["True-Client-IP", ]
 
-  pre_configured_rules = {
-    "sqli_sensitivity_level_4" = {
-      action          = "deny(502)"
-      priority        = 1
-      target_rule_set = "sqli-v33-stable"
-    }
-
-    "xss-stable_level_2_with_exclude" = {
-      action                  = "throttle"
-      priority                = 2
-      description             = "XSS Sensitivity Level 2 with excluded rules"
-      preview                 = true
-      target_rule_set         = "xss-v33-stable"
-      sensitivity_level       = 2
-      exclude_target_rule_ids = ["owasp-crs-v030301-id941380-xss", "owasp-crs-v030301-id941340-xss"]
-      rate_limit_options = {
-        exceed_action                        = "deny(502)"
-        rate_limit_http_request_count        = 10
-        rate_limit_http_request_interval_sec = 60
-      }
-    }
-
-    "php-stable_level_1_with_include" = {
-      action                  = "rate_based_ban"
-      priority                = 3
-      description             = "PHP Sensitivity Level 1 with included rules"
-      target_rule_set         = "php-v33-stable"
-      sensitivity_level       = 0
-      include_target_rule_ids = ["owasp-crs-v030301-id933190-php", "owasp-crs-v030301-id933111-php"]
-      exclude_target_rule_ids = []
-      rate_limit_options = {
-        ban_duration_sec                     = 600
-        enforce_on_key                       = "ALL"
-        exceed_action                        = "deny(502)"
-        rate_limit_http_request_count        = 10
-        rate_limit_http_request_interval_sec = 60
-        ban_http_request_count               = 1000
-        ban_http_request_interval_sec        = 300
-      }
-    }
-
-    "rfi_sensitivity_level_4" = {
-      action          = "redirect"
-      priority        = 4
-      description     = "Remote file inclusion 4"
-      redirect_type   = "GOOGLE_RECAPTCHA"
-      target_rule_set = "rfi-v33-stable"
-    }
-
-  }
-
   security_rules = {
-    "deny_project_honeypot" = {
-      action        = "deny(502)"
+    "allow_whitelisted_ip_ranges" = {
+      action        = "allow"
       priority      = 11
-      description   = "Deny Malicious IP address from project honeypot"
-      src_ip_ranges = ["190.217.68.211", "45.116.227.68", ]
-      preview       = true
+      description   = "Allow whitelisted IP address ranges"
+      src_ip_ranges = ["190.210.69.12", ]
+      preview       = false
     }
 
     "redirect_project_drop" = {
@@ -98,23 +52,9 @@ module "cloud_armor" {
       redirect_type = "GOOGLE_RECAPTCHA"
     }
 
-    "rate_ban_project_dropten" = {
-      action        = "rate_based_ban"
-      priority      = 13
-      description   = "Rate based ban for address from project dropten as soon as they cross rate limit threshold"
-      src_ip_ranges = ["190.217.68.213", "45.116.227.70", ]
-      rate_limit_options = {
-        ban_duration_sec                     = 120
-        enforce_on_key                       = "ALL"
-        exceed_action                        = "deny(502)"
-        rate_limit_http_request_count        = 10
-        rate_limit_http_request_interval_sec = 60
-      }
-    }
-
     "rate_ban_project_dropthirty" = {
       action        = "rate_based_ban"
-      priority      = 14
+      priority      = 13
       description   = "Rate based ban for address from project dropthirty only if they cross banned threshold"
       src_ip_ranges = ["190.217.68.213", "45.116.227.70", ]
       rate_limit_options = {
@@ -130,7 +70,7 @@ module "cloud_armor" {
 
     "throttle_project_droptwenty" = {
       action        = "throttle"
-      priority      = 15
+      priority      = 14
       description   = "Throttle IP addresses from project droptwenty"
       src_ip_ranges = ["190.217.68.214", "45.116.227.71", ]
       rate_limit_options = {
@@ -149,15 +89,6 @@ module "cloud_armor" {
       description = "Allow specific Regions"
       expression  = <<-EOT
         '[US,AU,BE]'.contains(origin.region_code)
-      EOT
-    }
-
-    deny_specific_ip = {
-      action      = "deny(502)"
-      priority    = 22
-      description = "Deny Specific IP address"
-      expression  = <<-EOT
-        inIpRange(origin.ip, '47.185.201.155/32')
       EOT
     }
     throttle_specific_ip = {

@@ -1,6 +1,7 @@
-# Cloud Armor Policy with rules supported by [Cloud Armor Managed Protection Plus (CAMP+)](https://cloud.google.com/armor/docs/managed-protection-overview)
+# Cloud Armor Policy with rules supported by [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview)
 
-This example configures a single cloud armor policy with following types of rules:
+This example configures a single cloud armor policy with following types of rules which are only availalable to projects enrolled in [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview):
+
 - Threat Intelligence Rules
 - Rule for Automatically deploying Adaptive Protection suggested rules
 

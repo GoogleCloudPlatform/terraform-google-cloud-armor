@@ -18,6 +18,12 @@ locals {
   int_required_roles = [
     "roles/compute.orgSecurityPolicyAdmin",
     "roles/recaptchaenterprise.admin",
+    "roles/compute.securityAdmin",
+    "roles/compute.admin",
+    "roles/logging.viewer",
+    "roles/servicenetworking.networksAdmin",
+    "roles/iam.serviceAccountAdmin",
+    "roles/iam.serviceAccountUser",
   ]
 }
 
