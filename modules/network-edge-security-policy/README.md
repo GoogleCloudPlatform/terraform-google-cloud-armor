@@ -136,13 +136,28 @@ resource "google_compute_region_backend_service" "backend" {
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
-## Rules
+## policy_user_defined_fields
+
+Definitions of user-defined fields for CLOUD_ARMOR_NETWORK policies. A user-defined field consists of up to 4 bytes extracted from a fixed offset in the packet, relative to the IPv4, IPv6, TCP, or UDP header, with an optional mask to select certain bits. Rules may then specify matching values for these fields
+
+- `name`: (Optional) The name of this field. Must be unique within the policy
+- `base`: (Required) The base relative to which 'offset' is measured. Possible values are:
+  - `IPV4`: Points to the beginning of the IPv4 header
+  - `IPV6`: Points to the beginning of the IPv6 header
+  - `TCP`: Points to the beginning of the TCP header, skipping over any IPv4 options or IPv6 extension headers. Not present for non-first fragments
+  - `UDP`: Points to the beginning of the UDP header, skipping over any IPv4 options or IPv6 extension headers. Not present for non-first fragments. Possible values are: IPV4, IPV6, TCP, UDP
+- `offset`: (Optional) Offset of the first byte of the field (in network byte order) relative to 'base'
+- `size`: (Optional) Size of the field in bytes. Valid values: 1-4
+- `mask`: (Optional) If specified, apply this mask (bitwise AND) to the field to ignore bits before matching. Encoded as a hexadecimal number (starting with "0x"). The last byte of the field (in network byte order) corresponds to the least significant byte of the mask
+
+
+## policy_rules
 
 `policy_rules` is a list of objects with following parameters:
-- `priority`: An integer indicating the priority of a rule in the list. The priority must be a positive value between 0 and 2147483647. Rules are evaluated from highest to lowest priority where 0 is the highest priority and 2147483647 is the lowest priority.
+- `priority`: An integer indicating the priority of a rule in the list. The priority must be a positive value between 0 and 2147483647. Rules are evaluated from highest to lowest priority where 0 is the highest priority and 2147483647 is the lowest priority
 - `action`: The Action to perform when the rule is matched. The following are the valid actions:
-  - allow: allow access to target.
-  - deny(STATUS): deny access to target, returns the HTTP response code specified. Valid values for STATUS are 403, 404, and 502.
+  - allow: allow access to target
+  - deny(STATUS): deny access to target, returns the HTTP response code specified. Valid values for STATUS are 403, 404, and 502
 - `preview`: If set to true, the specified action is not enforced
 - `description`: An optional description of this resource. Provide this property when you create the resource
 - `src_ip_ranges`: list of source IPv4/IPv6 addresses or CIDR prefixes, in standard text format
@@ -214,3 +229,9 @@ resource "google_compute_region_backend_service" "backend" {
     },
   ]
 ```
+
+## policy_rules.user_defined_fields
+User-defined fields. Each element names a defined field and lists the matching values for that field
+
+- `name`: (Optional) Name of the user-defined field, as given in the definition
+- `values`: (Optional) Matching values of the field. Each element can be a 32-bit unsigned decimal or hexadecimal (starting with "0x") number (e.g. "64") or range (e.g. "0x400-0x7ff")
