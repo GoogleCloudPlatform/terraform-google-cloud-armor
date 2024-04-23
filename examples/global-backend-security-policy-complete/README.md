@@ -4,7 +4,7 @@ This example performs the following:
 - Network (VPC/Subnets/Firewall-rules/NAT).
 - Creates a `global cloud armor security policy`.
 - Creates a VM instance behind a `global external application load balancer`.
-- Attaches `security policy` to the backend service.
+- Attaches `security policy` to the backend service  by passing security policy link in `security_policy` parameter in `google_compute_backend_service` resource.
 
 ## Usage
 

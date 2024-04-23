@@ -5,7 +5,7 @@ This example performs the following:
 - Enables `advanced network DDoS protection` in two regions `us-central1` and `us-east1`.
 - Creates a `network edge security policy` in `us-central1`.
 - Creates a VM instance behind a `network load balancer`.
-- Attaches `network edge security policy` to the backend service.
+- Attaches `network edge security policy` to the backend service by passing security policy link in `security_policy` parameter in `google_compute_region_backend_service` resource.
 
 Advanced network DDoS protection and network edge security policy is only availalable to projects enrolled in [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview)
 
