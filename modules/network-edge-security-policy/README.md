@@ -88,8 +88,30 @@ module "network_edge_security_policy" {
       dest_ip_ranges = ["10.100.0.0/16"]
     },
   ]
-
 }
+
+## Backnd service to attach the security policy
+resource "google_compute_region_backend_service" "backend" {
+  provider              = google-beta
+
+  ## Attach Cloud Armor policy to the backend service
+  security_policy = module.network_edge_security_policy.security_policy.self_link
+
+  project               = var.project_id
+  name                  = "ca-website-backend-svc"
+  region                = local.primary_region
+  load_balancing_scheme = "EXTERNAL"
+  health_checks         = [google_compute_region_health_check.default.id]
+  backend {
+    group = google_compute_instance_group.ca_vm_1_ig.self_link
+  }
+
+  log_config {
+    enable      = true
+    sample_rate = 0.5
+  }
+}
+
 ```
 
 

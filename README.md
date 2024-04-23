@@ -83,55 +83,6 @@ module "security_policy" {
 
       sensitivity_level = 4
       description       = "sqli-v33-stable Sensitivity Level 4 and 2 preconfigured_waf_config_exclusions"
-
-      preconfigured_waf_config_exclusions = {
-        exclusion_1 = {
-          target_rule_set = "sqli-v33-stable"
-          target_rule_ids = ["owasp-crs-v030301-id942120-sqli", "owasp-crs-v030301-id942130-sqli"]
-          request_cookie = [
-            {
-              operator = "STARTS_WITH"
-              value    = "abc"
-            }
-          ]
-          request_header = [
-            {
-              operator = "STARTS_WITH"
-              value    = "xyz"
-            },
-            {
-              operator = "STARTS_WITH"
-              value    = "uvw"
-            }
-          ]
-        }
-
-        exclusion_2 = {
-          target_rule_set = "sqli-v33-stable"
-          target_rule_ids = ["owasp-crs-v030301-id942150-sqli", "owasp-crs-v030301-id942180-sqli"]
-          request_header = [
-            {
-              operator = "STARTS_WITH"
-              value    = "lmn"
-            },
-            {
-              operator = "ENDS_WITH"
-              value    = "opq"
-            }
-          ]
-          request_uri = [
-            {
-              operator = "CONTAINS"
-              value    = "https://hashicorp.com"
-            },
-            {
-              operator = "CONTAINS"
-              value    = "https://xyz.com"
-            },
-          ]
-        }
-
-      }
     }
 
     "xss-stable_level_2_with_exclude" = {
@@ -166,15 +117,6 @@ module "security_policy" {
       preview       = true
     }
 
-    "redirect_project_rd" = {
-      action        = "redirect"
-      priority      = 12
-      description   = "Redirect IP address from project RD"
-      src_ip_ranges = ["190.217.68.215", "45.116.227.99", ]
-      redirect_type = "EXTERNAL_302"
-      redirect_target = "https://www.example.com"
-    }
-
     "rate_ban_project_actor3" = {
       action        = "rate_based_ban"
       priority      = 14
@@ -189,29 +131,6 @@ module "security_policy" {
         ban_http_request_interval_sec        = 300
         enforce_on_key                       = "ALL"
       }
-    }
-
-    "throttle_project_droptwenty" = {
-      action        = "throttle"
-      priority      = 15
-      description   = "Throttle IP addresses from project droptwenty"
-      src_ip_ranges = ["190.217.68.214", "45.116.227.71", ]
-
-      rate_limit_options = {
-        exceed_action                        = "deny(502)"
-        rate_limit_http_request_count        = 10
-        rate_limit_http_request_interval_sec = 60
-        enforce_on_key_configs = [
-          {
-            enforce_on_key_type = "HTTP_PATH"
-          },
-          {
-            enforce_on_key_type = "HTTP_COOKIE"
-            enforce_on_key_name = "site_id"
-          }
-        ]
-      }
-
     }
   }
 
@@ -237,20 +156,6 @@ module "security_policy" {
       EOT
     }
 
-    throttle_specific_ip_region = {
-      action      = "throttle"
-      priority    = 23
-      description = "Throttle specific IP address in US Region"
-      expression  = <<-EOT
-        origin.region_code == "US" && inIpRange(origin.ip, '47.185.201.159/32')
-      EOT
-      rate_limit_options = {
-        exceed_action                        = "deny(502)"
-        rate_limit_http_request_count        = 10
-        rate_limit_http_request_interval_sec = 60
-      }
-    }
-
     allow_path_token_header = {
       action      = "allow"
       priority    = 25
@@ -272,17 +177,6 @@ module "security_policy" {
       ]
 
     }
-
-    deny_java_level3_with_exclude = {
-      action      = "deny(502)"
-      priority    = 100
-      description = "Deny pre-configured rule java-v33-stable at sensitivity level 3"
-      preview     = true
-      expression  = <<-EOT
-        evaluatePreconfiguredWaf('java-v33-stable', {'sensitivity': 3, 'opt_out_rule_ids': ['owasp-crs-v030301-id944240-java', 'owasp-crs-v030301-id944120-java']})
-      EOT
-    }
-
   }
 
   # Threat Intelligence Rules
@@ -297,18 +191,32 @@ module "security_policy" {
       feed        = "iplist-known-malicious-ips"
       exclude_ip  = "['47.100.100.100', '47.189.12.139']"
     }
-
-    deny_tor_exit_ips = {
-      action      = "deny(502)"
-      priority    = 210
-      description = "Deny Tor exit nodes IP addresses"
-      preview     = false
-      feed        = "iplist-tor-exit-nodes"
-    }
-
   }
 
 }
+
+resource "google_compute_backend_service" "backend_service" {
+  provider = google-beta
+
+  ## Attach Cloud Armor policy to the backend service
+  security_policy = module.cloud_armor.policy.self_link
+
+  project = var.project_id
+
+  name        = "glb-ca-web-backend-svc-a"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  backend {
+    group           = google_compute_instance_group.ca_vm_1_ig.self_link
+    max_utilization = 0.5
+  }
+
+  health_checks         = [google_compute_http_health_check.default.id]
+  load_balancing_scheme = "EXTERNAL"
+}
+
 ```
 
 
