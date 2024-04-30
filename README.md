@@ -12,8 +12,7 @@ There are `five` type of rules you can create in each policy:
 4) [Threat Intelligence Rules](#threat_intelligence_rules): Add Rules based on [threat intelligence](https://cloud.google.com/armor/docs/threat-intelligence). [Managed protection plus](https://cloud.google.com/armor/docs/managed-protection-overview) subscription is needed to use this feature.
 5) [Automatically deploy Adaptive Protection Suggested Rules](#adaptive_protection_auto_deploy); When enable module will create a rule for automatically deploying the suggested rules that [Adaptive Protection generates](https://cloud.google.com/armor/docs/adaptive-protection-auto-deploy).
 
-
-NOTE: For `external passthrough Network Load Balancers`, `protocol forwarding` and `VMs with public IP addresses` create [network Edge Security policy](https://cloud.google.com/armor/docs/security-policy-overview#network-edge-policies) using [advanced network DDoS protection](./modules/advanced-network-ddos-protection/) and [network edge security policy](./modules/network-edge-security-policy/) sub-modules.
+**NOTE:** For `external passthrough Network Load Balancers`, `protocol forwarding` and `VMs with public IP addresses` create [network Edge Security policy](https://cloud.google.com/armor/docs/security-policy-overview#network-edge-policies) using [advanced network DDoS protection](./modules/advanced-network-ddos-protection/) and [network edge security policy](./modules/network-edge-security-policy/) sub-modules.
 
 
 ## Compatibility
