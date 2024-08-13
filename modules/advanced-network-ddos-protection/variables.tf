@@ -20,12 +20,12 @@ variable "project_id" {
 }
 
 variable "regions" {
-  description = "The regions in which enable advanced network DDoS protection"
+  description = "The regions in which advanced network DDoS protection will be activated"
   type        = list(string)
 }
 
 variable "ddos_protection_config" {
-  description = "Configuration for Google Cloud Armor DDOS Proctection Config. 1) ADVANCED: additional protections for Managed Protection Plus subscribers 2) ADVANCED_PREVIEW: flag to enable the security policy in preview mode"
+  description = "Configuration for Google Cloud Armor DDOS Proctection Config. 1) ADVANCED: additional protections for Managed Protection Plus subscribers 2) ADVANCED_PREVIEW: enable the security policy in preview mode"
   type        = string
   default     = "ADVANCED"
 }

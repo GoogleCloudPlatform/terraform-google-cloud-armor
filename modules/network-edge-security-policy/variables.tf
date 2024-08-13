@@ -20,7 +20,7 @@ variable "project_id" {
 }
 
 variable "region" {
-  description = "The region in which enablesecurity policy is created"
+  description = "The region in which security policy is created"
   type        = string
 }
 
