@@ -24,7 +24,7 @@ data "google_compute_zones" "available_primary" {
 ############## VM Images ####################
 
 data "google_compute_image" "debian_image" {
-  family  = "debian-10"
+  family  = "debian-12"
   project = "debian-cloud"
 }
 
