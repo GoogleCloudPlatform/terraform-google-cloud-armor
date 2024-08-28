@@ -39,7 +39,6 @@ terraform apply
 | adv\_ddos\_protection\_policies | Advanced Network DDoS protection Security policies created |
 | network\_edge\_security\_services | Network edge security services created |
 | policy\_name | Name of Regional Network Security policy created |
-| project\_id | The project ID |
 | region | Name of Regional Network Security policy created |
 | test\_nlb\_url | Use this command to test access to the load balancer. Try it from the IP address provided in rule 100 and a different IP address |
 

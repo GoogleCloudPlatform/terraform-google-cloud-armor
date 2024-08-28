@@ -14,11 +14,6 @@
  * limitations under the License.
  */
 
-output "project_id" {
-  value       = var.project_id
-  description = "The project ID"
-}
-
 output "policy_name" {
   value       = module.network_edge_security_policy.security_policy.name
   description = "Name of Regional Network Security policy created"

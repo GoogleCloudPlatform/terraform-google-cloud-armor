@@ -31,7 +31,6 @@ terraform apply
 | Name | Description |
 |------|-------------|
 | policy\_name | Security Policy name |
-| project\_id | The project ID |
 | region | Name of Regional Network Security policy created |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
