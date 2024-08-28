@@ -8,7 +8,7 @@ You can attch network edge security policy to backend services of [external pass
 ```
 module "network_edge_security_policy" {
   source  = "GoogleCloudPlatform/cloud-armor/google//modules/network-edge-security-policy"
-  version = "~> 2.2"
+  version = "~> 3.0"
 
   project_id  = var.project_id
   region      = "us-central1"
@@ -35,7 +35,7 @@ There are examples included in the [examples](https://github.com/GoogleCloudPlat
 ```
 module "network_edge_security_policy" {
   source  = "GoogleCloudPlatform/cloud-armor/google//modules/network-edge-security-policy"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
   project_id  = var.project_id
   region      = "us-central1"
