@@ -1,13 +1,13 @@
 # End to end example for Cloud Armor Advanced Network DDoS Protection & Network Edge Security Policy
 
+Advanced network DDoS protection and network edge security policy is only available to projects enrolled in [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview)
+
 This example performs the following:
 - Network (VPC/Subnets/Firewall-rules/NAT).
 - Enables `advanced network DDoS protection` in two regions `us-central1` and `us-east1`.
 - Creates a `network edge security policy` in `us-central1`.
 - Creates a VM instance behind a `network load balancer`.
 - Attaches `network edge security policy` to the backend service by passing security policy link in `security_policy` parameter in `google_compute_region_backend_service` resource.
-
-Advanced network DDoS protection and network edge security policy is only availalable to projects enrolled in [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview)
 
 ## Usage
 

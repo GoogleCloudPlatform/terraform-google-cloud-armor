@@ -235,3 +235,14 @@ User-defined fields. Each element names a defined field and lists the matching v
 
 - `name`: (Optional) Name of the user-defined field, as given in the definition
 - `values`: (Optional) Matching values of the field. Each element can be a 32-bit unsigned decimal or hexadecimal (starting with "0x") number (e.g. "64") or range (e.g. "0x400-0x7ff")
+
+## Requirements
+
+These sections describe requirements for using this module.
+
+### Software
+
+The following dependencies must be available:
+
+- [Terraform][terraform] v1.3+
+- [Terraform Provider for GCP][terraform-provider-gcp] plugin v4.80+

@@ -1,5 +1,5 @@
 # Cloud Armor Regional backend security policy module
-This module makes it easy to setup [Cloud Armor Regional Security Policy](https://cloud.google.com/armor/docs/security-policy-overview#expandable-2) with Security rules. You can attach the regional Security policy to the backend services exposed by the following load balancer types:
+This module makes it easy to setup [Cloud Armor Regional Backend Security Policy](https://cloud.google.com/armor/docs/security-policy-overview#expandable-2) with Security rules. You can attach the regional Security policy to the backend services exposed by the following load balancer types:
 - regional external Application Load Balancer (HTTP/HTTPS)
 - regional internal Application Load Balancer (HTTP/HTTPS)
 
@@ -213,7 +213,7 @@ module "cloud_armor_regional_security_policy" {
 
 ## Rules
 
-[Pre-Configured Rules](#pre_configured_rules), [Security Rules](#security_rules), [Custom Rules](#custom_rules) and [Threat Intelligence Rules](#threat_intelligence_rules) are maps of rules. Each rule is a map which provides details about the rule. Here is an example of `pre_configured_rules`:
+[Pre-Configured Rules](#pre_configured_rules), [Security Rules](#security_rules) and [Custom Rules](#custom_rules) are maps of rules. Each rule is a map which provides details about the rule. Here is an example of `pre_configured_rules`:
 
 ```
   "my_rule" = {
@@ -221,19 +221,16 @@ module "cloud_armor_regional_security_policy" {
     priority                             = 1
     description                          = "SQL Sensitivity Level 4"
     preview                              = false
-    redirect_type                        = null
-    redirect_target                      = null
     target_rule_set                      = "sqli-v33-stable"
     sensitivity_level                    = 4
     include_target_rule_ids              = []
     exclude_target_rule_ids              = []
-    header_action                        = []
     rate_limit_options                   = {}
     preconfigured_waf_config_exclusions  = {}
   }
 ```
 
-`action, priority, description, preview, rate_limit_options, header_action, redirect_type and redirect_target` are common in all the rule types. Some of then are optional and some have default value see [Input](#Inputs).
+`action, priority, description, preview and rate_limit_options` are common in all the rule types. Some of then are optional and some have default value see [Input](#Inputs).
 
 ## Rate limit
 `rate_limit_options` is needed for the rules where action is set to `throttle` or `rate_based_ban`. `rate_limit_options` is a map of strings with following key pairs. You can find more details about rate limit [here](https://cloud.google.com/armor/docs/rate-limiting-overview).
@@ -327,14 +324,11 @@ List of preconfigured rules are available [here](https://cloud.google.com/armor/
     priority                             = 1
     description                          = "SQL Sensitivity Level 4"
     preview                              = false
-    redirect_type                        = null
-    redirect_target                      = null
     target_rule_set                      = "sqli-v33-stable"
     sensitivity_level                    = 4
     include_target_rule_ids              = []
     exclude_target_rule_ids              = []
     rate_limit_options                   = {}
-    header_action                        = []
     preconfigured_waf_config_exclusions  = {}
   }
 ```
@@ -432,7 +426,6 @@ Each rule is key value pair where key is a unique name of the rule and value is 
   redirect_type      = null
   redirect_target    = null
   rate_limit_options = {}
-  header_action      = []
 }
 ```
 
@@ -492,7 +485,6 @@ allow_specific_regions = {
   redirect_type      = null
   redirect_target    = null
   rate_limit_options = {}
-  header_action      = []
 }
 ```
 
@@ -519,19 +511,18 @@ custom_rules = {
     expression = <<-EOT
       request.path.matches('/login.html') && token.recaptcha_session.score < 0.2
     EOT
-
-    header_action = [
-      {
-        header_name  = "reCAPTCHA-Warning"
-        header_value = "high"
-      },
-      {
-        header_name  = "X-Resource"
-        header_value = "test"
-      }
-    ]
-
   }
 
 }
 ```
+
+## Requirements
+
+These sections describe requirements for using this module.
+
+### Software
+
+The following dependencies must be available:
+
+- [Terraform][terraform] v1.3+
+- [Terraform Provider for GCP][terraform-provider-gcp] plugin v5.29+

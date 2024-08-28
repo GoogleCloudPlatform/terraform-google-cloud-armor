@@ -124,6 +124,21 @@ steps:
     - regional-adv-ddos-and-edge-security-policy-complete-verify
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
   args: ['/bin/bash', '-c', 'cft test run TestRegionalNetworkEdgePolicy --stage teardown --verbose']
+- id: regional-backend-security-policy-example-apply
+  waitFor:
+    - global-backend-security-policy-example-teardown
+  name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
+  args: ['/bin/bash', '-c', 'cft test run TestRegionalBackendPolicy --stage apply --verbose']
+- id: regional-backend-security-policy-example-verify
+  waitFor:
+    - regional-backend-security-policy-example-apply
+  name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
+  args: ['/bin/bash', '-c', 'cft test run TestRegionalBackendPolicy --stage verify --verbose']
+- id: regional-backend-security-policy-example-teardown
+  waitFor:
+    - regional-backend-security-policy-example-verify
+  name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
+  args: ['/bin/bash', '-c', 'cft test run TestRegionalBackendPolicy --stage teardown --verbose']
 
 tags:
 - 'ci'

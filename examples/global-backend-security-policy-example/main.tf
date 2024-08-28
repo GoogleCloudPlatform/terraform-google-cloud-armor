@@ -33,6 +33,7 @@ module "cloud_armor" {
   log_level                            = "VERBOSE"
   user_ip_request_headers              = ["True-Client-IP", ]
 
+  # preconfigured WAF rules
   pre_configured_rules = {
 
     "sqli_sensitivity_level_4" = {
@@ -41,8 +42,6 @@ module "cloud_armor" {
       target_rule_set   = "sqli-v33-stable"
       sensitivity_level = 4
       description       = "sqli-v33-stable Sensitivity Level 4 and 2 preconfigured_waf_config_exclusions"
-
-      # 2 exclusions
       preconfigured_waf_config_exclusions = {
         exclusion_1 = {
           target_rule_set = "sqli-v33-stable"
@@ -88,7 +87,6 @@ module "cloud_armor" {
             },
           ]
         }
-
       }
     }
 
@@ -111,6 +109,7 @@ module "cloud_armor" {
 
   }
 
+  #Security rules blocking IP addresses
   security_rules = {
 
     "deny_project_honeypot" = {
@@ -144,7 +143,6 @@ module "cloud_armor" {
         enforce_on_key                       = "HTTP_HEADER"
         enforce_on_key_name                  = "X-API-KEY"
       }
-
     }
 
     "rate_ban_project_dropthirty" = {
@@ -162,7 +160,6 @@ module "cloud_armor" {
         ban_http_request_interval_sec        = 300
         enforce_on_key                       = "ALL"
       }
-
     }
 
     "throttle_project_droptwenty" = {
@@ -185,11 +182,11 @@ module "cloud_armor" {
           }
         ]
       }
-
     }
 
   }
 
+  #Custom Rules
   custom_rules = {
 
     deny_specific_regions = {
@@ -200,7 +197,6 @@ module "cloud_armor" {
       expression = <<-EOT
         '[AU,BE]'.contains(origin.region_code)
       EOT
-
     }
 
     deny_specific_ip = {
@@ -211,7 +207,6 @@ module "cloud_armor" {
       expression = <<-EOT
         inIpRange(origin.ip, '47.185.201.155/32')
       EOT
-
     }
 
     throttle_specific_ip = {
@@ -228,7 +223,6 @@ module "cloud_armor" {
         rate_limit_http_request_count        = 10
         rate_limit_http_request_interval_sec = 60
       }
-
     }
 
     rate_ban_specific_ip = {
@@ -248,7 +242,6 @@ module "cloud_armor" {
         ban_http_request_interval_sec        = 600
         enforce_on_key                       = "ALL"
       }
-
     }
 
     allow_path_token_header = {
@@ -270,7 +263,6 @@ module "cloud_armor" {
           header_value = "test"
         }
       ]
-
     }
 
     deny_java_level3_with_exclude = {
@@ -282,7 +274,6 @@ module "cloud_armor" {
       expression = <<-EOT
         evaluatePreconfiguredWaf('java-v33-stable', {'sensitivity': 3, 'opt_out_rule_ids': ['owasp-crs-v030301-id944240-java', 'owasp-crs-v030301-id944120-java']})
       EOT
-
     }
 
     "methodenforcement-v33-stable_level_1" = {
@@ -303,7 +294,36 @@ module "cloud_armor" {
         ]
       }
     }
+  }
 
+  #adaptive protection auto deploy rules
+  adaptive_protection_auto_deploy = {
+    enable               = true
+    priority             = 100000
+    action               = "deny(403)"
+    load_threshold       = 0.3
+    confidence_threshold = 0.6
+  }
+
+  # Rules based on threat intelligence
+  threat_intelligence_rules = {
+
+    deny_malicious_ips = {
+      action      = "deny(502)"
+      priority    = 300
+      description = "Deny IP addresses known to attack web applications"
+      preview     = false
+      feed        = "iplist-known-malicious-ips"
+      exclude_ip  = "['47.100.100.100', '47.189.12.139']"
+    }
+
+    deny_tor_exit_ips = {
+      action      = "deny(502)"
+      priority    = 400
+      description = "Deny Tor exit nodes IP addresses"
+      preview     = false
+      feed        = "iplist-tor-exit-nodes"
+    }
   }
 
 }

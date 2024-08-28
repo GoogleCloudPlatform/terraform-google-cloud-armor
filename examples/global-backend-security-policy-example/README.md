@@ -4,6 +4,8 @@ This example configures a single cloud armor policy with following types of rule
 - Pre-configured rules
 - Custom rules
 - Security rules
+- Threat Intelligence Rules (Requires [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview). Remove these rules if you dont have Cloud Armor Enterprise enabled for your project)
+- Rule for Automatically deploying Adaptive Protection suggested rules (Requires [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview). Remove these rules if you dont have Cloud Armor Enterprise enabled for your project)
 
 ## Usage
 

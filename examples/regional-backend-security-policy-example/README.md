@@ -1,4 +1,4 @@
-# Simple Cloud Armor Policy with preconfigured rules, custom rules and security rules
+# Regional Cloud Armor Policy with preconfigured rules, custom rules and security rules
 
 This example configures a single cloud armor policy with following types of rules:
 - Pre-configured rules
@@ -32,5 +32,6 @@ terraform apply
 |------|-------------|
 | policy\_name | Security Policy name |
 | project\_id | The project ID |
+| region | Name of Regional Network Security policy created |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

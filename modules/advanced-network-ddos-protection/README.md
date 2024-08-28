@@ -45,3 +45,14 @@ module "advanced_network_ddos_protection" {
 | network\_edge\_security\_services | Network edge security services created |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
+## Requirements
+
+These sections describe requirements for using this module.
+
+### Software
+
+The following dependencies must be available:
+
+- [Terraform][terraform] v1.3+
+- [Terraform Provider for GCP][terraform-provider-gcp] plugin v4.80+

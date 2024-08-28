@@ -28,3 +28,8 @@ output "policy_name" {
   value       = module.cloud_armor_regional_security_policy.policy.name
   description = "Security Policy name"
 }
+
+output "region" {
+  value       = module.cloud_armor_regional_security_policy.policy.region
+  description = "Name of Regional Network Security policy created"
+}

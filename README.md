@@ -1,5 +1,5 @@
 # Cloud Armor Terraform Module
-This module makes it easy to setup [Cloud Armor global Security Policy](https://cloud.google.com/armor/docs/security-policy-overview#expandable-1) with Security rules. You can attach the global Security policy to the backend services exposed by the following load balancer types:
+This module makes it easy to setup [Cloud Armor Global Backend Security Policy](https://cloud.google.com/armor/docs/security-policy-overview#expandable-1) with Security rules. You can attach the global Security policy to the backend services exposed by the following load balancer types:
 - Global external Application Load Balancer (HTTP/HTTPS)
 - Classic Application Load Balancer (HTTP/HTTPS)
 - Global external proxy Network Load Balancer (TCP/SSL)
@@ -14,6 +14,7 @@ There are `five` type of rules you can create in each policy:
 
 **NOTE:** For `external passthrough Network Load Balancers`, `protocol forwarding` and `VMs with public IP addresses` create [network Edge Security policy](https://cloud.google.com/armor/docs/security-policy-overview#network-edge-policies) using [advanced network DDoS protection](./modules/advanced-network-ddos-protection/) and [network edge security policy](./modules/network-edge-security-policy/) sub-modules.
 
+**NOTE:** For `Regional external Application Load Balancer` and `Regional internal Application Load Balancer` create [Regionl Backend Security policy](https://cloud.google.com/armor/docs/security-policy-overview#expandable-2) using [regional backend serity policy sub-module](./modules/regional-backend-security-policy/).
 
 ## Compatibility
 
@@ -26,6 +27,7 @@ Current version is 2.X. Upgrade guides:
 - [0.X -> 1.0.](/docs/upgrading_to_v1.0.md)
 - [1.X -> 2.0.](/docs/upgrading_to_v2.0.md)
 - [2.X -> 2.1.](/docs/upgrading_to_v2.1.md)
+- [2.X -> 3.X.](/docs/upgrading_to_v3.0.md)
 
 ##  Module Format
 

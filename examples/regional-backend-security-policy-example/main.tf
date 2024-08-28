@@ -24,7 +24,7 @@ module "cloud_armor_regional_security_policy" {
 
   project_id  = var.project_id
   name        = "test-regional-external-sp-${random_id.suffix.hex}"
-  description = "Test regional external Cloud Armor security policy with preconfigured rules, security rules and custom rules"
+  description = "Test regional Cloud Armor backend security policy with preconfigured rules, security rules and custom rules"
   type        = "CLOUD_ARMOR"
   region      = "us-central1"
 
@@ -85,7 +85,6 @@ module "cloud_armor_regional_security_policy" {
             },
           ]
         }
-
       }
     }
 
@@ -108,7 +107,7 @@ module "cloud_armor_regional_security_policy" {
 
   }
 
-  # Security Rules to block IP addreses
+  # Security Rules to block IP addresses
 
   security_rules = {
 
@@ -134,7 +133,6 @@ module "cloud_armor_regional_security_policy" {
         enforce_on_key                       = "HTTP_HEADER"
         enforce_on_key_name                  = "X-API-KEY"
       }
-
     }
 
     "rate_ban_project_dropthirty" = {
@@ -152,7 +150,6 @@ module "cloud_armor_regional_security_policy" {
         ban_http_request_interval_sec        = 300
         enforce_on_key                       = "ALL"
       }
-
     }
 
     "throttle_project_droptwenty" = {
@@ -175,9 +172,7 @@ module "cloud_armor_regional_security_policy" {
           }
         ]
       }
-
     }
-
   }
 
   # Custom Rules
@@ -191,7 +186,6 @@ module "cloud_armor_regional_security_policy" {
       expression = <<-EOT
         '[AU,BE]'.contains(origin.region_code)
       EOT
-
     }
 
     deny_specific_ip = {
@@ -202,7 +196,6 @@ module "cloud_armor_regional_security_policy" {
       expression = <<-EOT
         inIpRange(origin.ip, '47.185.201.155/32')
       EOT
-
     }
 
     throttle_specific_ip = {
@@ -219,7 +212,6 @@ module "cloud_armor_regional_security_policy" {
         rate_limit_http_request_count        = 10
         rate_limit_http_request_interval_sec = 60
       }
-
     }
 
     rate_ban_specific_ip = {
@@ -239,7 +231,6 @@ module "cloud_armor_regional_security_policy" {
         ban_http_request_interval_sec        = 600
         enforce_on_key                       = "ALL"
       }
-
     }
 
     allow_path_token_header = {
@@ -261,7 +252,6 @@ module "cloud_armor_regional_security_policy" {
       expression = <<-EOT
         evaluatePreconfiguredWaf('java-v33-stable', {'sensitivity': 3, 'opt_out_rule_ids': ['owasp-crs-v030301-id944240-java', 'owasp-crs-v030301-id944120-java']})
       EOT
-
     }
 
     "methodenforcement-v33-stable_level_1" = {
@@ -282,7 +272,6 @@ module "cloud_armor_regional_security_policy" {
         ]
       }
     }
-
   }
 
 }
