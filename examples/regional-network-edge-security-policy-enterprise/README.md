@@ -29,6 +29,5 @@ terraform apply
 |------|-------------|
 | network\_edge\_security\_policy\_no\_rules | Regional Network Security policy created |
 | policy\_rules | Security policy rules created |
-| security\_policy | Regional Network Security policy created |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

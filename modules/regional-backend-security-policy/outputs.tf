@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-output "security_policy" {
+output "policy" {
   value       = google_compute_region_security_policy.security_policy
   description = "Regional network Security policy created"
 }
 
-# output "policy_rules" {
-#   value       = google_compute_region_security_policy_rule.policy_rules
-#   description = "Security policy rules created"
-# }
+output "security_rules" {
+  value       = google_compute_region_security_policy_rule.security_rules
+  description = "Security policy rules created"
+}

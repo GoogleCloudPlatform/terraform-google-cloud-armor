@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package security_policy_edge
+package security_policy_recaptcha
 
 import (
 	"fmt"
@@ -23,7 +23,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGlobalSecurityPolicyEdge(t *testing.T) {
+func TestGlobalSecurityPolicyRecaptcha(t *testing.T) {
 	casp := tft.NewTFBlueprintTest(t)
 
 	casp.DefineVerify(func(assert *assert.Assertions) {
@@ -36,17 +36,8 @@ func TestGlobalSecurityPolicyEdge(t *testing.T) {
 		for _, sp := range spName.Array() {
 			pname := sp.Get("name").String()
 			assert.Equal(policyName, pname, "has expected name")
-			assert.Equal("Test Cloud Armor Edge security policy", sp.Get("description").String(), "has expected description")
-			assert.Equal("CLOUD_ARMOR_EDGE", sp.Get("type").String(), "has expected name")
-		}
-
-		// 	Rule 1
-		spRule1 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 1 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range spRule1.Array() {
-			assert.Equal("allow", sp.Get("action").String(), "priority 1 rule has expected action")
-			assert.Equal("origin.region_code == \"US\"\n", sp.Get("match.expr.expression").String(), "priority 1 rule has expected expression")
-			assert.Equal("Allow specific Regions", sp.Get("description").String(), "priority 1 rule has expected description")
-			assert.False(sp.Get("preview").Bool(), "priority 1 rule Preview is set to False")
+			assert.Equal("Test Cloud Armor security policy with Recaptcha Enterprise", sp.Get("description").String(), "has expected description")
+			assert.Equal("CLOUD_ARMOR", sp.Get("type").String(), "has expected name")
 		}
 	})
 	casp.Test()

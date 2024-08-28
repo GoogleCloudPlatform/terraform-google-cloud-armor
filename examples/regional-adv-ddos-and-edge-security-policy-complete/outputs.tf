@@ -14,6 +14,21 @@
  * limitations under the License.
  */
 
+output "project_id" {
+  value       = var.project_id
+  description = "The project ID"
+}
+
+output "policy_name" {
+  value       = module.network_edge_security_policy.security_policy.name
+  description = "Name of Regional Network Security policy created"
+}
+
+output "region" {
+  value       = module.network_edge_security_policy.security_policy.region
+  description = "Name of Regional Network Security policy created"
+}
+
 output "adv_ddos_protection_policies" {
   value       = module.advanced_network_ddos_protection.adv_ddos_protection_policies
   description = "Advanced Network DDoS protection Security policies created"
@@ -24,17 +39,7 @@ output "network_edge_security_services" {
   description = "Network edge security services created"
 }
 
-output "security_policy" {
-  value       = module.network_edge_security_policy.security_policy
-  description = "Regional Network Security policy created"
-}
-
-output "policy_rules" {
-  value       = module.network_edge_security_policy.policy_rules
-  description = "Security policy rules created"
-}
-
 output "test_nlb_url" {
   value       = "curl http://${google_compute_forwarding_rule.default.ip_address}"
-  description = "Use this command to test access to the load balancer. Try it from the IP address provided in whitelisted_ingress_ip_ranges and a different IP address"
+  description = "Use this command to test access to the load balancer. Try it from the IP address provided in rule 100 and a different IP address"
 }

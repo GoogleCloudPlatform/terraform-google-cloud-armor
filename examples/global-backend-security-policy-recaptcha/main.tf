@@ -36,14 +36,14 @@ resource "random_id" "suffix" {
 
 module "cloud_armor" {
   source  = "GoogleCloudPlatform/cloud-armor/google"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
-  project_id                           = var.project_id
-  name                                 = "test-policy-recaptcha-${random_id.suffix.hex}"
-  description                          = "Test Cloud Armor security policy with preconfigured rules, security rules and custom rules"
-  default_rule_action                  = "allow"
-  type                                 = "CLOUD_ARMOR"
-  layer_7_ddos_defense_enable          = true
-  layer_7_ddos_defense_rule_visibility = "STANDARD"
-  recaptcha_redirect_site_key          = google_recaptcha_enterprise_key.primary.name
+  project_id                  = var.project_id
+  name                        = "test-policy-recaptcha-${random_id.suffix.hex}"
+  description                 = "Test Cloud Armor security policy with Recaptcha Enterprise"
+  default_rule_action         = "allow"
+  type                        = "CLOUD_ARMOR"
+  layer_7_ddos_defense_enable = true
+  recaptcha_redirect_site_key = google_recaptcha_enterprise_key.primary.name
+  user_ip_request_headers     = ["True-Client-IP", ]
 }

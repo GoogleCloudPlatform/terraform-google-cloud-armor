@@ -18,8 +18,3 @@ variable "project_id" {
   description = "The project in which the resource belongs"
   type        = string
 }
-
-variable "whitelisted_ingress_ip_ranges" {
-  description = "whitelisted ingress ip ranges. Replace it with your own IP address"
-  type        = list(string)
-}

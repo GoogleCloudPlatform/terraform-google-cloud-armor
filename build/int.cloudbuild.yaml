@@ -31,53 +31,99 @@ steps:
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
   args: ['/bin/bash', '-c', 'cft test run all --stage init --verbose']
 
-- id: security-policy-all-apply
+- id: global-backend-security-policy-complete-apply
   waitFor:
     - init-all
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
   args: ['/bin/bash', '-c', 'cft test run TestGlobalSecurityPolicyComplete --stage apply --verbose']
-- id: security-policy-all-verify
+- id: global-backend-security-policy-complete-verify
   waitFor:
-    - security-policy-all-apply
+    - global-backend-security-policy-complete-apply
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
   args: ['/bin/bash', '-c', 'cft test run TestGlobalSecurityPolicyComplete --stage verify --verbose']
-- id: security-policy-all-teardown
+- id: global-backend-security-policy-complete-teardown
   waitFor:
-    - security-policy-all-verify
+    - global-backend-security-policy-complete-verify
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
   args: ['/bin/bash', '-c', 'cft test run TestGlobalSecurityPolicyComplete --stage teardown --verbose']
 
-- id: simple-example-apply
+- id: global-backend-security-policy-example-apply
   waitFor:
-    - security-policy-all-teardown
+    - global-backend-security-policy-complete-teardown
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
-  args: ['/bin/bash', '-c', 'cft test run TestSimpleExample --stage apply --verbose']
-- id: simple-example-verify
+  args: ['/bin/bash', '-c', 'cft test run TestGlobalSecurityPolicyExample --stage apply --verbose']
+- id: global-backend-security-policy-example-verify
   waitFor:
-    - simple-example-apply
+    - global-backend-security-policy-example-apply
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
-  args: ['/bin/bash', '-c', 'cft test run TestSimpleExample --stage verify --verbose']
-- id: simple-example-teardown
+  args: ['/bin/bash', '-c', 'cft test run TestGlobalSecurityPolicyExample --stage verify --verbose']
+- id: global-backend-security-policy-example-teardown
   waitFor:
-    - simple-example-verify
+    - global-backend-security-policy-example-verify
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
-  args: ['/bin/bash', '-c', 'cft test run TestSimpleExample --stage teardown --verbose']
+  args: ['/bin/bash', '-c', 'cft test run TestGlobalSecurityPolicyExample --stage teardown --verbose']
 
-- id: security-policy-edge-apply
+- id: global-edge-security-policy-apply
   waitFor:
-    - simple-example-teardown
+    - global-backend-security-policy-example-teardown
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
-  args: ['/bin/bash', '-c', 'cft test run TestSecurityPolicyEdge --stage apply --verbose']
-- id: security-policy-edge-verify
+  args: ['/bin/bash', '-c', 'cft test run TestGlobalSecurityPolicyEdge --stage apply --verbose']
+- id: global-edge-security-policy-verify
   waitFor:
-    - security-policy-edge-apply
+    - global-edge-security-policy-apply
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
-  args: ['/bin/bash', '-c', 'cft test run TestSecurityPolicyEdge --stage verify --verbose']
-- id: security-policy-edge-teardown
+  args: ['/bin/bash', '-c', 'cft test run TestGlobalSecurityPolicyEdge --stage verify --verbose']
+- id: global-edge-security-policy-teardown
   waitFor:
-    - security-policy-edge-verify
+    - global-edge-security-policy-verify
   name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
-  args: ['/bin/bash', '-c', 'cft test run TestSecurityPolicyEdge --stage teardown --verbose']
+  args: ['/bin/bash', '-c', 'cft test run TestGlobalSecurityPolicyEdge --stage teardown --verbose']
+
+- id: global-backend-security-policy-recaptcha-apply
+  waitFor:
+    - global-backend-security-policy-example-teardown
+  name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
+  args: ['/bin/bash', '-c', 'cft test run TestGlobalSecurityPolicyRecaptcha --stage apply --verbose']
+- id: global-backend-security-policy-recaptcha-verify
+  waitFor:
+    - global-backend-security-policy-recaptcha-apply
+  name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
+  args: ['/bin/bash', '-c', 'cft test run TestGlobalSecurityPolicyRecaptcha --stage verify --verbose']
+- id: global-backend-security-policy-recaptcha-teardown
+  waitFor:
+    - global-backend-security-policy-recaptcha-verify
+  name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
+  args: ['/bin/bash', '-c', 'cft test run TestGlobalSecurityPolicyRecaptcha --stage teardown --verbose']
+- id: global-backend-security-policy-enterprise-apply
+  waitFor:
+    - global-backend-security-policy-example-teardown
+  name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
+  args: ['/bin/bash', '-c', 'cft test run TestGlobalSecurityPolicyEnterprise --stage apply --verbose']
+- id: global-backend-security-policy-enterprise-verify
+  waitFor:
+    - global-backend-security-policy-enterprise-apply
+  name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
+  args: ['/bin/bash', '-c', 'cft test run TestGlobalSecurityPolicyEnterprise --stage verify --verbose']
+- id: global-backend-security-policy-enterprise-teardown
+  waitFor:
+    - global-backend-security-policy-enterprise-verify
+  name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
+  args: ['/bin/bash', '-c', 'cft test run TestGlobalSecurityPolicyEnterprise --stage teardown --verbose']
+- id: regional-adv-ddos-and-edge-security-policy-complete-apply
+  waitFor:
+    - global-backend-security-policy-example-teardown
+  name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
+  args: ['/bin/bash', '-c', 'cft test run TestRegionalNetworkEdgePolicy --stage apply --verbose']
+- id: regional-adv-ddos-and-edge-security-policy-complete-verify
+  waitFor:
+    - regional-adv-ddos-and-edge-security-policy-complete-apply
+  name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
+  args: ['/bin/bash', '-c', 'cft test run TestRegionalNetworkEdgePolicy --stage verify --verbose']
+- id: regional-adv-ddos-and-edge-security-policy-complete-teardown
+  waitFor:
+    - regional-adv-ddos-and-edge-security-policy-complete-verify
+  name: 'gcr.io/cloud-foundation-cicd/$_DOCKER_IMAGE_DEVELOPER_TOOLS:$_DOCKER_TAG_VERSION_DEVELOPER_TOOLS'
+  args: ['/bin/bash', '-c', 'cft test run TestRegionalNetworkEdgePolicy --stage teardown --verbose']
 
 tags:
 - 'ci'

@@ -24,8 +24,8 @@ variable "region" {
   type        = string
 }
 
-variable "policy_name" {
-  description = "Name of the advanced network ddos protection security policy. Name must be 1-63 characters long and match the regular expression a-z? which means the first character must be a lowercase letter, and all following characters must be a dash, lowercase letter, or digit, except the last character, which cannot be a dash"
+variable "name" {
+  description = "Name of regional security policy. Name must be 1-63 characters long and match the regular expression a-z? which means the first character must be a lowercase letter, and all following characters must be a dash, lowercase letter, or digit, except the last character, which cannot be a dash"
   type        = string
   default     = "adv-network-ddos-protection"
 }
@@ -36,44 +36,19 @@ variable "type" {
   default     = "CLOUD_ARMOR"
 }
 
-variable "policy_description" {
+variable "description" {
   description = "An optional description of advanced network ddos protection security policy"
   type        = string
   default     = "CA Advance DDoS protection"
 }
 
-# variable "policy_rules" {
-#   description = "Policy Rules"
-#   type = list(object({
-#     priority         = number
-#     action           = string
-#     preview          = optional(bool)
-#     description      = optional(string)
-#     ip_protocols     = optional(list(string))
-#     src_ip_ranges    = optional(list(string))
-#     src_asns         = optional(list(string))
-#     src_region_codes = optional(list(string))
-#     src_ports        = optional(list(string))
-#     dest_ports       = optional(list(string))
-#     dest_ip_ranges   = optional(list(string))
-
-#     user_defined_fields = optional(list(object({
-#       name   = optional(string)
-#       values = optional(list(string))
-#     })))
-#   }))
-#   default = null
-# }
-
 variable "pre_configured_rules" {
-  description = "Map of pre-configured rules with Sensitivity levels. preconfigured_waf_config_exclusion is obsolete and available for backward compatibility. Use preconfigured_waf_config_exclusions which allows multiple exclusions"
+  description = "Map of pre-configured rules with Sensitivity levels"
   type = map(object({
     action                  = string
     priority                = number
     description             = optional(string)
     preview                 = optional(bool, false)
-    redirect_type           = optional(string, null)
-    redirect_target         = optional(string, null)
     target_rule_set         = string
     sensitivity_level       = optional(number, 4)
     include_target_rule_ids = optional(list(string), [])
@@ -92,11 +67,6 @@ variable "pre_configured_rules" {
       ban_http_request_count               = optional(number)
       ban_http_request_interval_sec        = optional(number)
     }), {})
-
-    header_action = optional(list(object({
-      header_name  = optional(string)
-      header_value = optional(string)
-    })), [])
 
     preconfigured_waf_config_exclusions = optional(map(object({
       target_rule_set = string
@@ -127,13 +97,11 @@ variable "pre_configured_rules" {
 variable "security_rules" {
   description = "Map of Security rules with list of IP addresses to block or unblock."
   type = map(object({
-    action          = string
-    priority        = number
-    description     = optional(string)
-    preview         = optional(bool, false)
-    redirect_type   = optional(string, null)
-    redirect_target = optional(string, null)
-    src_ip_ranges   = list(string)
+    action        = string
+    priority      = number
+    description   = optional(string)
+    preview       = optional(bool, false)
+    src_ip_ranges = list(string)
     rate_limit_options = optional(object({
       enforce_on_key      = optional(string)
       enforce_on_key_name = optional(string)
@@ -149,10 +117,6 @@ variable "security_rules" {
       ban_http_request_interval_sec        = optional(number)
       }),
     {})
-    header_action = optional(list(object({
-      header_name  = optional(string)
-      header_value = optional(string)
-    })), [])
   }))
 
   default = {}
@@ -161,13 +125,11 @@ variable "security_rules" {
 variable "custom_rules" {
   description = "Custome security rules"
   type = map(object({
-    action          = string
-    priority        = number
-    description     = optional(string)
-    preview         = optional(bool, false)
-    expression      = string
-    redirect_type   = optional(string, null)
-    redirect_target = optional(string, null)
+    action      = string
+    priority    = number
+    description = optional(string)
+    preview     = optional(bool, false)
+    expression  = string
     rate_limit_options = optional(object({
       enforce_on_key      = optional(string)
       enforce_on_key_name = optional(string)
@@ -183,10 +145,6 @@ variable "custom_rules" {
       ban_http_request_interval_sec        = optional(number)
       }),
     {})
-    header_action = optional(list(object({
-      header_name  = optional(string)
-      header_value = optional(string)
-    })), [])
 
     preconfigured_waf_config_exclusions = optional(map(object({
       target_rule_set = string

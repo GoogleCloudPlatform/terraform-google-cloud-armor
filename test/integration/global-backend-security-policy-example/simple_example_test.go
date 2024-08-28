@@ -23,7 +23,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSimpleExample(t *testing.T) {
+func TestGlobalSecurityPolicyExample(t *testing.T) {
 	casp := tft.NewTFBlueprintTest(t)
 
 	casp.DefineVerify(func(assert *assert.Assertions) {
@@ -49,7 +49,7 @@ func TestSimpleExample(t *testing.T) {
 			assert.Equal("sqli-v33-stable Sensitivity Level 4 and 2 preconfigured_waf_config_exclusions", sp.Get("description").String(), "priority 1 rule has expected description")
 			assert.False(sp.Get("preview").Bool(), "priority 1 rule Preview is set to False")
 
-			pce :=	sp.Get("preconfiguredWafConfig.exclusions").Array()
+			pce := sp.Get("preconfiguredWafConfig.exclusions").Array()
 			assert.Equal("STARTS_WITH", pce[0].Get("requestCookiesToExclude").Array()[0].Get("op").String(), "priority 1 rule has expected requestCookiesToExclude")
 			assert.Equal("abc", pce[0].Get("requestCookiesToExclude").Array()[0].Get("val").String(), "priority 1 rule has expected requestCookiesToExclude")
 			assert.Equal("STARTS_WITH", pce[0].Get("requestHeadersToExclude").Array()[0].Get("op").String(), "priority 1 rule has expected requestHeadersToExclude")

@@ -1,117 +1,190 @@
-# Cloud Armor Terraform Module for Network Edge Security Policy
-This module creates [network edge security policy](https://cloud.google.com/armor/docs/network-edge-policies) in specified region. Network edge security policy is only availalable to projects enrolled in [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview) with [Advanced network DDoS protection](https://cloud.google.com/armor/docs/advanced-network-ddos#activate-advanced-ddos-protection) enabled. You can use [this sub-module](../advanced-network-ddos-protection/) to enable `advanced network ddos protection `.
+# Cloud Armor Regional backend security policy module
+This module makes it easy to setup [Cloud Armor Regional Security Policy](https://cloud.google.com/armor/docs/security-policy-overview#expandable-2) with Security rules. You can attach the regional Security policy to the backend services exposed by the following load balancer types:
+- regional external Application Load Balancer (HTTP/HTTPS)
+- regional internal Application Load Balancer (HTTP/HTTPS)
 
-You can attch network edge security policy to backend services of [external passthrough Network Load Balancers](https://cloud.google.com/load-balancing/docs/network). Network edge security policy supports [byte offset filtering](https://cloud.google.com/armor/docs/network-edge-policies#byte-offset). This module creates security policy of type `CLOUD_ARMOR_NETWORK` optionally attach security policy rules to the policy.
+There are `three` type of rules you can create in each policy:
+1) [Pre-Configured Rules](#pre_configured_rules): These are based on [pre-configured waf rules](https://cloud.google.com/armor/docs/waf-rules).
+2) [Security Rules](#security_rules): Allow or Deny traffic from list of IP addresses or IP address ranges.
+3) [Custom Rules](#custom_rules): You can create your own rules using [Common Expression Language (CEL)](https://cloud.google.com/armor/docs/rules-language-reference).
 
 ##  Module Format
 
 ```
-module "network_edge_security_policy" {
-  source  = "GoogleCloudPlatform/cloud-armor/google//modules/network-edge-security-policy"
-  version = "~> 2.2"
+module security_policy {
+  source = "GoogleCloudPlatform/cloud-armor/google"
 
   project_id  = var.project_id
+  name        = "test-regional-external-sp-${random_id.suffix.hex}"
+  description = "Test regional external Cloud Armor security policy with preconfigured rules, security rules and custom rules"
   region      = "us-central1"
-  policy_name = "test-nw-edge-security-policy"
 
-  policy_user_defined_fields = [
-    {},
-    {},
-  ]
-
-  policy_rules = [
-    {},
-    {},
-  ]
+  pre_configured_rules                 = {}
+  security_rules                       = {}
+  custom_rules                         = {}
 }
 ```
 
-`policy_rules` details and Sample Code for each type of rule is available [here](#Rules)
+Rule details and Sample Code for each type of rule is available [here](#Rules)
 
 ## Usage
 There are examples included in the [examples](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/tree/main/examples) folder but simple usage is as follows:
 
 
 ```
-module "network_edge_security_policy" {
-  source  = "GoogleCloudPlatform/cloud-armor/google//modules/network-edge-security-policy"
+module "cloud_armor_regional_security_policy" {
+  source  = "GoogleCloudPlatform/cloud-armor/google"
   version = "~> 2.0"
 
   project_id  = var.project_id
+  name        = "test-regional-external-sp-${random_id.suffix.hex}"
+  description = "Test regional external Cloud Armor security policy with preconfigured rules, security rules and custom rules"
+  type        = "CLOUD_ARMOR"
   region      = "us-central1"
-  policy_name = "test-nw-edge-security-policy"
 
-  policy_user_defined_fields = [
-    {
-      name   = "SIG1_AT_0"
-      base   = "UDP"
-      offset = 8
-      size   = 2
-      mask   = "0x8F00"
-    },
-    {
-      name   = "SIG2_AT_8"
-      base   = "TCP"
-      offset = 16
-      size   = 4
-      mask   = "0xFFFFFFFF"
-    },
-  ]
+  # pre-configured WAF rules
 
-  policy_rules = [
-    {
-      priority         = 100
-      action           = "deny"
-      preview          = true
-      description      = "custom rule 100"
-      src_ip_ranges    = ["10.10.0.0/16"]
-      src_asns         = [15169]
-      src_region_codes = ["AU"]
-      ip_protocols     = ["TCP"]
-      src_ports        = [80]
-      dest_ports       = ["8080"]
-      dest_ip_ranges   = ["10.100.0.0/16"]
-      user_defined_fields = [
-        {
-          name   = "SIG1_AT_0"
-          values = ["0x8F00"]
-        },
-      ]
-    },
-    {
-      priority       = 200
-      action         = "deny"
-      preview        = false
-      priority       = 200
-      src_asns       = [15269]
-      dest_ports     = ["80"]
-      dest_ip_ranges = ["10.100.0.0/16"]
-    },
-  ]
-}
+  pre_configured_rules = {
 
-## Backnd service to attach the security policy
-resource "google_compute_region_backend_service" "backend" {
-  provider              = google-beta
+    "xss-stable_level_2_with_exclude" = {
+      action                  = "deny(502)"
+      priority                = 2
+      preview                 = true
+      target_rule_set         = "xss-v33-stable"
+      sensitivity_level       = 2
+      exclude_target_rule_ids = ["owasp-crs-v030301-id941380-xss", "owasp-crs-v030301-id941280-xss"]
+    }
 
-  ## Attach Cloud Armor policy to the backend service
-  security_policy = module.network_edge_security_policy.security_policy.self_link
+    "php-stable_level_0_with_include" = {
+      action                  = "deny(502)"
+      priority                = 3
+      description             = "PHP Sensitivity Level 0 with included rules"
+      target_rule_set         = "php-v33-stable"
+      include_target_rule_ids = ["owasp-crs-v030301-id933190-php", "owasp-crs-v030301-id933111-php"]
+    }
 
-  project               = var.project_id
-  name                  = "ca-website-backend-svc"
-  region                = local.primary_region
-  load_balancing_scheme = "EXTERNAL"
-  health_checks         = [google_compute_region_health_check.default.id]
-  backend {
-    group = google_compute_instance_group.ca_vm_1_ig.self_link
   }
 
-  log_config {
-    enable      = true
-    sample_rate = 0.5
-  }
-}
+  # Security Rules to block IP addreses
 
+  security_rules = {
+
+    "deny_project_honeypot" = {
+      action        = "deny(502)"
+      priority      = 11
+      description   = "Deny Malicious IP address from project honeypot"
+      src_ip_ranges = ["190.217.68.211/32", "45.116.227.68/32", "103.43.141.122/32", "123.11.215.36", "123.11.215.37", ]
+      preview       = true
+    }
+
+    "rate_ban_project_dropthirty" = {
+      action        = "rate_based_ban"
+      priority      = 13
+      description   = "Rate based ban for address from project dropthirty only if they cross banned threshold"
+      src_ip_ranges = ["190.217.68.213", "45.116.227.70", ]
+
+      rate_limit_options = {
+        exceed_action                        = "deny(502)"
+        rate_limit_http_request_count        = 10
+        rate_limit_http_request_interval_sec = 60
+        ban_duration_sec                     = 600
+        ban_http_request_count               = 1000
+        ban_http_request_interval_sec        = 300
+        enforce_on_key                       = "ALL"
+      }
+
+    }
+
+    "throttle_project_droptwenty" = {
+      action        = "throttle"
+      priority      = 14
+      description   = "Throttle IP addresses from project droptwenty"
+      src_ip_ranges = ["190.217.68.214", "45.116.227.71", ]
+
+      rate_limit_options = {
+        exceed_action                        = "deny(502)"
+        rate_limit_http_request_count        = 10
+        rate_limit_http_request_interval_sec = 60
+        enforce_on_key_configs = [
+          {
+            enforce_on_key_type = "HTTP_PATH"
+          },
+          {
+            enforce_on_key_type = "HTTP_COOKIE"
+            enforce_on_key_name = "site_id"
+          }
+        ]
+      }
+
+    }
+
+  }
+
+  # Custom Rules
+  custom_rules = {
+
+    deny_specific_regions = {
+      action      = "deny(502)"
+      priority    = 21
+      description = "Deny specific Regions"
+
+      expression = <<-EOT
+        '[AU,BE]'.contains(origin.region_code)
+      EOT
+
+    }
+
+    deny_specific_ip = {
+      action      = "deny(502)"
+      priority    = 22
+      description = "Deny Specific IP address"
+
+      expression = <<-EOT
+        inIpRange(origin.ip, '47.185.201.155/32')
+      EOT
+
+    }
+
+    throttle_specific_ip = {
+      action      = "throttle"
+      priority    = 23
+      description = "Throttle specific IP address in US Region"
+
+      expression = <<-EOT
+        origin.region_code == "US" && inIpRange(origin.ip, '47.185.201.159/32')
+      EOT
+
+      rate_limit_options = {
+        exceed_action                        = "deny(502)"
+        rate_limit_http_request_count        = 10
+        rate_limit_http_request_interval_sec = 60
+      }
+
+    }
+
+    rate_ban_specific_ip = {
+      action   = "rate_based_ban"
+      priority = 24
+
+      expression = <<-EOT
+        inIpRange(origin.ip, '47.185.201.160/32')
+      EOT
+
+      rate_limit_options = {
+        exceed_action                        = "deny(502)"
+        rate_limit_http_request_count        = 10
+        rate_limit_http_request_interval_sec = 60
+        ban_duration_sec                     = 120
+        ban_http_request_count               = 10000
+        ban_http_request_interval_sec        = 600
+        enforce_on_key                       = "ALL"
+      }
+
+    }
+
+  }
+
+}
 ```
 
 
@@ -120,119 +193,345 @@ resource "google_compute_region_backend_service" "backend" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| custom\_rules | Custome security rules | <pre>map(object({<br>    action          = string<br>    priority        = number<br>    description     = optional(string)<br>    preview         = optional(bool, false)<br>    expression      = string<br>    redirect_type   = optional(string, null)<br>    redirect_target = optional(string, null)<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br><br>    preconfigured_waf_config_exclusions = optional(map(object({<br>      target_rule_set = string<br>      target_rule_ids = optional(list(string), [])<br>      request_header = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_cookie = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_uri = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_query_param = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>    })), null)<br><br>  }))</pre> | `{}` | no |
-| policy\_description | An optional description of advanced network ddos protection security policy | `string` | `"CA Advance DDoS protection"` | no |
-| policy\_name | Name of the advanced network ddos protection security policy. Name must be 1-63 characters long and match the regular expression a-z? which means the first character must be a lowercase letter, and all following characters must be a dash, lowercase letter, or digit, except the last character, which cannot be a dash | `string` | `"adv-network-ddos-protection"` | no |
-| pre\_configured\_rules | Map of pre-configured rules with Sensitivity levels. preconfigured\_waf\_config\_exclusion is obsolete and available for backward compatibility. Use preconfigured\_waf\_config\_exclusions which allows multiple exclusions | <pre>map(object({<br>    action                  = string<br>    priority                = number<br>    description             = optional(string)<br>    preview                 = optional(bool, false)<br>    redirect_type           = optional(string, null)<br>    redirect_target         = optional(string, null)<br>    target_rule_set         = string<br>    sensitivity_level       = optional(number, 4)<br>    include_target_rule_ids = optional(list(string), [])<br>    exclude_target_rule_ids = optional(list(string), [])<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>    }), {})<br><br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br><br>    preconfigured_waf_config_exclusions = optional(map(object({<br>      target_rule_set = string<br>      target_rule_ids = optional(list(string), [])<br>      request_header = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_cookie = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_uri = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_query_param = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>    })), null)<br><br>  }))</pre> | `{}` | no |
+| custom\_rules | Custome security rules | <pre>map(object({<br>    action      = string<br>    priority    = number<br>    description = optional(string)<br>    preview     = optional(bool, false)<br>    expression  = string<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br><br>    preconfigured_waf_config_exclusions = optional(map(object({<br>      target_rule_set = string<br>      target_rule_ids = optional(list(string), [])<br>      request_header = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_cookie = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_uri = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_query_param = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>    })), null)<br><br>  }))</pre> | `{}` | no |
+| description | An optional description of advanced network ddos protection security policy | `string` | `"CA Advance DDoS protection"` | no |
+| name | Name of regional security policy. Name must be 1-63 characters long and match the regular expression a-z? which means the first character must be a lowercase letter, and all following characters must be a dash, lowercase letter, or digit, except the last character, which cannot be a dash | `string` | `"adv-network-ddos-protection"` | no |
+| pre\_configured\_rules | Map of pre-configured rules with Sensitivity levels | <pre>map(object({<br>    action                  = string<br>    priority                = number<br>    description             = optional(string)<br>    preview                 = optional(bool, false)<br>    target_rule_set         = string<br>    sensitivity_level       = optional(number, 4)<br>    include_target_rule_ids = optional(list(string), [])<br>    exclude_target_rule_ids = optional(list(string), [])<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>    }), {})<br><br>    preconfigured_waf_config_exclusions = optional(map(object({<br>      target_rule_set = string<br>      target_rule_ids = optional(list(string), [])<br>      request_header = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_cookie = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_uri = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_query_param = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>    })), null)<br><br>  }))</pre> | `{}` | no |
 | project\_id | The project in which the resource belongs. | `string` | n/a | yes |
 | region | The region in which security policy is created | `string` | n/a | yes |
-| security\_rules | Map of Security rules with list of IP addresses to block or unblock. | <pre>map(object({<br>    action          = string<br>    priority        = number<br>    description     = optional(string)<br>    preview         = optional(bool, false)<br>    redirect_type   = optional(string, null)<br>    redirect_target = optional(string, null)<br>    src_ip_ranges   = list(string)<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>    header_action = optional(list(object({<br>      header_name  = optional(string)<br>      header_value = optional(string)<br>    })), [])<br>  }))</pre> | `{}` | no |
+| security\_rules | Map of Security rules with list of IP addresses to block or unblock. | <pre>map(object({<br>    action        = string<br>    priority      = number<br>    description   = optional(string)<br>    preview       = optional(bool, false)<br>    src_ip_ranges = list(string)<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>  }))</pre> | `{}` | no |
 | type | Type indicates the intended use of the security policy. Possible values are CLOUD\_ARMOR and CLOUD\_ARMOR\_EDGE. | `string` | `"CLOUD_ARMOR"` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| security\_policy | Regional network Security policy created |
+| policy | Regional network Security policy created |
+| security\_rules | Security policy rules created |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
-## policy_user_defined_fields
+## Rules
 
-Definitions of user-defined fields for CLOUD_ARMOR_NETWORK policies. A user-defined field consists of up to 4 bytes extracted from a fixed offset in the packet, relative to the IPv4, IPv6, TCP, or UDP header, with an optional mask to select certain bits. Rules may then specify matching values for these fields
+[Pre-Configured Rules](#pre_configured_rules), [Security Rules](#security_rules), [Custom Rules](#custom_rules) and [Threat Intelligence Rules](#threat_intelligence_rules) are maps of rules. Each rule is a map which provides details about the rule. Here is an example of `pre_configured_rules`:
 
-- `name`: (Optional) The name of this field. Must be unique within the policy
-- `base`: (Required) The base relative to which 'offset' is measured. Possible values are:
-  - `IPV4`: Points to the beginning of the IPv4 header
-  - `IPV6`: Points to the beginning of the IPv6 header
-  - `TCP`: Points to the beginning of the TCP header, skipping over any IPv4 options or IPv6 extension headers. Not present for non-first fragments
-  - `UDP`: Points to the beginning of the UDP header, skipping over any IPv4 options or IPv6 extension headers. Not present for non-first fragments. Possible values are: IPV4, IPV6, TCP, UDP
-- `offset`: (Optional) Offset of the first byte of the field (in network byte order) relative to 'base'
-- `size`: (Optional) Size of the field in bytes. Valid values: 1-4
-- `mask`: (Optional) If specified, apply this mask (bitwise AND) to the field to ignore bits before matching. Encoded as a hexadecimal number (starting with "0x"). The last byte of the field (in network byte order) corresponds to the least significant byte of the mask
+```
+  "my_rule" = {
+    action                             = "deny(502)"
+    priority                             = 1
+    description                          = "SQL Sensitivity Level 4"
+    preview                              = false
+    redirect_type                        = null
+    redirect_target                      = null
+    target_rule_set                      = "sqli-v33-stable"
+    sensitivity_level                    = 4
+    include_target_rule_ids              = []
+    exclude_target_rule_ids              = []
+    header_action                        = []
+    rate_limit_options                   = {}
+    preconfigured_waf_config_exclusions  = {}
+  }
+```
 
+`action, priority, description, preview, rate_limit_options, header_action, redirect_type and redirect_target` are common in all the rule types. Some of then are optional and some have default value see [Input](#Inputs).
 
-## policy_rules
+## Rate limit
+`rate_limit_options` is needed for the rules where action is set to `throttle` or `rate_based_ban`. `rate_limit_options` is a map of strings with following key pairs. You can find more details about rate limit [here](https://cloud.google.com/armor/docs/rate-limiting-overview).
 
-`policy_rules` is a list of objects with following parameters:
-- `priority`: An integer indicating the priority of a rule in the list. The priority must be a positive value between 0 and 2147483647. Rules are evaluated from highest to lowest priority where 0 is the highest priority and 2147483647 is the lowest priority
-- `action`: The Action to perform when the rule is matched. The following are the valid actions:
-  - allow: allow access to target
-  - deny(STATUS): deny access to target, returns the HTTP response code specified. Valid values for STATUS are 403, 404, and 502
-- `preview`: If set to true, the specified action is not enforced
-- `description`: An optional description of this resource. Provide this property when you create the resource
-- `src_ip_ranges`: list of source IPv4/IPv6 addresses or CIDR prefixes, in standard text format
-- `src_asns`: list of BGP Autonomous System Number associated with the source IP address
-- `src_region_codes`: list of Two-letter ISO 3166-1 alpha-2 country code associated with the source IP address
-- `ip_protocols`: list of IPv4 protocol / IPv6 next header (after extension headers). Each element can be an 8-bit unsigned decimal number (e.g. "6"), range (e.g. "253-254"), or one of the following protocol names: "tcp", "udp", "icmp", "esp", "ah", "ipip", or "sctp"
-- `src_ports`: Source port numbers for TCP/UDP/SCTP. Each element can be a 16-bit unsigned decimal number (e.g. "80") or range (e.g. "0-1023")
-- `dest_ports`: Destination port numbers for TCP/UDP/SCTP. Each element can be a 16-bit unsigned decimal number (e.g. "80") or range (e.g. "0-1023")
-- `dest_ip_ranges`: Destination IPv4/IPv6 addresses or CIDR prefixes, in standard text format
-- `user_defined_fields`:User-defined fields. Each element names a defined field and lists the matching values for that field. Support following fields:
-  - `name`: Name of the user-defined field, as given in the definition
-  - `values`: Matching values of the field. Each element can be a 32-bit unsigned decimal or hexadecimal (starting with "0x") number (e.g. "64") or range (e.g. "0x400-0x7ff")
+```
+rate_limit_options = {
+  exceed_action                        = "deny(502)"
+  rate_limit_http_request_count        = 10
+  rate_limit_http_request_interval_sec = 60    # must be one of 60, 120, 180, 240, 300, 600, 900, 1200, 1800, 2700, 3600 seconds
+  ban_duration_sec                     = 600   # needed only if action is rate_based_ban
+  ban_http_request_count               = 1000  # needed only if action is rate_based_ban
+  ban_http_request_interval_sec        = 300   # must be one of 60, 120, 180, 240, 300, 600, 900, 1200, 1800, 2700, 3600 seconds. needed only if action is rate_based_ban
+  enforce_on_key                       = "ALL" # All is default value. If null is passed terraform will use ALL as the value. Will be set to "" when `enforce_on_key_configs` is not null
+
+  enforce_on_key_configs = [
+    {
+      enforce_on_key_type = "HTTP_PATH"
+    },
+    {
+      enforce_on_key_type = "HTTP_COOKIE"
+      enforce_on_key_name = "site_id"
+    }
+  ]
+}
+```
+
+## Preconfigured WAF Config
+
+`preconfigured_waf_config_exclusions` is needed for custom application that might contain content in request fields (like headers, cookies, query parameters, or URIs) that matches signatures in preconfigured WAF rules, but which you know is legitimate. In this case, you can reduce false positives by excluding those request fields from inspection by associating a list of exclusions for request fields with the security policy rule. You can pass `request_header`, `request_uri`, `request_cookie` and `request_query_param`. It is available in [Pre-Configured Rules](#pre_configured_rules). You can find more details about `preconfigured_waf_config` [here](https://cloud.google.com/armor/docs/rule-tuning#exclude_request_fields_from_inspection)
+
+```
+preconfigured_waf_config_exclusions = {
+
+  exclusion_1 = {
+    target_rule_set = "sqli-v33-stable"
+    target_rule_ids = ["owasp-crs-v030301-id942120-sqli", "owasp-crs-v030301-id942130-sqli"]
+    request_cookie = [
+      {
+        operator = "STARTS_WITH"
+        value    = "abc"
+      }
+    ]
+    request_header = [
+      {
+        operator = "STARTS_WITH"
+        value    = "xyz"
+      },
+      {
+        operator = "STARTS_WITH"
+        value    = "uvw"
+      }
+    ]
+  }
+
+  exclusion_2 = {
+    target_rule_set = "sqli-v33-stable"
+    target_rule_ids = ["owasp-crs-v030301-id942150-sqli", "owasp-crs-v030301-id942180-sqli"]
+    request_header = [
+      {
+        operator = "STARTS_WITH"
+        value    = "lmn"
+      },
+      {
+        operator = "ENDS_WITH"
+        value    = "opq"
+      }
+    ]
+    request_uri = [
+      {
+        operator = "CONTAINS"
+        value    = "https://hashicorp.com"
+      },
+      {
+        operator = "CONTAINS"
+        value    = "https://xyz.com"
+      },
+    ]
+  }
+
+}
+```
+
+## pre_configured_rules
+List of preconfigured rules are available [here](https://cloud.google.com/armor/docs/waf-rules). Following is the key value pairs for setting up pre configured rules. `include_target_rule_ids` and `exclude_target_rule_ids` are mutually exclusive. If `include_target_rule_ids` is provided, sensitivity_level is automatically set to 0 by the module as it is a [requirement for opt in rule signature](https://cloud.google.com/armor/docs/rule-tuning#opt_in_rule_signatures). `exclude_target_rule_ids` is ignored when `include_target_rule_ids` is provided.
 
 ### Format:
 
 ```
-[
-  {
-    priority         = 100
-    action           = "deny"
-    preview          = true
-    description      = "custom rule 100"
-    src_ip_ranges    = ["10.10.0.0/16"]
-    src_asns         = [15169]
-    src_region_codes = ["AU"]
-    ip_protocols     = ["TCP"]
-    src_ports        = [80]
-    dest_ports       = ["8080"]
-    dest_ip_ranges   = ["10.100.0.0/16"]
-    user_defined_fields = [
-      {},
-    ]
-  },
-]
+  "sqli_sensitivity_level_4" = {
+    action                               = "deny(502)"
+    priority                             = 1
+    description                          = "SQL Sensitivity Level 4"
+    preview                              = false
+    redirect_type                        = null
+    redirect_target                      = null
+    target_rule_set                      = "sqli-v33-stable"
+    sensitivity_level                    = 4
+    include_target_rule_ids              = []
+    exclude_target_rule_ids              = []
+    rate_limit_options                   = {}
+    header_action                        = []
+    preconfigured_waf_config_exclusions  = {}
+  }
 ```
 
 
 ### Sample:
 
 ```
-  policy_rules = [
-    {
-      priority         = 100
-      action           = "deny"
-      preview          = true
-      description      = "custom rule 100"
-      src_ip_ranges    = ["10.10.0.0/16"]
-      src_asns         = [15169]
-      src_region_codes = ["AU"]
-      ip_protocols     = ["TCP"]
-      src_ports        = [80]
-      dest_ports       = ["8080"]
-      dest_ip_ranges   = ["10.100.0.0/16"]
-      user_defined_fields = [
-        {
-          name   = "SIG1_AT_0"
-          values = ["0x8F00"]
-        },
-      ]
-    },
-    {
-      priority       = 200
-      action         = "deny"
-      preview        = false
-      priority       = 200
-      src_asns       = [15269]
-      dest_ports     = ["80"]
-      dest_ip_ranges = ["10.100.0.0/16"]
-    },
-  ]
+pre_configured_rules = {
+
+  "php-stable_level_1_with_include" = {
+    action                  = "deny(502)"
+    priority                = 3
+    description             = "PHP Sensitivity Level 1 with included rules"
+    target_rule_set         = "xss-v33-stable"
+    sensitivity_level       = 0
+    include_target_rule_ids = ["owasp-crs-v030301-id933190-php", "owasp-crs-v030301-id933111-php"]
+  }
+
+  "sqli_sensitivity_level_4" = {
+    action            = "deny(502)"
+    priority          = 1
+    target_rule_set   = "sqli-v33-stable"
+    sensitivity_level = 4
+
+    preconfigured_waf_config_exclusions = {
+
+      exclusion_1 = {
+        target_rule_set = "sqli-v33-stable"
+        target_rule_ids = ["owasp-crs-v030301-id942120-sqli", "owasp-crs-v030301-id942130-sqli"]
+        request_cookie = [
+          {
+            operator = "STARTS_WITH"
+            value    = "abc"
+          }
+        ]
+        request_header = [
+          {
+            operator = "STARTS_WITH"
+            value    = "xyz"
+          },
+          {
+            operator = "STARTS_WITH"
+            value    = "uvw"
+          }
+        ]
+      }
+
+      exclusion_2 = {
+        target_rule_set = "sqli-v33-stable"
+        target_rule_ids = ["owasp-crs-v030301-id942150-sqli", "owasp-crs-v030301-id942180-sqli"]
+        request_header = [
+          {
+            operator = "STARTS_WITH"
+            value    = "lmn"
+          },
+          {
+            operator = "ENDS_WITH"
+            value    = "opq"
+          }
+        ]
+        request_uri = [
+          {
+            operator = "CONTAINS"
+            value    = "https://hashicorp.com"
+          },
+          {
+            operator = "CONTAINS"
+            value    = "https://xyz.com"
+          },
+        ]
+      }
+
+    }
+
+  }
+
+}
 ```
 
-## policy_rules.user_defined_fields
-User-defined fields. Each element names a defined field and lists the matching values for that field
 
-- `name`: (Optional) Name of the user-defined field, as given in the definition
-- `values`: (Optional) Matching values of the field. Each element can be a 32-bit unsigned decimal or hexadecimal (starting with "0x") number (e.g. "64") or range (e.g. "0x400-0x7ff")
+## security_rules:
+Set of IP addresses or ranges (IPV4 or IPV6) in CIDR notation to match against inbound traffic. There is a limit of 10 IP ranges per rule.
+
+### Format:
+Each rule is key value pair where key is a unique name of the rule and value is the action associated with it.
+
+```
+"block_bad_actor_ip" = {
+  action             = "deny(502)"
+  priority           = 11
+  description        = "Deny Malicious IP address"
+  src_ip_ranges      = ["A..B.C.D", "W.X.Y.Z",]
+  preview            = false
+  redirect_type      = null
+  redirect_target    = null
+  rate_limit_options = {}
+  header_action      = []
+}
+```
+
+### Sample:
+
+```
+security_rules = {
+
+  "deny_project_bad_actor" = {
+    action             = "deny(502)"
+    priority           = 11
+    description        = "Deny Malicious IP address from project bad_actor"
+    src_ip_ranges      = ["190.217.68.211/32", "45.116.227.68/32", "103.43.141.122", "123.11.215.36", ]
+  }
+
+  "throttle_project_droptwenty" = {
+    action        = "throttle"
+    priority      = 15
+    description   = "Throttle IP addresses from project droptwenty"
+    src_ip_ranges = ["190.217.68.214", "45.116.227.71", ]
+
+    rate_limit_options = {
+      exceed_action                        = "deny(502)"
+      rate_limit_http_request_count        = 10
+      rate_limit_http_request_interval_sec = 60
+      enforce_on_key_configs = [
+        {
+          enforce_on_key_type = "HTTP_PATH"
+        },
+        {
+          enforce_on_key_type = "HTTP_COOKIE"
+          enforce_on_key_name = "site_id"
+        }
+      ]
+    }
+
+  }
+
+}
+```
+
+## custom_rules:
+Add Custom Rules using [Common Expression Language (CEL)](https://cloud.google.com/armor/docs/rules-language-reference)
+
+### Format:
+Each rule is key value pair where key is a unique name of the rule and value is the action associated with it.
+
+```
+allow_specific_regions = {
+  action             = "allow"
+  priority           = 21
+  description        = "Allow specific Regions"
+  preview            = false
+  expression         = <<-EOT
+    '[US,AU,BE]'.contains(origin.region_code)
+  EOT
+  redirect_type      = null
+  redirect_target    = null
+  rate_limit_options = {}
+  header_action      = []
+}
+```
+
+### Sample:
+
+```
+custom_rules = {
+
+  allow_specific_regions = {
+    action             = "allow"
+    priority           = 21
+    description        = "Allow specific Regions"
+    preview            = true
+    expression         = <<-EOT
+      '[US,AU,BE]'.contains(origin.region_code)
+    EOT
+  }
+
+  allow_path_token_header = {
+    action      = "allow"
+    priority    = 25
+    description = "Allow path and token match with addition of header"
+
+    expression = <<-EOT
+      request.path.matches('/login.html') && token.recaptcha_session.score < 0.2
+    EOT
+
+    header_action = [
+      {
+        header_name  = "reCAPTCHA-Warning"
+        header_value = "high"
+      },
+      {
+        header_name  = "X-Resource"
+        header_value = "test"
+      }
+    ]
+
+  }
+
+}
+```
