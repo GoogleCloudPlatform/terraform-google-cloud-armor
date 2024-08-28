@@ -1,9 +1,10 @@
 # Cloud Armor Terraform Module
 This module makes it easy to setup [Cloud Armor global Security Policy](https://cloud.google.com/armor/docs/cloud-armor-overview#security_policies) with Security rules. You can attach the global Security Policy policy to backend services exposed by the following load balancer types:
-- Global external Application Load Balancer (HTTP/HTTPS)
-- Classic Application Load Balancer (HTTP/HTTPS)
-- Global external proxy Network Load Balancer (TCP/SSL)
-- Classic proxy Network Load Balancer (TCP/SSL)
+- Global external Application Load Balancer
+- Regional external Application Load Balancer
+- Classic Application Load Balancer
+- External proxy Network Load Balancer
+- External passthrough Network Load Balancer
 
 There are `five` type of rules you can create in each policy:
 1) [Pre-Configured Rules](#pre_configured_rules): These are based on [pre-configured waf rules](https://cloud.google.com/armor/docs/waf-rules).
