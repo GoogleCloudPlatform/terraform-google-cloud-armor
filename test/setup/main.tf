@@ -32,3 +32,11 @@ module "project" {
     "recaptchaenterprise.googleapis.com",
   ]
 }
+
+resource "google_compute_project_cloud_armor_tier" "cloud_armor_tier_config" {
+
+  project          = module.project.project_id
+  cloud_armor_tier = "CA_ENTERPRISE_PAYGO"
+
+  depends_on = [module.project]
+}

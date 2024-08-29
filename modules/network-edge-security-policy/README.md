@@ -8,7 +8,7 @@ You can attch network edge security policy to backend services of [external pass
 ```
 module "network_edge_security_policy" {
   source  = "GoogleCloudPlatform/cloud-armor/google//modules/network-edge-security-policy"
-  version = "~> 2.2"
+  version = "~> 3.0"
 
   project_id  = var.project_id
   region      = "us-central1"
@@ -35,7 +35,7 @@ There are examples included in the [examples](https://github.com/GoogleCloudPlat
 ```
 module "network_edge_security_policy" {
   source  = "GoogleCloudPlatform/cloud-armor/google//modules/network-edge-security-policy"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
   project_id  = var.project_id
   region      = "us-central1"
@@ -122,10 +122,10 @@ resource "google_compute_region_backend_service" "backend" {
 |------|-------------|------|---------|:--------:|
 | policy\_description | An optional description of advanced network ddos protection security policy | `string` | `"CA Advance DDoS protection"` | no |
 | policy\_name | Name of the advanced network ddos protection security policy. Name must be 1-63 characters long and match the regular expression a-z? which means the first character must be a lowercase letter, and all following characters must be a dash, lowercase letter, or digit, except the last character, which cannot be a dash | `string` | `"adv-network-ddos-protection"` | no |
-| policy\_rules | Policy Rules | <pre>list(object({<br>    priority         = number<br>    action           = string<br>    preview          = optional(bool)<br>    description      = optional(string)<br>    ip_protocols     = optional(list(string))<br>    src_ip_ranges    = optional(list(string))<br>    src_asns         = optional(list(string))<br>    src_region_codes = optional(list(string))<br>    src_ports        = optional(list(string))<br>    dest_ports       = optional(list(string))<br>    dest_ip_ranges   = optional(list(string))<br><br>    user_defined_fields = optional(list(object({<br>      name   = optional(string)<br>      values = optional(list(string))<br>    })))<br>  }))</pre> | `null` | no |
+| policy\_rules | Policy Rules | <pre>list(object({<br>    priority         = number<br>    action           = string<br>    preview          = optional(bool)<br>    description      = optional(string)<br>    ip_protocols     = optional(list(string), [])<br>    src_ip_ranges    = optional(list(string), [])<br>    src_asns         = optional(list(string), [])<br>    src_region_codes = optional(list(string), [])<br>    src_ports        = optional(list(string), [])<br>    dest_ports       = optional(list(string), [])<br>    dest_ip_ranges   = optional(list(string), [])<br><br>    user_defined_fields = optional(list(object({<br>      name   = optional(string)<br>      values = optional(list(string))<br>    })))<br>  }))</pre> | `null` | no |
 | policy\_user\_defined\_fields | Definitions of user-defined fields for CLOUD\_ARMOR\_NETWORK policies. A user-defined field consists of up to 4 bytes extracted from a fixed offset in the packet, relative to the IPv4, IPv6, TCP, or UDP header, with an optional mask to select certain bits | <pre>list(object({<br>    name   = optional(string)<br>    base   = string<br>    offset = optional(number)<br>    size   = optional(number)<br>    mask   = optional(string)<br>  }))</pre> | `null` | no |
 | project\_id | The project in which the resource belongs. | `string` | n/a | yes |
-| region | The region in which enablesecurity policy is created | `string` | n/a | yes |
+| region | The region in which security policy is created | `string` | n/a | yes |
 
 ## Outputs
 
@@ -235,3 +235,14 @@ User-defined fields. Each element names a defined field and lists the matching v
 
 - `name`: (Optional) Name of the user-defined field, as given in the definition
 - `values`: (Optional) Matching values of the field. Each element can be a 32-bit unsigned decimal or hexadecimal (starting with "0x") number (e.g. "64") or range (e.g. "0x400-0x7ff")
+
+## Requirements
+
+These sections describe requirements for using this module.
+
+### Software
+
+The following dependencies must be available:
+
+- [Terraform][terraform] v1.3+
+- [Terraform Provider for GCP][terraform-provider-gcp] plugin v4.80+

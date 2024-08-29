@@ -20,7 +20,7 @@ variable "project_id" {
 }
 
 variable "region" {
-  description = "The region in which enablesecurity policy is created"
+  description = "The region in which security policy is created"
   type        = string
 }
 
@@ -56,13 +56,13 @@ variable "policy_rules" {
     action           = string
     preview          = optional(bool)
     description      = optional(string)
-    ip_protocols     = optional(list(string))
-    src_ip_ranges    = optional(list(string))
-    src_asns         = optional(list(string))
-    src_region_codes = optional(list(string))
-    src_ports        = optional(list(string))
-    dest_ports       = optional(list(string))
-    dest_ip_ranges   = optional(list(string))
+    ip_protocols     = optional(list(string), [])
+    src_ip_ranges    = optional(list(string), [])
+    src_asns         = optional(list(string), [])
+    src_region_codes = optional(list(string), [])
+    src_ports        = optional(list(string), [])
+    dest_ports       = optional(list(string), [])
+    dest_ip_ranges   = optional(list(string), [])
 
     user_defined_fields = optional(list(object({
       name   = optional(string)

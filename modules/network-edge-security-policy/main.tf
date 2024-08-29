@@ -48,13 +48,13 @@ resource "google_compute_region_security_policy_rule" "policy_rules" {
   description     = each.value.description
   priority        = each.value.priority
   network_match {
-    src_ip_ranges    = lookup(each.value, "src_ip_ranges", null)
-    src_ports        = lookup(each.value, "src_ports", null)
-    src_asns         = lookup(each.value, "src_asns", null)
-    src_region_codes = lookup(each.value, "src_region_codes", null)
-    ip_protocols     = lookup(each.value, "ip_protocols", null)
-    dest_ports       = lookup(each.value, "dest_ports", null)
-    dest_ip_ranges   = lookup(each.value, "dest_ip_ranges", null)
+    src_ip_ranges    = lookup(each.value, "src_ip_ranges", [])
+    src_ports        = lookup(each.value, "src_ports", [])
+    src_asns         = lookup(each.value, "src_asns", [])
+    src_region_codes = lookup(each.value, "src_region_codes", [])
+    ip_protocols     = lookup(each.value, "ip_protocols", [])
+    dest_ports       = lookup(each.value, "dest_ports", [])
+    dest_ip_ranges   = lookup(each.value, "dest_ip_ranges", [])
     dynamic "user_defined_fields" {
       for_each = lookup(each.value, "user_defined_fields", null) == null ? [] : lookup(each.value, "user_defined_fields")
       content {

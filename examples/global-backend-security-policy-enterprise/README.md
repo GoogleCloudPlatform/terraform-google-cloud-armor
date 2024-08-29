@@ -1,6 +1,6 @@
 # Cloud Armor Policy with rules supported by [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview)
 
-This example configures a single cloud armor policy with following types of rules which are only availalable to projects enrolled in [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview):
+This example configures a single cloud armor policy with following types of rules which are only available to projects enrolled in [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview):
 
 - Threat Intelligence Rules
 - Rule for Automatically deploying Adaptive Protection suggested rules
@@ -32,7 +32,6 @@ terraform apply
 | Name | Description |
 |------|-------------|
 | policy\_name | Security Policy name |
-| project\_id | The project ID |
 | security\_policy | Cloud Armor security policy created |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

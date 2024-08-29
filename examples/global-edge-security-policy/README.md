@@ -28,7 +28,6 @@ terraform apply
 | Name | Description |
 |------|-------------|
 | policy\_name | Security Policy name |
-| project\_id | The project ID |
 | security\_policy | Cloud Armor security policy created |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

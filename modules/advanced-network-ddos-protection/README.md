@@ -16,10 +16,10 @@ There are examples included in the [examples](https://github.com/GoogleCloudPlat
 ```
 module "advanced_network_ddos_protection" {
   source  = "GoogleCloudPlatform/cloud-armor/google//modules/advanced-network-ddos-protection"
-  version = "~> 2.2"
+  version = "~> 3.0"
 
-  project_id                         = var.project_id
-  adv_ddos_policy_regions            = ["us-central1", "us-east1"]
+  project_id  = var.project_id
+  regions     = ["us-central1", "us-east1"]
 }
 ```
 
@@ -29,13 +29,13 @@ module "advanced_network_ddos_protection" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| ddos\_protection\_config | Configuration for Google Cloud Armor DDOS Proctection Config. 1) ADVANCED: additional protections for Managed Protection Plus subscribers 2) ADVANCED\_PREVIEW: flag to enable the security policy in preview mode | `string` | `"ADVANCED"` | no |
+| ddos\_protection\_config | Configuration for Google Cloud Armor DDOS Proctection Config. 1) ADVANCED: additional protections for Managed Protection Plus subscribers 2) ADVANCED\_PREVIEW: enable the security policy in preview mode | `string` | `"ADVANCED"` | no |
 | network\_edge\_security\_service\_description | description of edge security service for advanced network ddos protection | `string` | `"edge security service for advanced network ddos protection"` | no |
 | network\_edge\_security\_service\_name | Name of network edge security service resource for advanced network ddos protection | `string` | `"adv-network-ddos-protection"` | no |
 | policy\_description | An optional description of advanced network ddos protection security policy | `string` | `"CA Advance DDoS protection"` | no |
 | policy\_name | Name of the advanced network ddos protection security policy. Name must be 1-63 characters long and match the regular expression a-z? which means the first character must be a lowercase letter, and all following characters must be a dash, lowercase letter, or digit, except the last character, which cannot be a dash | `string` | `"adv-network-ddos-protection"` | no |
 | project\_id | The project in which the resource belongs. | `string` | n/a | yes |
-| regions | The regions in which enable advanced network DDoS protection | `list(string)` | n/a | yes |
+| regions | The regions in which advanced network DDoS protection will be activated | `list(string)` | n/a | yes |
 
 ## Outputs
 
@@ -45,3 +45,14 @@ module "advanced_network_ddos_protection" {
 | network\_edge\_security\_services | Network edge security services created |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
+## Requirements
+
+These sections describe requirements for using this module.
+
+### Software
+
+The following dependencies must be available:
+
+- [Terraform][terraform] v1.3+
+- [Terraform Provider for GCP][terraform-provider-gcp] plugin v4.80+

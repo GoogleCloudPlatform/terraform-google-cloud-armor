@@ -29,7 +29,7 @@ func TestGlobalSecurityPolicyComplete(t *testing.T) {
 	casp.DefineVerify(func(assert *assert.Assertions) {
 		casp.DefaultVerify(assert)
 
-		projectId := casp.GetStringOutput("project_id")
+		projectId := casp.GetTFSetupStringOutput("project_id")
 		policyName := casp.GetStringOutput("policy_name")
 
 		spName := gcloud.Run(t, fmt.Sprintf("compute security-policies describe %s --project %s", policyName, projectId))

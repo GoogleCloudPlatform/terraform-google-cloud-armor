@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-variable "project_id" {
-  description = "The project in which the resource belongs"
-  type        = string
+output "policy_name" {
+  value       = module.cloud_armor_regional_security_policy.policy.name
+  description = "Security Policy name"
 }
 
-variable "whitelisted_ingress_ip_ranges" {
-  description = "whitelisted ingress ip ranges. Replace it with your own IP address"
-  type        = list(string)
+output "region" {
+  value       = module.cloud_armor_regional_security_policy.policy.region
+  description = "Name of Regional Network Security policy created"
 }

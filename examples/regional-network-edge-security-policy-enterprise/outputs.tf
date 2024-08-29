@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-output "security_policy" {
-  value       = module.network_edge_security_policy.security_policy
-  description = "Regional Network Security policy created"
-}
+# output "security_policy" {
+#   value       = module.network_edge_security_policy.security_policy
+#   description = "Regional Network Security policy created"
+# }
 
 output "policy_rules" {
   value       = module.network_edge_security_policy.policy_rules

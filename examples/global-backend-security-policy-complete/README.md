@@ -1,9 +1,14 @@
-# Cloud Armor Policy with preconfigured rules, custom rules and security rules
+# Cloud Armor Policy end to end example
 
 This example performs the following:
 - Network (VPC/Subnets/Firewall-rules/NAT).
-- Creates a `global cloud armor security policy`.
-- Creates a VM instance behind a `global external application load balancer`.
+- A `global cloud armor security policy` with following types of rules.
+  - Threat Intelligence Rules (Requires [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview). Remove these rules if you dont have Cloud Armor Enterprise enabled for your project)
+  - Rule for Automatically deploying Adaptive Protection suggested rules (Requires [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview). Remove these rules if you dont have Cloud Armor Enterprise enabled for your project)
+  - Pre-configured rules
+  - Custom rules
+  - Security rules
+- A VM instance behind a `global external application load balancer`.
 - Attaches `security policy` to the backend service  by passing security policy link in `security_policy` parameter in `google_compute_backend_service` resource.
 
 ## Usage
@@ -32,7 +37,6 @@ terraform apply
 | Name | Description |
 |------|-------------|
 | policy\_name | Security Policy name |
-| project\_id | The project ID |
 | security\_policy | Cloud Armor security policy created |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

@@ -19,11 +19,6 @@ output "security_policy" {
   description = "Cloud Armor security policy created"
 }
 
-output "project_id" {
-  value       = var.project_id
-  description = "The project ID"
-}
-
 output "policy_name" {
   value       = module.cloud_armor.policy.name
   description = "Security Policy name"

@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-resource "random_id" "suffix" {
-  byte_length = 4
+output "policy" {
+  value       = google_compute_region_security_policy.security_policy
+  description = "Regional network Security policy created"
 }
 
-module "advanced_network_ddos_protection" {
-  source  = "GoogleCloudPlatform/cloud-armor/google//modules/advanced-network-ddos-protection"
-  version = "~> 3.0"
-
-  project_id                         = var.project_id
-  regions                            = ["us-central1", "us-east1"]
-  policy_name                        = "test-adv-network-ddos-protection-${random_id.suffix.hex}"
-  network_edge_security_service_name = "test-network-edge-security-svc-${random_id.suffix.hex}"
+output "security_rules" {
+  value       = google_compute_region_security_policy_rule.security_rules
+  description = "Security policy rules created"
 }

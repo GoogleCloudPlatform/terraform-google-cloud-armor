@@ -1,11 +1,9 @@
-# Simple Cloud Armor Policy with preconfigured rules, custom rules and security rules
+# Regional Cloud Armor Policy with preconfigured rules, custom rules and security rules
 
 This example configures a single cloud armor policy with following types of rules:
 - Pre-configured rules
 - Custom rules
 - Security rules
-- Threat Intelligence Rules (Requires [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview). Remove these rules if you dont have Cloud Armor Enterprise enabled for your project)
-- Rule for Automatically deploying Adaptive Protection suggested rules (Requires [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview). Remove these rules if you dont have Cloud Armor Enterprise enabled for your project)
 
 ## Usage
 
@@ -33,6 +31,6 @@ terraform apply
 | Name | Description |
 |------|-------------|
 | policy\_name | Security Policy name |
-| security\_policy | Cloud Armor security policy created |
+| region | Name of Regional Network Security policy created |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

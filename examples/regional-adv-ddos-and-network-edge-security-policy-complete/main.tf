@@ -25,7 +25,7 @@ resource "random_id" "suffix" {
 
 module "advanced_network_ddos_protection" {
   source  = "GoogleCloudPlatform/cloud-armor/google//modules/advanced-network-ddos-protection"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
   project_id                         = var.project_id
   regions                            = [local.primary_region, local.secondary_region]
@@ -35,7 +35,7 @@ module "advanced_network_ddos_protection" {
 
 module "network_edge_security_policy" {
   source  = "GoogleCloudPlatform/cloud-armor/google//modules/network-edge-security-policy"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
   project_id  = var.project_id
   region      = local.primary_region
@@ -47,7 +47,7 @@ module "network_edge_security_policy" {
       action           = "allow"
       preview          = false
       description      = "custom rule 100"
-      src_ip_ranges    = var.whitelisted_ingress_ip_ranges
+      src_ip_ranges    = ["70.119.66.60/32"]
       src_region_codes = ["US"]
       dest_ports       = [80]
     },
@@ -58,6 +58,7 @@ module "network_edge_security_policy" {
       src_ip_ranges = ["*"]
     },
   ]
+
   depends_on = [
     module.advanced_network_ddos_protection
   ]

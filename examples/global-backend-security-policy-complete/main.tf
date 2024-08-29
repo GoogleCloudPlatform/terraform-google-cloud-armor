@@ -24,7 +24,7 @@ resource "random_id" "suffix" {
 }
 module "cloud_armor" {
   source  = "GoogleCloudPlatform/cloud-armor/google"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
   project_id                           = var.project_id
   name                                 = "test-casp-policy-${random_id.suffix.hex}"
@@ -35,6 +35,30 @@ module "cloud_armor" {
   layer_7_ddos_defense_rule_visibility = "STANDARD"
   user_ip_request_headers              = ["True-Client-IP", ]
 
+  # preconfigured WAF rules
+  pre_configured_rules = {
+
+    "xss-stable_level_2_with_exclude" = {
+      action                  = "deny(502)"
+      priority                = 2
+      preview                 = true
+      target_rule_set         = "xss-v33-stable"
+      sensitivity_level       = 2
+      exclude_target_rule_ids = ["owasp-crs-v030301-id941380-xss", "owasp-crs-v030301-id941280-xss"]
+    }
+
+    "php-stable_level_0_with_include" = {
+      action                  = "deny(502)"
+      priority                = 3
+      description             = "PHP Sensitivity Level 0 with included rules"
+      target_rule_set         = "php-v33-stable"
+      include_target_rule_ids = ["owasp-crs-v030301-id933190-php", "owasp-crs-v030301-id933111-php"]
+    }
+
+  }
+
+
+  # Security Rules for blocking IP addresses
   security_rules = {
     "allow_whitelisted_ip_ranges" = {
       action        = "allow"
@@ -82,6 +106,7 @@ module "cloud_armor" {
 
   }
 
+  #Custom Rules
   custom_rules = {
     allow_specific_regions = {
       action      = "allow"
@@ -130,6 +155,36 @@ module "cloud_armor" {
       EOT
     }
 
+  }
+
+  #adaptive protection auto deploy rules
+  adaptive_protection_auto_deploy = {
+    enable               = true
+    priority             = 100000
+    action               = "deny(403)"
+    load_threshold       = 0.3
+    confidence_threshold = 0.6
+  }
+
+  # Rules based on threat intelligence
+  threat_intelligence_rules = {
+
+    deny_malicious_ips = {
+      action      = "deny(502)"
+      priority    = 300
+      description = "Deny IP addresses known to attack web applications"
+      preview     = false
+      feed        = "iplist-known-malicious-ips"
+      exclude_ip  = "['47.100.100.100', '47.189.12.139']"
+    }
+
+    deny_tor_exit_ips = {
+      action      = "deny(502)"
+      priority    = 400
+      description = "Deny Tor exit nodes IP addresses"
+      preview     = false
+      feed        = "iplist-tor-exit-nodes"
+    }
   }
 
 }

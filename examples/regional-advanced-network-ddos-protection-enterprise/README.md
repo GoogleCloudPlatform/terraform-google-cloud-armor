@@ -1,6 +1,6 @@
 # Enable Cloud Armor Advanced Network DDoS Protection
 
-This example enables a [advanced network DDoS protection](https://cloud.google.com/armor/docs/armor-enterprise-overview#advanced_network_ddos_protection) in two regions `us-central1` and `us-east1`. `Advanced network DDoS protection` is only availalable to projects enrolled in [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview)
+This example enables a [advanced network DDoS protection](https://cloud.google.com/armor/docs/armor-enterprise-overview#advanced_network_ddos_protection) in two regions `us-central1` and `us-east1`. `Advanced network DDoS protection` is only available to projects enrolled in [Cloud Armor Enterprise](https://cloud.google.com/armor/docs/armor-enterprise-overview)
 
 ## Usage
 

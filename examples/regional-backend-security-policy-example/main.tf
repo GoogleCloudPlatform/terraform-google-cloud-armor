@@ -18,22 +18,18 @@ resource "random_id" "suffix" {
   byte_length = 4
 }
 
-module "cloud_armor" {
-  source  = "GoogleCloudPlatform/cloud-armor/google"
+module "cloud_armor_regional_security_policy" {
+  source  = "GoogleCloudPlatform/cloud-armor/google//modules/regional-backend-security-policy"
   version = "~> 3.0"
 
-  project_id                           = var.project_id
-  name                                 = "test-casp-policy-${random_id.suffix.hex}"
-  description                          = "Test Cloud Armor security policy with preconfigured rules, security rules and custom rules"
-  default_rule_action                  = "allow"
-  type                                 = "CLOUD_ARMOR"
-  layer_7_ddos_defense_enable          = true
-  layer_7_ddos_defense_rule_visibility = "STANDARD"
-  json_parsing                         = "STANDARD"
-  log_level                            = "VERBOSE"
-  user_ip_request_headers              = ["True-Client-IP", ]
+  project_id  = var.project_id
+  name        = "test-regional-external-sp-${random_id.suffix.hex}"
+  description = "Test regional Cloud Armor backend security policy with preconfigured rules, security rules and custom rules"
+  type        = "CLOUD_ARMOR"
+  region      = "us-central1"
 
-  # preconfigured WAF rules
+  # pre-configured WAF rules
+
   pre_configured_rules = {
 
     "sqli_sensitivity_level_4" = {
@@ -42,6 +38,8 @@ module "cloud_armor" {
       target_rule_set   = "sqli-v33-stable"
       sensitivity_level = 4
       description       = "sqli-v33-stable Sensitivity Level 4 and 2 preconfigured_waf_config_exclusions"
+
+      # 2 exclusions
       preconfigured_waf_config_exclusions = {
         exclusion_1 = {
           target_rule_set = "sqli-v33-stable"
@@ -109,7 +107,8 @@ module "cloud_armor" {
 
   }
 
-  #Security rules blocking IP addresses
+  # Security Rules to block IP addresses
+
   security_rules = {
 
     "deny_project_honeypot" = {
@@ -120,18 +119,9 @@ module "cloud_armor" {
       preview       = true
     }
 
-    "redirect_project_rd" = {
-      action          = "redirect"
-      priority        = 12
-      description     = "Redirect IP address from project RD"
-      src_ip_ranges   = ["190.217.68.215", "45.116.227.99", ]
-      redirect_type   = "EXTERNAL_302"
-      redirect_target = "https://www.example.com"
-    }
-
     "rate_ban_project_dropten" = {
       action        = "rate_based_ban"
-      priority      = 13
+      priority      = 12
       description   = "Rate based ban for address from project dropten as soon as they cross rate limit threshold"
       src_ip_ranges = ["190.217.68.213/32", "45.116.227.70", ]
 
@@ -147,7 +137,7 @@ module "cloud_armor" {
 
     "rate_ban_project_dropthirty" = {
       action        = "rate_based_ban"
-      priority      = 14
+      priority      = 13
       description   = "Rate based ban for address from project dropthirty only if they cross banned threshold"
       src_ip_ranges = ["190.217.68.213", "45.116.227.70", ]
 
@@ -164,7 +154,7 @@ module "cloud_armor" {
 
     "throttle_project_droptwenty" = {
       action        = "throttle"
-      priority      = 15
+      priority      = 14
       description   = "Throttle IP addresses from project droptwenty"
       src_ip_ranges = ["190.217.68.214", "45.116.227.71", ]
 
@@ -183,10 +173,9 @@ module "cloud_armor" {
         ]
       }
     }
-
   }
 
-  #Custom Rules
+  # Custom Rules
   custom_rules = {
 
     deny_specific_regions = {
@@ -252,17 +241,6 @@ module "cloud_armor" {
       expression = <<-EOT
         request.path.matches('/login.html') && token.recaptcha_session.score < 0.2
       EOT
-
-      header_action = [
-        {
-          header_name  = "reCAPTCHA-Warning"
-          header_value = "high"
-        },
-        {
-          header_name  = "X-Resource"
-          header_value = "test"
-        }
-      ]
     }
 
     deny_java_level3_with_exclude = {
@@ -278,7 +256,7 @@ module "cloud_armor" {
 
     "methodenforcement-v33-stable_level_1" = {
       action      = "deny(403)"
-      priority    = 6
+      priority    = 26
       description = "Method enforcement Level 1"
       preview     = true
       expression  = "evaluatePreconfiguredWaf('methodenforcement-v33-stable', {'sensitivity': 1}) && !request.path.matches('/keyword/here/')"
@@ -293,36 +271,6 @@ module "cloud_armor" {
           },
         ]
       }
-    }
-  }
-
-  #adaptive protection auto deploy rules
-  adaptive_protection_auto_deploy = {
-    enable               = true
-    priority             = 100000
-    action               = "deny(403)"
-    load_threshold       = 0.3
-    confidence_threshold = 0.6
-  }
-
-  # Rules based on threat intelligence
-  threat_intelligence_rules = {
-
-    deny_malicious_ips = {
-      action      = "deny(502)"
-      priority    = 300
-      description = "Deny IP addresses known to attack web applications"
-      preview     = false
-      feed        = "iplist-known-malicious-ips"
-      exclude_ip  = "['47.100.100.100', '47.189.12.139']"
-    }
-
-    deny_tor_exit_ips = {
-      action      = "deny(502)"
-      priority    = 400
-      description = "Deny Tor exit nodes IP addresses"
-      preview     = false
-      feed        = "iplist-tor-exit-nodes"
     }
   }
 

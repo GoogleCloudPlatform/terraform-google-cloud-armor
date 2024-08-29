@@ -19,15 +19,15 @@ resource "random_id" "suffix" {
 }
 module "cloud_armor" {
   source  = "GoogleCloudPlatform/cloud-armor/google"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
-  project_id                           = var.project_id
-  name                                 = "test-camp-policy-${random_id.suffix.hex}"
-  description                          = "Test Cloud Armor security policy with with rules supported by Cloud Armor Managed Protection Plus (CAMP+)"
-  default_rule_action                  = "allow"
-  type                                 = "CLOUD_ARMOR"
-  layer_7_ddos_defense_enable          = true
-  layer_7_ddos_defense_rule_visibility = "PREMIUM"
+  project_id                  = var.project_id
+  name                        = "test-camp-policy-${random_id.suffix.hex}"
+  description                 = "Test Cloud Armor security policy with with rules supported by Cloud Armor Enterprise (Former Managed Protection Plus - CAMP+)"
+  default_rule_action         = "allow"
+  type                        = "CLOUD_ARMOR"
+  layer_7_ddos_defense_enable = true
+  user_ip_request_headers     = ["True-Client-IP", ]
 
   ## This is an example of deny policy. Examples for redirect and throttle policies are in README.
   adaptive_protection_auto_deploy = {

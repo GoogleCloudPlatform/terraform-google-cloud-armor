@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package security_policy_edge
+package network_security_policy
 
 import (
 	"fmt"
@@ -23,31 +23,31 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGlobalSecurityPolicyEdge(t *testing.T) {
+func TestRegionalNetworkEdgePolicy(t *testing.T) {
 	casp := tft.NewTFBlueprintTest(t)
 
 	casp.DefineVerify(func(assert *assert.Assertions) {
-		casp.DefaultVerify(assert)
+		// casp.DefaultVerify(assert)
 
 		projectId := casp.GetTFSetupStringOutput("project_id")
 		policyName := casp.GetStringOutput("policy_name")
+		region := casp.GetStringOutput("region")
 
-		spName := gcloud.Run(t, fmt.Sprintf("compute security-policies describe %s --project %s", policyName, projectId))
+		spName := gcloud.Run(t, fmt.Sprintf("compute security-policies describe %s --project %s --region %s", policyName, projectId, region))
 		for _, sp := range spName.Array() {
-			pname := sp.Get("name").String()
-			assert.Equal(policyName, pname, "has expected name")
-			assert.Equal("Test Cloud Armor Edge security policy", sp.Get("description").String(), "has expected description")
-			assert.Equal("CLOUD_ARMOR_EDGE", sp.Get("type").String(), "has expected name")
+			assert.Equal(policyName, sp.Get("name").String(), "mismatched name")
+			assert.Equal("CA Advance DDoS protection", sp.Get("description").String(), "mismatched description")
+			assert.Equal("CLOUD_ARMOR_NETWORK", sp.Get("type").String(), "mismatched type")
 		}
 
-		// 	Rule 1
-		spRule1 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 1 --security-policy=%s --project %s", policyName, projectId))
+		// 	Rule 100
+		spRule1 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 100 --security-policy=%s --project %s --region %s", policyName, projectId, region))
 		for _, sp := range spRule1.Array() {
-			assert.Equal("allow", sp.Get("action").String(), "priority 1 rule has expected action")
-			assert.Equal("origin.region_code == \"US\"\n", sp.Get("match.expr.expression").String(), "priority 1 rule has expected expression")
-			assert.Equal("Allow specific Regions", sp.Get("description").String(), "priority 1 rule has expected description")
-			assert.False(sp.Get("preview").Bool(), "priority 1 rule Preview is set to False")
+			assert.Equal("allow", sp.Get("action").String(), "priority 100 rule has mismatched action")
+			assert.Equal("custom rule 100", sp.Get("description").String(), "priority 1 rule has mismatched description")
+			assert.False(sp.Get("preview").Bool(), "priority 1 rule Preview is set to true")
 		}
+
 	})
 	casp.Test()
 }

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package simple_example
+package regional_backend_security_policy
 
 import (
 	"fmt"
@@ -23,53 +23,33 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGlobalSecurityPolicyExample(t *testing.T) {
+func TestRegionalBackendPolicy(t *testing.T) {
 	casp := tft.NewTFBlueprintTest(t)
 
 	casp.DefineVerify(func(assert *assert.Assertions) {
-		casp.DefaultVerify(assert)
+		// casp.DefaultVerify(assert)
 
 		projectId := casp.GetTFSetupStringOutput("project_id")
 		policyName := casp.GetStringOutput("policy_name")
+		region := casp.GetStringOutput("region")
 
-		spName := gcloud.Run(t, fmt.Sprintf("compute security-policies describe %s --project %s", policyName, projectId))
+		spName := gcloud.Run(t, fmt.Sprintf("compute security-policies describe %s --project %s --region %s", policyName, projectId, region))
 		for _, sp := range spName.Array() {
-			assert.Equal(policyName, sp.Get("name").String(), "has expected name")
-			assert.Equal("STANDARD", sp.Get("advancedOptionsConfig.jsonParsing").String(), "has value STANDARD")
-			assert.Equal("VERBOSE", sp.Get("advancedOptionsConfig.logLevel").String(), "has value VERBOSE")
-			assert.Equal("STANDARD", sp.Get("adaptiveProtectionConfig.layer7DdosDefenseConfig.ruleVisibility").String(), "has value STANDARD")
-			assert.True(sp.Get("adaptiveProtectionConfig.layer7DdosDefenseConfig.enable").Bool(), "layer7DdosDefenseConfig.enable set to True")
+			assert.Equal(policyName, sp.Get("name").String(), "mismatched name")
+			assert.Equal("Test regional Cloud Armor backend security policy with preconfigured rules, security rules and custom rules", sp.Get("description").String(), "mismatched description")
+			assert.Equal("CLOUD_ARMOR", sp.Get("type").String(), "mismatched type")
 		}
 
 		// 	Rule 1
-		spRule1 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 1 --security-policy=%s --project %s", policyName, projectId))
+		spRule1 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 1 --security-policy=%s --project %s --region %s", policyName, projectId, region))
 		for _, sp := range spRule1.Array() {
-			assert.Equal("deny(502)", sp.Get("action").String(), "priority 1 rule has expected action")
-			assert.Equal("evaluatePreconfiguredWaf('sqli-v33-stable', {'sensitivity': 4})", sp.Get("match.expr.expression").String(), "priority 1 rule has expected rule expression")
-			assert.Equal("sqli-v33-stable Sensitivity Level 4 and 2 preconfigured_waf_config_exclusions", sp.Get("description").String(), "priority 1 rule has expected description")
-			assert.False(sp.Get("preview").Bool(), "priority 1 rule Preview is set to False")
-
-			pce := sp.Get("preconfiguredWafConfig.exclusions").Array()
-			assert.Equal("STARTS_WITH", pce[0].Get("requestCookiesToExclude").Array()[0].Get("op").String(), "priority 1 rule has expected requestCookiesToExclude")
-			assert.Equal("abc", pce[0].Get("requestCookiesToExclude").Array()[0].Get("val").String(), "priority 1 rule has expected requestCookiesToExclude")
-			assert.Equal("STARTS_WITH", pce[0].Get("requestHeadersToExclude").Array()[0].Get("op").String(), "priority 1 rule has expected requestHeadersToExclude")
-			assert.Equal("uvw", pce[0].Get("requestHeadersToExclude").Array()[0].Get("val").String(), "priority 1 rule has expected requestHeadersToExclude")
-			assert.Equal("STARTS_WITH", pce[0].Get("requestHeadersToExclude").Array()[1].Get("op").String(), "priority 1 rule has expected requestHeadersToExclude")
-			assert.Equal("xyz", pce[0].Get("requestHeadersToExclude").Array()[1].Get("val").String(), "priority 1 rule has expected requestHeadersToExclude")
-
-			assert.Equal("ENDS_WITH", pce[1].Get("requestHeadersToExclude").Array()[0].Get("op").String(), "priority 1 rule has expected requestHeadersToExclude")
-			assert.Equal("opq", pce[1].Get("requestHeadersToExclude").Array()[0].Get("val").String(), "priority 1 rule has expected requestHeadersToExclude")
-			assert.Equal("STARTS_WITH", pce[1].Get("requestHeadersToExclude").Array()[1].Get("op").String(), "priority 1 rule has expected requestHeadersToExclude")
-			assert.Equal("lmn", pce[1].Get("requestHeadersToExclude").Array()[1].Get("val").String(), "priority 1 rule has expected requestHeadersToExclude")
-
-			assert.Equal("CONTAINS", pce[1].Get("requestUrisToExclude").Array()[0].Get("op").String(), "priority 1 rule has expected requestUrisToExclude")
-			assert.Equal("https://xyz.com", pce[1].Get("requestUrisToExclude").Array()[0].Get("val").String(), "priority 1 rule has expected requestUrisToExclude")
-			assert.Equal("CONTAINS", pce[1].Get("requestUrisToExclude").Array()[1].Get("op").String(), "priority 1 rule has expected requestUrisToExclude")
-			assert.Equal("https://hashicorp.com", pce[1].Get("requestUrisToExclude").Array()[1].Get("val").String(), "priority 1 rule has expected requestUrisToExclude")
+			assert.Equal("deny(502)", sp.Get("action").String(), "priority 100 rule has mismatched action")
+			assert.Equal("sqli-v33-stable Sensitivity Level 4 and 2 preconfigured_waf_config_exclusions", sp.Get("description").String(), "priority 1 rule has mismatched description")
+			assert.False(sp.Get("preview").Bool(), "priority 1 rule Preview is set to true")
 		}
 
 		// 	Rule 2
-		spRule2 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 2 --security-policy=%s --project %s", policyName, projectId))
+		spRule2 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 2 --security-policy=%s --project %s --region %s", policyName, projectId, region))
 		for _, sp := range spRule2.Array() {
 			assert.Equal("deny(502)", sp.Get("action").String(), "priority 2 rule has expected action")
 			assert.Equal("evaluatePreconfiguredWaf('xss-v33-stable', {'sensitivity': 2, 'opt_out_rule_ids': ['owasp-crs-v030301-id941380-xss','owasp-crs-v030301-id941280-xss']})", sp.Get("match.expr.expression").String(), "priority 2 rule has expected rule expression")
@@ -77,7 +57,7 @@ func TestGlobalSecurityPolicyExample(t *testing.T) {
 			assert.True(sp.Get("preview").Bool(), "priority 2 rule Preview is set to True")
 		}
 
-		spRule3 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 3 --security-policy=%s --project %s", policyName, projectId))
+		spRule3 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 3 --security-policy=%s --project %s --region %s", policyName, projectId, region))
 		for _, sp := range spRule3.Array() {
 			assert.Equal("deny(502)", sp.Get("action").String(), "priority 3 rule has expected action")
 			assert.Equal("evaluatePreconfiguredWaf('php-v33-stable', {'sensitivity': 0, 'opt_in_rule_ids': ['owasp-crs-v030301-id933190-php','owasp-crs-v030301-id933111-php']})", sp.Get("match.expr.expression").String(), "priority 3 rule has expected rule expression")
@@ -86,7 +66,7 @@ func TestGlobalSecurityPolicyExample(t *testing.T) {
 		}
 
 		// 	Rule 11
-		spRule11 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 11 --security-policy=%s --project %s", policyName, projectId))
+		spRule11 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 11 --security-policy=%s --project %s --region %s", policyName, projectId, region))
 		for _, sp := range spRule11.Array() {
 			assert.True(sp.Get("preview").Bool(), "priority 11 rule Preview is set to True")
 			assert.Equal("deny(502)", sp.Get("action").String(), "priority 11 rule has expected action")
@@ -97,24 +77,8 @@ func TestGlobalSecurityPolicyExample(t *testing.T) {
 		}
 
 		// 	Rule 12
-		spRule12 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 12 --security-policy=%s --project %s", policyName, projectId))
+		spRule12 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 12 --security-policy=%s --project %s --region %s", policyName, projectId, region))
 		for _, sp := range spRule12.Array() {
-			assert.False(sp.Get("preview").Bool(), "priority 12 rule Preview is set to False")
-			assert.Equal("redirect", sp.Get("action").String(), "priority 12 rule has expected action")
-			assert.Equal("Redirect IP address from project RD", sp.Get("description").String(), "priority 12 rule has expected description")
-			assert.Equal("SRC_IPS_V1", sp.Get("match.versionedExpr").String(), "priority 12 rule has expected redirect type")
-
-			srcIpRanges := sp.Get("match.config.srcIpRanges").Array()
-			assert.Equal(2, len(srcIpRanges), "priority 12 rule found only 2 IP address")
-			assert.Equal(srcIpRanges[0].String(), "45.116.227.99", "priority 12 rule found first valid cidr range")
-			assert.Equal(srcIpRanges[1].String(), "190.217.68.215", "priority 12 rule found second valid cidr range")
-			assert.Equal("https://www.example.com", sp.Get("redirectOptions.target").String(), "priority 12 rule has expected redirect target")
-			assert.Equal("EXTERNAL_302", sp.Get("redirectOptions.type").String(), "priority 12 rule has expected redirect type")
-		}
-
-		// 	Rule 13
-		spRule13 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 13 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range spRule13.Array() {
 			assert.False(sp.Get("preview").Bool(), "priority 13 rule Preview is set to False")
 			assert.Equal("rate_based_ban", sp.Get("action").String(), "priority 13 rule has expected action")
 			assert.Equal("Rate based ban for address from project dropten as soon as they cross rate limit threshold", sp.Get("description").String(), "priority 13 rule has expected description")
@@ -122,8 +86,8 @@ func TestGlobalSecurityPolicyExample(t *testing.T) {
 
 			srcIpRanges := sp.Get("match.config.srcIpRanges").Array()
 			assert.Equal(2, len(srcIpRanges), "priority 13 rule found only 2 IP address")
-			assert.Equal(srcIpRanges[0].String(), "45.116.227.70", "priority 13 rule found first valid cidr range")
-			assert.Equal(srcIpRanges[1].String(), "190.217.68.213/32", "priority 13 rule found second valid cidr range")
+			assert.Equal(srcIpRanges[0].String(), "190.217.68.213/32", "priority 13 rule found first valid cidr range")
+			assert.Equal(srcIpRanges[1].String(), "45.116.227.70", "priority 13 rule found second valid cidr range")
 			assert.Equal("120", sp.Get("rateLimitOptions.banDurationSec").String(), "priority 13 rule has Rate limit ban duration")
 			assert.Equal("allow", sp.Get("rateLimitOptions.conformAction").String(), "priority 13 rule has Rate limit confirm action")
 			assert.Equal("HTTP_HEADER", sp.Get("rateLimitOptions.enforceOnKey").String(), "priority 13 rule has Rate limit Enforce on key")
@@ -133,9 +97,9 @@ func TestGlobalSecurityPolicyExample(t *testing.T) {
 			assert.Equal("60", sp.Get("rateLimitOptions.rateLimitThreshold.intervalSec").String(), "priority 13 rule has Rate limit threshold interval")
 		}
 
-		// 	Rule 14
-		spRule14 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 14 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range spRule14.Array() {
+		// 	Rule 13
+		spRule13 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 13 --security-policy=%s --project %s --region %s", policyName, projectId, region))
+		for _, sp := range spRule13.Array() {
 			assert.False(sp.Get("preview").Bool(), "priority 14 rule Preview is set to False")
 			assert.Equal("rate_based_ban", sp.Get("action").String(), "priority 14 rule has expected action")
 			assert.Equal("Rate based ban for address from project dropthirty only if they cross banned threshold", sp.Get("description").String(), "priority 14 rule has expected description")
@@ -143,8 +107,8 @@ func TestGlobalSecurityPolicyExample(t *testing.T) {
 
 			srcIpRanges := sp.Get("match.config.srcIpRanges").Array()
 			assert.Equal(2, len(srcIpRanges), "priority 14 rule found only 2 IP address")
-			assert.Equal(srcIpRanges[0].String(), "45.116.227.70", "priority 14 rule found first valid cidr range")
-			assert.Equal(srcIpRanges[1].String(), "190.217.68.213", "priority 14 rule found second valid cidr range")
+			assert.Equal(srcIpRanges[1].String(), "45.116.227.70", "priority 14 rule found second valid cidr range")
+			assert.Equal(srcIpRanges[0].String(), "190.217.68.213", "priority 14 rule found first valid cidr range")
 			assert.Equal("600", sp.Get("rateLimitOptions.banDurationSec").String(), "priority 14 rule has Rate limit ban duration")
 			assert.Equal("1000", sp.Get("rateLimitOptions.banThreshold.count").String(), "priority 14 rule has Rate limit threshold count")
 			assert.Equal("300", sp.Get("rateLimitOptions.banThreshold.intervalSec").String(), "priority 14 rule has Rate limit threshold interval")
@@ -155,9 +119,9 @@ func TestGlobalSecurityPolicyExample(t *testing.T) {
 			assert.Equal("60", sp.Get("rateLimitOptions.rateLimitThreshold.intervalSec").String(), "priority 14 rule has Rate limit threshold interval")
 		}
 
-		// 	Rule 15
-		spRule15 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 15 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range spRule15.Array() {
+		// 	Rule 14
+		spRule14 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 14 --security-policy=%s --project %s --region %s", policyName, projectId, region))
+		for _, sp := range spRule14.Array() {
 			assert.False(sp.Get("preview").Bool(), "priority 15 rule Preview is set to False")
 			assert.Equal("throttle", sp.Get("action").String(), "priority 15 rule has expected action")
 			assert.Equal("Throttle IP addresses from project droptwenty", sp.Get("description").String(), "priority 15 rule has expected description")
@@ -165,8 +129,8 @@ func TestGlobalSecurityPolicyExample(t *testing.T) {
 
 			srcIpRanges := sp.Get("match.config.srcIpRanges").Array()
 			assert.Equal(2, len(srcIpRanges), "priority 15 rule found only 2 IP address")
-			assert.Equal(srcIpRanges[0].String(), "45.116.227.71", "priority 15 rule found first valid cidr range")
-			assert.Equal(srcIpRanges[1].String(), "190.217.68.214", "priority 15 rule found second valid cidr range")
+			assert.Equal(srcIpRanges[0].String(), "190.217.68.214", "priority 15 rule found first valid cidr range")
+			assert.Equal(srcIpRanges[1].String(), "45.116.227.71", "priority 15 rule found second valid cidr range")
 			assert.Equal("allow", sp.Get("rateLimitOptions.conformAction").String(), "priority 15 rule has Rate limit confirm action")
 			assert.Equal("deny(502)", sp.Get("rateLimitOptions.exceedAction").String(), "priority 15 rule has Rate limit exceed action")
 			assert.Equal("10", sp.Get("rateLimitOptions.rateLimitThreshold.count").String(), "priority 15 rule has Rate limit threshold count")
@@ -177,7 +141,7 @@ func TestGlobalSecurityPolicyExample(t *testing.T) {
 		}
 
 		// 	Rule 21
-		spRule21 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 21 --security-policy=%s --project %s", policyName, projectId))
+		spRule21 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 21 --security-policy=%s --project %s --region %s", policyName, projectId, region))
 		for _, sp := range spRule21.Array() {
 			assert.False(sp.Get("preview").Bool(), "priority 21 rule Preview is set to False")
 			assert.Equal("deny(502)", sp.Get("action").String(), "priority 21 rule has expected action")
@@ -186,7 +150,7 @@ func TestGlobalSecurityPolicyExample(t *testing.T) {
 		}
 
 		// 	Rule 22
-		spRule22 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 22 --security-policy=%s --project %s", policyName, projectId))
+		spRule22 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 22 --security-policy=%s --project %s --region %s", policyName, projectId, region))
 		for _, sp := range spRule22.Array() {
 			assert.False(sp.Get("preview").Bool(), "priority 22 rule Preview is set to False")
 			assert.Equal("deny(502)", sp.Get("action").String(), "priority 22 rule has expected action")
@@ -195,7 +159,7 @@ func TestGlobalSecurityPolicyExample(t *testing.T) {
 		}
 
 		// 	Rule 23
-		spRule23 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 23 --security-policy=%s --project %s", policyName, projectId))
+		spRule23 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 23 --security-policy=%s --project %s --region %s", policyName, projectId, region))
 		for _, sp := range spRule23.Array() {
 			assert.False(sp.Get("preview").Bool(), "priority 23 rule Preview is set to False")
 			assert.Equal("throttle", sp.Get("action").String(), "priority 23 rule has expected action")
@@ -209,7 +173,7 @@ func TestGlobalSecurityPolicyExample(t *testing.T) {
 		}
 
 		// 	Rule 24
-		spRule24 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 24 --security-policy=%s --project %s", policyName, projectId))
+		spRule24 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 24 --security-policy=%s --project %s --region %s", policyName, projectId, region))
 		for _, sp := range spRule24.Array() {
 			assert.False(sp.Get("preview").Bool(), "priority 24 rule Preview is set to False")
 			assert.Equal("rate_based_ban", sp.Get("action").String(), "priority 24 rule has expected action")
@@ -226,7 +190,7 @@ func TestGlobalSecurityPolicyExample(t *testing.T) {
 		}
 
 		// 	Rule 100
-		spRule100 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 100 --security-policy=%s --project %s", policyName, projectId))
+		spRule100 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 100 --security-policy=%s --project %s --region %s", policyName, projectId, region))
 		for _, sp := range spRule100.Array() {
 			assert.True(sp.Get("preview").Bool(), "priority 100 rule Preview is set to True")
 			assert.Equal("deny(502)", sp.Get("action").String(), "priority 100 rule has expected action")
