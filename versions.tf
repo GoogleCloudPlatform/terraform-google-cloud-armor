@@ -27,9 +27,9 @@ terraform {
     }
   }
   provider_meta "google" {
-    module_name = "blueprints/terraform/terraform-google-cloud-armor/v2.2.0"
+    module_name = "blueprints/terraform/terraform-google-cloud-armor/v2.2.0" # Does this need to be updated to 3.0 to support the regional backend service module (PR#126)?
   }
   provider_meta "google-beta" {
-    module_name = "blueprints/terraform/terraform-google-cloud-armor/v2.2.0"
+    module_name = "blueprints/terraform/terraform-google-cloud-armor/v2.2.0" # Does this need to be updated to 3.0 to support the regional backend service module (PR#126)?
   }
 }
