@@ -8,6 +8,17 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [3.0.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v2.2.0...v3.0.0) (2024-08-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* add sub-module for regional backend security policy ([#126](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/126))
+
+### Features
+
+* add sub-module for regional backend security policy ([#126](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/126)) ([f9a6dd0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/f9a6dd080df87acababfc2ece301bb69e237095a))
+
 ## [2.2.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v2.1.0...v2.2.0) (2024-04-23)
 
 
