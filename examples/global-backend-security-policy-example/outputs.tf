@@ -23,3 +23,7 @@ output "policy_name" {
   value       = module.cloud_armor.policy.name
   description = "Security Policy name"
 }
+
+output "address_group_name" {
+  value = google_network_security_address_group.address_group.name
+}

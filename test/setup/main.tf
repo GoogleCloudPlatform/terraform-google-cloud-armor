@@ -30,6 +30,7 @@ module "project" {
     "compute.googleapis.com",
     "serviceusage.googleapis.com",
     "recaptchaenterprise.googleapis.com",
+    "networksecurity.googleapis.com",
   ]
 }
 
