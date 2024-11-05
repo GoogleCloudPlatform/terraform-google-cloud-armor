@@ -41,7 +41,8 @@ resource "google_compute_region_backend_service" "backend" {
   load_balancing_scheme = "EXTERNAL"
   health_checks         = [google_compute_region_health_check.default.id]
   backend {
-    group = google_compute_instance_group.ca_vm_1_ig.self_link
+    group          = google_compute_instance_group.ca_vm_1_ig.self_link
+    balancing_mode = "CONNECTION"
   }
 
   log_config {
