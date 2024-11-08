@@ -18,6 +18,20 @@ resource "random_id" "suffix" {
   byte_length = 4
 }
 
+resource "google_network_security_address_group" "address_group" {
+  provider = google-beta
+  name     = "address-groups-${random_id.suffix.hex}"
+  parent   = "projects/${var.project_id}"
+  location = "global"
+  type     = "IPV4"
+  capacity = "100"
+  purpose  = ["CLOUD_ARMOR"]
+  items = [
+    "208.80.154.224/32",
+    "47.185.201.160/32",
+  ]
+}
+
 module "cloud_armor" {
   source  = "GoogleCloudPlatform/cloud-armor/google"
   version = "~> 3.0"
@@ -267,7 +281,7 @@ module "cloud_armor" {
 
     deny_java_level3_with_exclude = {
       action      = "deny(502)"
-      priority    = 100
+      priority    = 26
       description = "Deny pre-configured rule java-v33-stable at sensitivity level 3"
       preview     = true
 
@@ -278,7 +292,7 @@ module "cloud_armor" {
 
     "methodenforcement-v33-stable_level_1" = {
       action      = "deny(403)"
-      priority    = 6
+      priority    = 27
       description = "Method enforcement Level 1"
       preview     = true
       expression  = "evaluatePreconfiguredWaf('methodenforcement-v33-stable', {'sensitivity': 1}) && !request.path.matches('/keyword/here/')"
@@ -294,6 +308,17 @@ module "cloud_armor" {
         ]
       }
     }
+
+    deny_address_group = {
+      action      = "deny(502)"
+      priority    = 28
+      description = "Deny address group"
+
+      expression = <<-EOT
+        evaluateAddressGroup('${google_network_security_address_group.address_group.name}', origin.ip, ['47.185.201.160'])
+      EOT
+    }
+
   }
 
   #adaptive protection auto deploy rules

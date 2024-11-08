@@ -24,6 +24,7 @@ locals {
     "roles/servicenetworking.networksAdmin",
     "roles/iam.serviceAccountAdmin",
     "roles/iam.serviceAccountUser",
+    "roles/compute.networkAdmin",
   ]
 }
 

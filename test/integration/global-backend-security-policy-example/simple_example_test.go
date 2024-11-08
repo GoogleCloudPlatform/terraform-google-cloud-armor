@@ -225,13 +225,21 @@ func TestGlobalSecurityPolicyExample(t *testing.T) {
 			assert.Equal("60", sp.Get("rateLimitOptions.rateLimitThreshold.intervalSec").String(), "priority 24 rule has Rate limit threshold interval")
 		}
 
-		// 	Rule 100
-		spRule100 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 100 --security-policy=%s --project %s", policyName, projectId))
-		for _, sp := range spRule100.Array() {
-			assert.True(sp.Get("preview").Bool(), "priority 100 rule Preview is set to True")
-			assert.Equal("deny(502)", sp.Get("action").String(), "priority 100 rule has expected action")
-			assert.Equal("Deny pre-configured rule java-v33-stable at sensitivity level 3", sp.Get("description").String(), "priority 100 rule has expected description")
-			assert.Equal("evaluatePreconfiguredWaf('java-v33-stable', {'sensitivity': 3, 'opt_out_rule_ids': ['owasp-crs-v030301-id944240-java', 'owasp-crs-v030301-id944120-java']})\n", sp.Get("match.expr.expression").String(), "priority 100 rule has expected expression")
+		// 	Rule 26
+		spRule26 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 26 --security-policy=%s --project %s", policyName, projectId))
+		for _, sp := range spRule26.Array() {
+			assert.True(sp.Get("preview").Bool(), "priority 26 rule Preview is set to True")
+			assert.Equal("deny(502)", sp.Get("action").String(), "priority 28 rule has expected action")
+			assert.Equal("Deny pre-configured rule java-v33-stable at sensitivity level 3", sp.Get("description").String(), "priority 26 rule has expected description")
+			assert.Equal("evaluatePreconfiguredWaf('java-v33-stable', {'sensitivity': 3, 'opt_out_rule_ids': ['owasp-crs-v030301-id944240-java', 'owasp-crs-v030301-id944120-java']})\n", sp.Get("match.expr.expression").String(), "priority 26 rule has expected expression")
+		}
+
+		// 	Rule 28
+		spRule28 := gcloud.Run(t, fmt.Sprintf("compute security-policies rules describe 28 --security-policy=%s --project %s", policyName, projectId))
+		for _, sp := range spRule28.Array() {
+			assert.False(sp.Get("preview").Bool(), "priority 28 rule Preview is set to False")
+			assert.Equal("deny(502)", sp.Get("action").String(), "priority 28 rule has expected action")
+			assert.Equal("Deny address group", sp.Get("description").String(), "priority 28 rule has expected description")
 		}
 
 	})

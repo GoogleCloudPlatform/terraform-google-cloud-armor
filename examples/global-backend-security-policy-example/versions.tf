@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-output "security_policy" {
-  value       = module.cloud_armor.policy
-  description = "Cloud Armor security policy created"
-}
-
-output "policy_name" {
-  value       = module.cloud_armor.policy.name
-  description = "Security Policy name"
-}
-
-output "address_group_name" {
-  value = google_network_security_address_group.address_group.name
+terraform {
+  required_version = ">= 1.3.0"
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = ">= 4.74, < 7"
+    }
+    google-beta = {
+      source  = "hashicorp/google-beta"
+      version = ">= 4.74, < 7"
+    }
+  }
 }
