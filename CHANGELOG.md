@@ -8,6 +8,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [3.0.1](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v3.0.0...v3.0.1) (2024-11-08)
+
+
+### Bug Fixes
+
+* added example for address group in global security policy ([#138](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/138)) ([19305bd](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/19305bd5ffc35e37577c05f58c19138b3d0debc5))
+
 ## [3.0.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v2.2.0...v3.0.0) (2024-08-29)
 
 
