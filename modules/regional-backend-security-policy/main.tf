@@ -237,7 +237,7 @@ resource "google_compute_region_security_policy_rule" "custom_rules" {
 
 resource "google_compute_region_security_policy_rule" "pre_configured_rules" {
   provider        = google-beta
-  for_each        = var.pre_configured_rules #var.pre_configured_rules == null ? {} : { for x in var.pre_configured_rules : x.priority => x }
+  for_each        = var.pre_configured_rules
   project         = var.project_id
   region          = var.region
   security_policy = google_compute_region_security_policy.security_policy.name
@@ -334,3 +334,20 @@ resource "google_compute_region_security_policy_rule" "pre_configured_rules" {
 
 }
 
+##### Default Rule
+
+resource "google_compute_region_security_policy_rule" "default_rule" {
+  provider        = google-beta
+  region          = var.region
+  project         = var.project_id
+  security_policy = google_compute_region_security_policy.security_policy.name
+  description     = "default rule"
+  action          = var.default_rule_action
+  priority        = "2147483647"
+  match {
+    versioned_expr = "SRC_IPS_V1"
+    config {
+      src_ip_ranges = ["*"]
+    }
+  }
+}

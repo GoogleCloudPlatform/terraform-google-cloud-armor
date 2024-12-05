@@ -170,3 +170,9 @@ variable "custom_rules" {
   }))
   default = {}
 }
+
+variable "default_rule_action" {
+  description = "default rule that allows/denies all traffic with the lowest priority (2,147,483,647)."
+  type        = string
+  default     = "allow"
+}
