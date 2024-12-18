@@ -38,7 +38,7 @@ data "google_netblock_ip_ranges" "iap_forwarders" {
 
 module "test_vpc" {
   source       = "terraform-google-modules/network/google"
-  version      = "~> 9.0"
+  version      = "~> 10.0"
   project_id   = var.project_id
   network_name = local.network_name
 
@@ -58,7 +58,7 @@ module "test_vpc" {
 
 module "net_firewall" {
   source                  = "terraform-google-modules/network/google//modules/fabric-net-firewall"
-  version                 = "~> 9.0"
+  version                 = "~> 10.0"
   project_id              = module.test_vpc.project_id
   network                 = module.test_vpc.network_name
   ssh_source_ranges       = []
