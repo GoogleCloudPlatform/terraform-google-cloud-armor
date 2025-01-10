@@ -8,6 +8,22 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [4.0.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v3.0.0...v4.0.0) (2025-01-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* added option to override default security rule action in regional backend security policy ([#142](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/142))
+
+### Features
+
+* added option to override default security rule action in regional backend security policy ([#142](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/142)) ([6d32a7c](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/6d32a7c0ccb4b1ed3b2dfe732bf9b1ff381f236d))
+
+
+### Bug Fixes
+
+* added example for address group in global security policy ([#138](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/138)) ([19305bd](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/19305bd5ffc35e37577c05f58c19138b3d0debc5))
+
 ## [3.0.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v2.2.0...v3.0.0) (2024-08-29)
 
 
