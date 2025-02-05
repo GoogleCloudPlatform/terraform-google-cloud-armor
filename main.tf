@@ -168,15 +168,6 @@ resource "google_compute_security_policy" "policy" {
             }
           }
 
-          ## Optional. Can be provided for for rate based ban.
-          dynamic "exceed_redirect_options" {
-            for_each = lookup(rule.value["rate_limit_options"], "exceed_action") == "redirect" && lookup(rule.value["rate_limit_options"], "exceed_redirect_options", null) != null ? ["exceed_redirect_options"] : []
-            content {
-              type   = lookup(rule.value["rate_limit_options"], "type")
-              target = lookup(rule.value["rate_limit_options"], "target")
-            }
-          }
-
         }
       }
 
@@ -302,15 +293,6 @@ resource "google_compute_security_policy" "policy" {
             }
           }
 
-          ## Optional. Can be provided for for rate based ban.
-          dynamic "exceed_redirect_options" {
-            for_each = lookup(rule.value["rate_limit_options"], "exceed_action") == "redirect" && lookup(rule.value["rate_limit_options"], "exceed_redirect_options", null) != null ? ["exceed_redirect_options"] : []
-            content {
-              type   = lookup(rule.value["rate_limit_options.exceed_redirect_options"], "type")
-              target = lookup(rule.value["rate_limit_options.exceed_redirect_options"], "target")
-            }
-          }
-
         }
       }
 
@@ -389,15 +371,6 @@ resource "google_compute_security_policy" "policy" {
             content {
               count        = lookup(rule.value["rate_limit_options"], "ban_http_request_count")
               interval_sec = lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec")
-            }
-          }
-
-          ## Optional. Can be provided for for rate based ban.
-          dynamic "exceed_redirect_options" {
-            for_each = lookup(rule.value["rate_limit_options"], "exceed_action") == "redirect" && lookup(rule.value["rate_limit_options"], "exceed_redirect_options", null) != null ? ["exceed_redirect_options"] : []
-            content {
-              type   = lookup(rule.value["rate_limit_options"], "type")
-              target = lookup(rule.value["rate_limit_options"], "target")
             }
           }
 
@@ -514,15 +487,6 @@ resource "google_compute_security_policy" "policy" {
             content {
               count        = lookup(rule.value["rate_limit_options"], "ban_http_request_count")
               interval_sec = lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec")
-            }
-          }
-
-          ## Optional. Can be provided for for rate based ban.
-          dynamic "exceed_redirect_options" {
-            for_each = lookup(rule.value["rate_limit_options"], "exceed_action") == "redirect" && lookup(rule.value["rate_limit_options"], "exceed_redirect_options", null) != null ? ["exceed_redirect_options"] : []
-            content {
-              type   = lookup(rule.value["rate_limit_options"], "type")
-              target = lookup(rule.value["rate_limit_options"], "target")
             }
           }
 
@@ -645,15 +609,6 @@ resource "google_compute_security_policy" "policy" {
             content {
               count        = lookup(rule.value["rate_limit_options"], "ban_http_request_count")
               interval_sec = lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec")
-            }
-          }
-
-          ## Optional. Can be provided for for rate based ban.
-          dynamic "exceed_redirect_options" {
-            for_each = lookup(rule.value["rate_limit_options"], "exceed_action") == "redirect" && lookup(rule.value["rate_limit_options"], "exceed_redirect_options", null) != null ? ["exceed_redirect_options"] : []
-            content {
-              type   = lookup(rule.value["rate_limit_options"], "type")
-              target = lookup(rule.value["rate_limit_options"], "target")
             }
           }
 
