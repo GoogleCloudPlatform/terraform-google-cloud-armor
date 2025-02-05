@@ -24,7 +24,7 @@ resource "random_id" "suffix" {
 }
 module "cloud_armor" {
   source  = "GoogleCloudPlatform/cloud-armor/google"
-  version = "~> 4.0"
+  version = "~> 5.0"
 
   project_id                           = var.project_id
   name                                 = "test-casp-policy-${random_id.suffix.hex}"

@@ -35,7 +35,7 @@ module "advanced_network_ddos_protection" {
 
 module "network_edge_security_policy" {
   source  = "GoogleCloudPlatform/cloud-armor/google//modules/network-edge-security-policy"
-  version = "~> 4.0"
+  version = "~> 5.0"
 
   project_id  = var.project_id
   region      = local.primary_region

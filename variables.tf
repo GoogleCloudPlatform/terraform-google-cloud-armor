@@ -124,8 +124,7 @@ variable "security_rules" {
       ban_duration_sec                     = optional(number)
       ban_http_request_count               = optional(number)
       ban_http_request_interval_sec        = optional(number)
-      }),
-    {})
+    }), {})
     header_action = optional(list(object({
       header_name  = optional(string)
       header_value = optional(string)
@@ -212,8 +211,7 @@ variable "threat_intelligence_rules" {
       ban_duration_sec                     = optional(number)
       ban_http_request_count               = optional(number)
       ban_http_request_interval_sec        = optional(number)
-      }),
-    {})
+    }), {})
     header_action = optional(list(object({
       header_name  = optional(string)
       header_value = optional(string)
@@ -240,20 +238,42 @@ variable "layer_7_ddos_defense_rule_visibility" {
   default     = "STANDARD"
 }
 
+variable "layer_7_ddos_defense_threshold_configs" {
+  description = "(Optional) Configuration options for layer7 adaptive protection for various customizable thresholds. `adaptive_protection_auto_deploy.load_threshold`, `adaptive_protection_auto_deploy.confidence_threshold`, `adaptive_protection_auto_deploy.expiration_sec`, `adaptive_protection_auto_deploy.impacted_baseline_threshold` cannot be provided if `layer_7_ddos_defense_threshold_configs` is not null"
+  type = list(object({
+    name                                    = string
+    auto_deploy_load_threshold              = optional(number)
+    auto_deploy_confidence_threshold        = optional(number)
+    auto_deploy_impacted_baseline_threshold = optional(number)
+    auto_deploy_expiration_sec              = optional(number)
+    detection_load_threshold                = optional(number)
+    detection_absolute_qps                  = optional(number)
+    detection_relative_to_baseline_qps      = optional(number)
+    traffic_granularity_configs = optional(list(object({
+      type                     = string
+      value                    = optional(string)
+      enable_each_unique_value = optional(bool)
+    })))
+  }))
+  default = null
+}
+
 variable "adaptive_protection_auto_deploy" {
-  description = "Configuration for Automatically deploy Cloud Armor Adaptive Protection suggested rules. `priority` and `action` fields are required if `enable` is set to true. Requires `layer_7_ddos_defense_enable` set to `true`."
+  description = "Configuration for Automatically deploy Cloud Armor Adaptive Protection suggested rules. `priority` and `action` fields are required if `enable` is set to true. Requires `layer_7_ddos_defense_enable` set to `true`. `load_threshold`, `confidence_threshold`, `expiration_sec`, `impacted_baseline_threshold` cannot be provided if `layer_7_ddos_defense_threshold_configs` is not null. `exceed_redirect_options` can be provided only if `rate_limit_options.exceed_action` is `redirect`"
   type = object({
-    enable                      = bool
-    priority                    = optional(number, null)
-    action                      = optional(string, null)
-    preview                     = optional(bool, false)
-    description                 = optional(string, "Adaptive Protection auto-deploy")
+    enable      = bool
+    priority    = optional(number, null)
+    action      = optional(string, null)
+    preview     = optional(bool, false)
+    description = optional(string, "Adaptive Protection auto-deploy")
+
     load_threshold              = optional(number)
     confidence_threshold        = optional(number)
     impacted_baseline_threshold = optional(number)
     expiration_sec              = optional(number)
-    redirect_type               = optional(string)
-    redirect_target             = optional(string)
+
+    redirect_type   = optional(string)
+    redirect_target = optional(string)
 
     rate_limit_options = optional(object({
       enforce_on_key      = optional(string)
@@ -270,6 +290,10 @@ variable "adaptive_protection_auto_deploy" {
       ban_duration_sec                     = optional(number)
       ban_http_request_count               = optional(number)
       ban_http_request_interval_sec        = optional(number)
+      exceed_redirect_options = optional(object({
+        type   = string
+        target = optional(string)
+      }))
     }), {})
   })
 
