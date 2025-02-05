@@ -167,6 +167,16 @@ resource "google_compute_security_policy" "policy" {
               interval_sec = lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec")
             }
           }
+
+          ## Optional. Can be provided for for rate based ban.
+          dynamic "exceed_redirect_options" {
+            for_each = lookup(rule.value["rate_limit_options"], "exceed_action") == "redirect" && lookup(rule.value["rate_limit_options"], "exceed_redirect_options", null) != null ? ["exceed_redirect_options"] : []
+            content {
+              type   = lookup(rule.value["rate_limit_options"], "type")
+              target = lookup(rule.value["rate_limit_options"], "target")
+            }
+          }
+
         }
       }
 
@@ -291,6 +301,16 @@ resource "google_compute_security_policy" "policy" {
               interval_sec = lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec")
             }
           }
+
+          ## Optional. Can be provided for for rate based ban.
+          dynamic "exceed_redirect_options" {
+            for_each = lookup(rule.value["rate_limit_options"], "exceed_action") == "redirect" && lookup(rule.value["rate_limit_options"], "exceed_redirect_options", null) != null ? ["exceed_redirect_options"] : []
+            content {
+              type   = lookup(rule.value["rate_limit_options.exceed_redirect_options"], "type")
+              target = lookup(rule.value["rate_limit_options.exceed_redirect_options"], "target")
+            }
+          }
+
         }
       }
 
@@ -371,6 +391,16 @@ resource "google_compute_security_policy" "policy" {
               interval_sec = lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec")
             }
           }
+
+          ## Optional. Can be provided for for rate based ban.
+          dynamic "exceed_redirect_options" {
+            for_each = lookup(rule.value["rate_limit_options"], "exceed_action") == "redirect" && lookup(rule.value["rate_limit_options"], "exceed_redirect_options", null) != null ? ["exceed_redirect_options"] : []
+            content {
+              type   = lookup(rule.value["rate_limit_options"], "type")
+              target = lookup(rule.value["rate_limit_options"], "target")
+            }
+          }
+
         }
       }
 
@@ -486,6 +516,16 @@ resource "google_compute_security_policy" "policy" {
               interval_sec = lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec")
             }
           }
+
+          ## Optional. Can be provided for for rate based ban.
+          dynamic "exceed_redirect_options" {
+            for_each = lookup(rule.value["rate_limit_options"], "exceed_action") == "redirect" && lookup(rule.value["rate_limit_options"], "exceed_redirect_options", null) != null ? ["exceed_redirect_options"] : []
+            content {
+              type   = lookup(rule.value["rate_limit_options"], "type")
+              target = lookup(rule.value["rate_limit_options"], "target")
+            }
+          }
+
         }
       }
     }
@@ -512,9 +552,30 @@ resource "google_compute_security_policy" "policy" {
       layer_7_ddos_defense_config {
         enable          = var.layer_7_ddos_defense_enable
         rule_visibility = var.layer_7_ddos_defense_rule_visibility
+        dynamic "threshold_configs" {
+          for_each = var.layer_7_ddos_defense_threshold_configs == null ? {} : { for x in var.layer_7_ddos_defense_threshold_configs : x.name => x }
+          content {
+            name                                    = threshold_configs.value["name"]
+            auto_deploy_load_threshold              = threshold_configs.value["auto_deploy_load_threshold"]
+            auto_deploy_confidence_threshold        = threshold_configs.value["auto_deploy_confidence_threshold"]
+            auto_deploy_impacted_baseline_threshold = threshold_configs.value["auto_deploy_impacted_baseline_threshold"]
+            auto_deploy_expiration_sec              = threshold_configs.value["auto_deploy_expiration_sec"]
+            detection_load_threshold                = threshold_configs.value["detection_load_threshold"]
+            detection_absolute_qps                  = threshold_configs.value["detection_absolute_qps"]
+            detection_relative_to_baseline_qps      = threshold_configs.value["detection_relative_to_baseline_qps"]
+            dynamic "traffic_granularity_configs" {
+              for_each = threshold_configs.value["traffic_granularity_configs"] == null ? {} : { for x in threshold_configs.value["traffic_granularity_configs"] : x.type => x }
+              content {
+                type                     = traffic_granularity_configs.value["type"]
+                value                    = traffic_granularity_configs.value["value"]
+                enable_each_unique_value = traffic_granularity_configs.value["enable_each_unique_value"]
+              }
+            }
+          }
+        }
       }
       dynamic "auto_deploy_config" {
-        for_each = var.adaptive_protection_auto_deploy.enable ? { auto_deploy = var.adaptive_protection_auto_deploy } : {}
+        for_each = var.adaptive_protection_auto_deploy.enable && (var.adaptive_protection_auto_deploy.load_threshold != null || var.adaptive_protection_auto_deploy.confidence_threshold != null || var.adaptive_protection_auto_deploy.impacted_baseline_threshold != null || var.adaptive_protection_auto_deploy.expiration_sec != null) ? { auto_deploy = var.adaptive_protection_auto_deploy } : {}
         content {
           load_threshold              = auto_deploy_config.value["load_threshold"]
           confidence_threshold        = auto_deploy_config.value["confidence_threshold"]
@@ -586,6 +647,16 @@ resource "google_compute_security_policy" "policy" {
               interval_sec = lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec")
             }
           }
+
+          ## Optional. Can be provided for for rate based ban.
+          dynamic "exceed_redirect_options" {
+            for_each = lookup(rule.value["rate_limit_options"], "exceed_action") == "redirect" && lookup(rule.value["rate_limit_options"], "exceed_redirect_options", null) != null ? ["exceed_redirect_options"] : []
+            content {
+              type   = lookup(rule.value["rate_limit_options"], "type")
+              target = lookup(rule.value["rate_limit_options"], "target")
+            }
+          }
+
         }
       }
 
