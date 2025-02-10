@@ -19,7 +19,7 @@ resource "random_id" "suffix" {
 }
 module "cloud_armor" {
   source  = "GoogleCloudPlatform/cloud-armor/google"
-  version = "~> 4.0"
+  version = "~> 5.0"
 
   project_id                  = var.project_id
   name                        = "test-camp-policy-${random_id.suffix.hex}"
@@ -29,14 +29,35 @@ module "cloud_armor" {
   layer_7_ddos_defense_enable = true
   user_ip_request_headers     = ["True-Client-IP", ]
 
-  ## This is an example of deny policy. Examples for redirect and throttle policies are in README.
+  layer_7_ddos_defense_threshold_configs = [
+    {
+      name                             = "test1111"
+      auto_deploy_load_threshold       = 0.2
+      auto_deploy_confidence_threshold = 0.4
+    },
+    {
+      name                       = "test9999"
+      detection_load_threshold   = 0.7
+      auto_deploy_expiration_sec = 3
+      traffic_granularity_configs = [{
+        type                     = "HTTP_PATH"
+        enable_each_unique_value = true
+      }]
+    },
+  ]
+
   adaptive_protection_auto_deploy = {
-    enable               = true
-    priority             = 100000
-    action               = "deny(403)"
-    load_threshold       = 0.3
-    confidence_threshold = 0.6
+    enable   = true
+    priority = 100000
+    action   = "deny(403)"
+
+    # load_threshold              = 0.3    This cannot be provided if `layer_7_ddos_defense_threshold_configs` is not null
+    # confidence_threshold        = 0.6    This cannot be provided if `layer_7_ddos_defense_threshold_configs` is not null
+    # impacted_baseline_threshold = 0.7    This cannot be provided if `layer_7_ddos_defense_threshold_configs` is not null
+    # expiration_sec              = 7000   This cannot be provided if `layer_7_ddos_defense_threshold_configs` is not null
   }
+
+  ## This is an example of deny policy. Examples for redirect and throttle policies are in README.
 
   threat_intelligence_rules = {
 

@@ -34,7 +34,7 @@ resource "google_network_security_address_group" "address_group" {
 
 module "cloud_armor" {
   source  = "GoogleCloudPlatform/cloud-armor/google"
-  version = "~> 4.0"
+  version = "~> 5.0"
 
   project_id                           = var.project_id
   name                                 = "test-casp-policy-${random_id.suffix.hex}"
@@ -149,13 +149,18 @@ module "cloud_armor" {
       description   = "Rate based ban for address from project dropten as soon as they cross rate limit threshold"
       src_ip_ranges = ["190.217.68.213/32", "45.116.227.70", ]
 
+      # change exceed_action to redirect and uncomment exceed_redirect_options once this bug is fixed https://github.com/hashicorp/terraform-provider-google/issues/21186
       rate_limit_options = {
-        exceed_action                        = "deny(502)"
+        exceed_action                        = "deny(502)" #"redirect"
         rate_limit_http_request_count        = 10
         rate_limit_http_request_interval_sec = 60
         ban_duration_sec                     = 120
         enforce_on_key                       = "HTTP_HEADER"
         enforce_on_key_name                  = "X-API-KEY"
+        # exceed_redirect_options = {
+        #   type   = "EXTERNAL_302"
+        #   target = "https://www.google.com"
+        # }
       }
     }
 
