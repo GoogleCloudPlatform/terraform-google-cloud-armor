@@ -8,6 +8,17 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [5.0.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v4.0.0...v5.0.0) (2025-02-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* **TPG>=6.14:** added exceed_redirect & layer_7_ddos_defense_threshold_configs ([#150](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/150))
+
+### Features
+
+* **TPG>=6.14:** added exceed_redirect & layer_7_ddos_defense_threshold_configs ([#150](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/150)) ([4cbdef4](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/4cbdef424c614be2075f47ef397af1cd08c68cbf))
+
 ## [4.0.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v3.0.0...v4.0.0) (2025-01-09)
 
 
