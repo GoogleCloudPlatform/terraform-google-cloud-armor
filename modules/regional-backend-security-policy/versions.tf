@@ -27,9 +27,9 @@ terraform {
     }
   }
   provider_meta "google" {
-    module_name = "blueprints/terraform/terraform-google-cloud-armor:regional-backend-security-policy/v4.0.0"
+    module_name = "blueprints/terraform/terraform-google-cloud-armor:regional-backend-security-policy/v5.0.0"
   }
   provider_meta "google-beta" {
-    module_name = "blueprints/terraform/terraform-google-cloud-armor:regional-backend-security-policy/v4.0.0"
+    module_name = "blueprints/terraform/terraform-google-cloud-armor:regional-backend-security-policy/v5.0.0"
   }
 }
