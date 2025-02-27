@@ -85,7 +85,7 @@ module "network_edge_security_policy" {
 
 module "network_edge_security_policy_no_rules" {
   source  = "GoogleCloudPlatform/cloud-armor/google//modules/network-edge-security-policy"
-  version = "~> 4.0"
+  version = "~> 5.0"
 
   project_id  = var.project_id
   region      = "us-central1"

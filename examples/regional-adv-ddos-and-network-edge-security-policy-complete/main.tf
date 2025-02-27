@@ -25,7 +25,7 @@ resource "random_id" "suffix" {
 
 module "advanced_network_ddos_protection" {
   source  = "GoogleCloudPlatform/cloud-armor/google//modules/advanced-network-ddos-protection"
-  version = "~> 4.0"
+  version = "~> 5.0"
 
   project_id                         = var.project_id
   regions                            = [local.primary_region, local.secondary_region]
