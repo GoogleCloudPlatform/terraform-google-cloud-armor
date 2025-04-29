@@ -33,8 +33,10 @@ resource "google_network_security_address_group" "address_group" {
 }
 
 module "cloud_armor" {
-  source  = "GoogleCloudPlatform/cloud-armor/google"
-  version = "~> 5.0"
+  # source  = "GoogleCloudPlatform/cloud-armor/google"
+  # version = "~> 5.0"
+
+  source = "../../"
 
   project_id                           = var.project_id
   name                                 = "test-casp-policy-${random_id.suffix.hex}"
@@ -268,9 +270,10 @@ module "cloud_armor" {
       priority    = 25
       description = "Allow path and token match with addition of header"
 
-      expression = <<-EOT
+      expression                        = <<-EOT
         request.path.matches('/login.html') && token.recaptcha_session.score < 0.2
       EOT
+      recaptcha_session_token_site_keys = ["6Lcm3XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5mfX"]
 
       header_action = [
         {
@@ -324,6 +327,16 @@ module "cloud_armor" {
       EOT
     }
 
+    allow_recaptcha_action_site_keys = {
+      action      = "allow"
+      priority    = 29
+      description = "allow recaptcha-action-site-keys"
+
+      expression                       = <<-EOT
+        request.path.matches('/login.html') && token.recaptcha_action.score >= 0.8
+      EOT
+      recaptcha_action_token_site_keys = ["6Lcm3XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5mfX","6Lcm3XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5vfW"]
+    }
   }
 
   #adaptive protection auto deploy rules
