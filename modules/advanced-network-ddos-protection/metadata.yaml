@@ -1,0 +1,112 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: blueprints.cloud.google.com/v1alpha1
+kind: BlueprintMetadata
+metadata:
+  name: terraform-google-cloud-armor-advanced-network-ddos-protection
+  annotations:
+    config.kubernetes.io/local-config: "true"
+spec:
+  info:
+    title: Enable Cloud Armor Advanced Network DDoS Protection
+    source:
+      repo: https://github.com/imrannayer/terraform-google-cloud-armor.git
+      sourceType: git
+      dir: /modules/advanced-network-ddos-protection
+    version: 5.0.0
+    actuationTool:
+      flavor: Terraform
+      version: ">= 1.3.0"
+    description: {}
+  content:
+    examples:
+      - name: global-backend-security-policy-complete
+        location: examples/global-backend-security-policy-complete
+      - name: global-backend-security-policy-enterprise
+        location: examples/global-backend-security-policy-enterprise
+      - name: global-backend-security-policy-example
+        location: examples/global-backend-security-policy-example
+      - name: global-backend-security-policy-recaptcha
+        location: examples/global-backend-security-policy-recaptcha
+      - name: global-edge-security-policy
+        location: examples/global-edge-security-policy
+      - name: regional-adv-ddos-and-network-edge-security-policy-complete
+        location: examples/regional-adv-ddos-and-network-edge-security-policy-complete
+      - name: regional-advanced-network-ddos-protection-enterprise
+        location: examples/regional-advanced-network-ddos-protection-enterprise
+      - name: regional-backend-security-policy-example
+        location: examples/regional-backend-security-policy-example
+      - name: regional-network-edge-security-policy-enterprise
+        location: examples/regional-network-edge-security-policy-enterprise
+  interfaces:
+    variables:
+      - name: project_id
+        description: The project in which the resource belongs.
+        varType: string
+        required: true
+      - name: regions
+        description: The regions in which advanced network DDoS protection will be activated
+        varType: list(string)
+        required: true
+      - name: ddos_protection_config
+        description: "Configuration for Google Cloud Armor DDOS Proctection Config. 1) ADVANCED: additional protections for Managed Protection Plus subscribers 2) ADVANCED_PREVIEW: enable the security policy in preview mode"
+        varType: string
+        defaultValue: ADVANCED
+      - name: policy_name
+        description: Name of the advanced network ddos protection security policy. Name must be 1-63 characters long and match the regular expression a-z? which means the first character must be a lowercase letter, and all following characters must be a dash, lowercase letter, or digit, except the last character, which cannot be a dash
+        varType: string
+        defaultValue: adv-network-ddos-protection
+      - name: policy_description
+        description: An optional description of advanced network ddos protection security policy
+        varType: string
+        defaultValue: CA Advance DDoS protection
+      - name: network_edge_security_service_name
+        description: Name of network edge security service resource for advanced network ddos protection
+        varType: string
+        defaultValue: adv-network-ddos-protection
+      - name: network_edge_security_service_description
+        description: description of edge security service for advanced network ddos protection
+        varType: string
+        defaultValue: edge security service for advanced network ddos protection
+    outputs:
+      - name: adv_ddos_protection_policies
+        description: Advanced Network DDoS protection Security policies created
+      - name: network_edge_security_services
+        description: Network edge security services created
+  requirements:
+    roles:
+      - level: Project
+        roles:
+          - roles/compute.orgSecurityPolicyAdmin
+          - roles/recaptchaenterprise.admin
+          - roles/compute.securityAdmin
+          - roles/compute.admin
+          - roles/logging.viewer
+          - roles/servicenetworking.networksAdmin
+          - roles/iam.serviceAccountAdmin
+          - roles/iam.serviceAccountUser
+          - roles/compute.networkAdmin
+    services:
+      - iam.googleapis.com
+      - cloudresourcemanager.googleapis.com
+      - compute.googleapis.com
+      - serviceusage.googleapis.com
+      - recaptchaenterprise.googleapis.com
+      - networksecurity.googleapis.com
+    providerVersions:
+      - source: hashicorp/google
+        version: ">= 4.80, < 7"
+      - source: hashicorp/google-beta
+        version: ">= 4.80, < 7"

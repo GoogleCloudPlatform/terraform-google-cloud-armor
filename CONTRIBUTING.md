@@ -23,15 +23,11 @@ Run `make generate_docs` to generate new Inputs and Outputs tables.
 
 ## Integration Testing
 
-Integration tests are used to verify the behaviour of the root module,
+Integration tests are used to verify the behavior of the root module,
 submodules, and example modules. Additions, changes, and fixes should
 be accompanied with tests.
 
-The integration tests are run using [Kitchen][kitchen],
-[Kitchen-Terraform][kitchen-terraform], and [InSpec][inspec]. These
-tools are packaged within a Docker image for convenience.
-
-The general strategy for these tests is to verify the behaviour of the
+The general strategy for these tests is to verify the behavior of the
 [example modules](./examples/), thus ensuring that the root module,
 submodules, and example modules are all functionally correct.
 
@@ -56,24 +52,21 @@ With these settings in place, you can prepare a test project using Docker:
 make docker_test_prepare
 ```
 
-### Noninteractive Execution
-
-Run `make docker_test_integration` to test all of the example modules
-noninteractively, using the prepared test project.
-
 ### Interactive Execution
 
 1. Run `make docker_run` to start the testing Docker container in
    interactive mode.
 
-1. Run `kitchen_do create <EXAMPLE_NAME>` to initialize the working
+1. Run `cft test list` to list all the test.
+
+1. Run `cft test run all --stage init --verbose` to initialize the working
    directory for an example module.
 
-1. Run `kitchen_do converge <EXAMPLE_NAME>` to apply the example module.
+1. Run `cft test run <TEST_NAME> --stage apply --verbose` to apply the example module.
 
-1. Run `kitchen_do verify <EXAMPLE_NAME>` to test the example module.
+1. Run `cft test run <TEST_NAME> --stage verify --verbose` to test the example module.
 
-1. Run `kitchen_do destroy <EXAMPLE_NAME>` to destroy the example module
+1. Run `cft test run <TEST_NAME> --stage teardown --verbose` to destroy the example module
    state.
 
 ## Linting and Formatting

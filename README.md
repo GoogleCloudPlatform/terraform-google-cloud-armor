@@ -24,10 +24,12 @@ This module is meant for use with Terraform 1.3+ and tested using Terraform 1.3+
 
 Current version is 2.X. Upgrade guides:
 
-- [0.X -> 1.0.](/docs/upgrading_to_v1.0.md)
-- [1.X -> 2.0.](/docs/upgrading_to_v2.0.md)
-- [2.X -> 2.1.](/docs/upgrading_to_v2.1.md)
-- [2.X -> 3.X.](/docs/upgrading_to_v3.0.md)
+- [0.X -> 1.0.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v1.0.md)
+- [1.X -> 2.0.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v2.0.md)
+- [2.X -> 2.1.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v2.1.md)
+- [2.X -> 3.X.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v3.0.md)
+- [3.X -> 4.X.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v4.0.md)
+- [4.X -> 5.X.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v5.0.md)
 
 ##  Module Format
 
@@ -719,7 +721,7 @@ the resources of this module:
 - recaptchaenterprise.keys.list
 - recaptchaenterprise.keys.get
 
-Following roles contain above mentioned permissions. You can either assing one of the following role or create custom roles with above permissions.
+Following roles contain above mentioned permissions. You can either assign one of the following role or create custom roles with above permissions.
 
 - Compute Organization Security Policy Admin: `roles/compute.orgSecurityPolicyAdmin`
 - Compute Security Admin: `roles/compute.securityAdmin`
