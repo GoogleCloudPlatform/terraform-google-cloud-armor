@@ -8,6 +8,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [5.1.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v5.0.0...v5.1.0) (2025-05-06)
+
+
+### Features
+
+* added reCAPTCHA action_token_site_keys and session_token_site_keys ([#159](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/159)) ([4795548](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/47955487abb73b229bb94fc8a71e77459ed750de))
+
 ## [5.0.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v4.0.0...v5.0.0) (2025-02-13)
 
 
