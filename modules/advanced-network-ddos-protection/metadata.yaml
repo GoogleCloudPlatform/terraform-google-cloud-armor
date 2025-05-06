@@ -22,7 +22,7 @@ spec:
   info:
     title: Enable Cloud Armor Advanced Network DDoS Protection
     source:
-      repo: https://github.com/imrannayer/terraform-google-cloud-armor.git
+      repo: https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor.git
       sourceType: git
       dir: /modules/advanced-network-ddos-protection
     version: 5.0.0

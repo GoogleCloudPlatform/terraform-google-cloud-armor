@@ -315,7 +315,6 @@ resource "google_compute_security_policy" "policy" {
         }
         dynamic "expr_options" {
           for_each = try(rule.value.recaptcha_action_token_site_keys, null) == null && try(rule.value.recaptcha_session_token_site_keys, null) == null ? [] : ["expr_options"]
-          # for_each = length(rule.value.recaptcha_action_token_site_keys) > 0 || length(rule.value.recaptcha_session_token_site_keys) > 0 ? ["expr_options"] : []
           content {
             recaptcha_options {
               action_token_site_keys  = try(rule.value.recaptcha_action_token_site_keys, null)

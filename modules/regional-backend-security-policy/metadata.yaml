@@ -22,7 +22,7 @@ spec:
   info:
     title: Cloud Armor Regional backend security policy module
     source:
-      repo: https://github.com/imrannayer/terraform-google-cloud-armor.git
+      repo: https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor.git
       sourceType: git
       dir: /modules/regional-backend-security-policy
     version: 5.0.0

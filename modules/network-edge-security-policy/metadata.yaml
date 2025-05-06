@@ -22,7 +22,7 @@ spec:
   info:
     title: Cloud Armor Terraform Module for Network Edge Security Policy
     source:
-      repo: https://github.com/imrannayer/terraform-google-cloud-armor.git
+      repo: https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor.git
       sourceType: git
       dir: /modules/network-edge-security-policy
     version: 5.0.0

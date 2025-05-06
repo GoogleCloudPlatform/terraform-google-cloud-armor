@@ -22,7 +22,7 @@ spec:
   info:
     title: Cloud Armor Terraform Module
     source:
-      repo: https://github.com/imrannayer/terraform-google-cloud-armor.git
+      repo: https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor.git
       sourceType: git
     version: 5.0.0
     actuationTool:
