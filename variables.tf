@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -135,15 +135,17 @@ variable "security_rules" {
 }
 
 variable "custom_rules" {
-  description = "Custome security rules"
+  description = "Custom security rules"
   type = map(object({
-    action          = string
-    priority        = number
-    description     = optional(string)
-    preview         = optional(bool, false)
-    expression      = string
-    redirect_type   = optional(string, null)
-    redirect_target = optional(string, null)
+    action                            = string
+    priority                          = number
+    description                       = optional(string)
+    preview                           = optional(bool, false)
+    expression                        = string
+    recaptcha_action_token_site_keys  = optional(list(string))
+    recaptcha_session_token_site_keys = optional(list(string))
+    redirect_type                     = optional(string, null)
+    redirect_target                   = optional(string, null)
     rate_limit_options = optional(object({
       enforce_on_key      = optional(string)
       enforce_on_key_name = optional(string)

@@ -268,9 +268,10 @@ module "cloud_armor" {
       priority    = 25
       description = "Allow path and token match with addition of header"
 
-      expression = <<-EOT
+      expression                        = <<-EOT
         request.path.matches('/login.html') && token.recaptcha_session.score < 0.2
       EOT
+      recaptcha_session_token_site_keys = ["6Lcm3XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5mfX"]
 
       header_action = [
         {
@@ -324,6 +325,16 @@ module "cloud_armor" {
       EOT
     }
 
+    allow_recaptcha_action_site_keys = {
+      action      = "allow"
+      priority    = 29
+      description = "allow recaptcha-action-site-keys"
+
+      expression                       = <<-EOT
+        request.path.matches('/login.html') && token.recaptcha_action.score >= 0.8
+      EOT
+      recaptcha_action_token_site_keys = ["6Lcm3XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5mfX","6Lcm3XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5vfW"]
+    }
   }
 
   #adaptive protection auto deploy rules
