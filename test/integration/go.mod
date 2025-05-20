@@ -2,7 +2,7 @@ module github.com/GoogleCloudPlatform/terraform-google-cloud-armor/test/integrat
 
 go 1.23.0
 
-toolchain go1.23.6
+toolchain go1.23.9
 
 require (
 	github.com/GoogleCloudPlatform/cloud-foundation-toolkit/infra/blueprint-test v0.17.6
