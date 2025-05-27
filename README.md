@@ -14,7 +14,7 @@ There are `five` type of rules you can create in each policy:
 
 **NOTE:** For `external passthrough Network Load Balancers`, `protocol forwarding` and `VMs with public IP addresses` create [network Edge Security policy](https://cloud.google.com/armor/docs/security-policy-overview#network-edge-policies) using [advanced network DDoS protection](./modules/advanced-network-ddos-protection/) and [network edge security policy](./modules/network-edge-security-policy/) sub-modules.
 
-**NOTE:** For `Regional external Application Load Balancer` and `Regional internal Application Load Balancer` create [Regionl Backend Security policy](https://cloud.google.com/armor/docs/security-policy-overview#expandable-2) using [regional backend serity policy sub-module](./modules/regional-backend-security-policy/).
+**NOTE:** For `Regional external Application Load Balancer` and `Regional internal Application Load Balancer` create [Regional Backend Security policy](https://cloud.google.com/armor/docs/security-policy-overview#expandable-2) using [regional backend security policy sub-module](./modules/regional-backend-security-policy/).
 
 ## Compatibility
 
