@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -312,6 +312,15 @@ resource "google_compute_security_policy" "policy" {
       match {
         expr {
           expression = rule.value["expression"]
+        }
+        dynamic "expr_options" {
+          for_each = try(rule.value.recaptcha_action_token_site_keys, null) == null && try(rule.value.recaptcha_session_token_site_keys, null) == null ? [] : ["expr_options"]
+          content {
+            recaptcha_options {
+              action_token_site_keys  = try(rule.value.recaptcha_action_token_site_keys, null)
+              session_token_site_keys = try(rule.value.recaptcha_session_token_site_keys, null)
+            }
+          }
         }
       }
 
