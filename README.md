@@ -30,6 +30,7 @@ Current version is 2.X. Upgrade guides:
 - [2.X -> 3.X.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v3.0.md)
 - [3.X -> 4.X.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v4.0.md)
 - [4.X -> 5.X.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v5.0.md)
+- [5.X -> 6.X.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v6.0.md)
 
 ##  Module Format
 
