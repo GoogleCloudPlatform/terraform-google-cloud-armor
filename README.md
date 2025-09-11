@@ -30,6 +30,7 @@ Current version is 2.X. Upgrade guides:
 - [2.X -> 3.X.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v3.0.md)
 - [3.X -> 4.X.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v4.0.md)
 - [4.X -> 5.X.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v5.0.md)
+- [5.X -> 6.X.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v6.0.md)
 
 ##  Module Format
 
@@ -64,7 +65,7 @@ There are examples included in the [examples](https://github.com/GoogleCloudPlat
 ```
 module "security_policy" {
   source   = "GoogleCloudPlatform/cloud-armor/google"
-  version  = "~> 5.0"
+  version  = "~> 6.0"
 
   project_id                           = var.project_id
   name                                 = "my-test-security-policy"
