@@ -20,7 +20,7 @@ resource "random_id" "suffix" {
 
 module "cloud_armor_regional_security_policy" {
   source  = "GoogleCloudPlatform/cloud-armor/google//modules/regional-backend-security-policy"
-  version = "~> 5.0"
+  version = "~> 6.0"
 
   project_id  = var.project_id
   name        = "test-regional-external-sp-${random_id.suffix.hex}"
