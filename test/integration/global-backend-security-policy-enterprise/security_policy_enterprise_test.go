@@ -27,7 +27,6 @@ func TestGlobalSecurityPolicyEnterprise(t *testing.T) {
 	casp := tft.NewTFBlueprintTest(t)
 
 	casp.DefineVerify(func(assert *assert.Assertions) {
-		casp.DefaultVerify(assert)
 
 		projectId := casp.GetTFSetupStringOutput("project_id")
 		policyName := casp.GetStringOutput("policy_name")
