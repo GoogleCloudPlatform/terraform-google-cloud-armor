@@ -57,6 +57,8 @@ locals {
   }
   ## Combine all the preconfigured rules
   pre_configured_rules_expr = merge(local.pre_configured_rules_no_cond_expr, local.pre_configured_rules_include_expr, local.pre_configured_rules_exclude_expr)
+
+  advanced_options_config_enable = var.json_parsing != null || var.log_level != null || var.request_body_inspection_size != null || length(var.user_ip_request_headers) > 0 || length(var.json_custom_content_types) > 0 ? true : false
 }
 
 
@@ -67,6 +69,22 @@ resource "google_compute_region_security_policy" "security_policy" {
   description = var.description
   type        = var.type
   region      = var.region
+
+  dynamic "advanced_options_config" {
+    for_each = local.advanced_options_config_enable ? ["advanced_options_config"] : []
+    content {
+      json_parsing                 = var.json_parsing
+      log_level                    = var.log_level
+      request_body_inspection_size = var.request_body_inspection_size
+      user_ip_request_headers      = length(var.user_ip_request_headers) > 0 ? var.user_ip_request_headers : null
+      dynamic "json_custom_config" {
+        for_each = length(var.json_custom_content_types) > 0 ? ["json_custom_config"] : []
+        content {
+          content_types = var.json_custom_content_types
+        }
+      }
+    }
+  }
 }
 
 ##### Security Rules Block IP addresses
