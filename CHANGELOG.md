@@ -8,6 +8,17 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [7.0.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v6.0.0...v7.0.0) (2025-10-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* added advanced_options_config ([#176](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/176))
+
+### Features
+
+* added advanced_options_config ([#176](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/176)) ([6fa3770](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/6fa37703119effef1664ce6c1fd66ad0e94a5f7e))
+
 ## [6.0.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v5.1.0...v6.0.0) (2025-09-11)
 
 
