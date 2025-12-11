@@ -145,7 +145,7 @@ module "net_firewall" {
 
 module "cloud_router" {
   source  = "terraform-google-modules/cloud-router/google"
-  version = "~> 7.0"
+  version = "~> 8.0"
 
   name    = "test-ca-${local.primary_region}-cr"
   project = module.test_vpc.project_id
