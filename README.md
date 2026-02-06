@@ -203,7 +203,7 @@ resource "google_compute_backend_service" "backend_service" {
   provider = google-beta
 
   ## Attach Cloud Armor policy to the backend service
-  security_policy = module.cloud_armor.policy.self_link
+  security_policy = module.security_policy.policy.self_link
 
   project = var.project_id
 
