@@ -526,7 +526,7 @@ resource "google_compute_security_policy" "policy" {
         enable          = var.layer_7_ddos_defense_enable
         rule_visibility = var.layer_7_ddos_defense_rule_visibility
         dynamic "threshold_configs" {
-          for_each = !var.layer_7_ddos_defense_enable && var.layer_7_ddos_defense_threshold_configs == null ? {} : { for x in var.layer_7_ddos_defense_threshold_configs : x.name => x }
+          for_each = var.layer_7_ddos_defense_enable ? { for x in coalesce(var.layer_7_ddos_defense_threshold_configs, []) : x.name => x } : {}
           content {
             name                                    = threshold_configs.value["name"]
             auto_deploy_load_threshold              = threshold_configs.value["auto_deploy_load_threshold"]
