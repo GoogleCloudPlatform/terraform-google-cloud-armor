@@ -327,3 +327,9 @@ variable "user_ip_request_headers" {
   type        = list(string)
   default     = []
 }
+
+variable "labels" {
+  description = "Labels to be attached to the Security Policy"
+  type        = map(string)
+  default     = {}
+}
