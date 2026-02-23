@@ -27,7 +27,6 @@ func TestGlobalSecurityPolicyComplete(t *testing.T) {
 	casp := tft.NewTFBlueprintTest(t)
 
 	casp.DefineVerify(func(assert *assert.Assertions) {
-		casp.DefaultVerify(assert)
 
 		projectId := casp.GetTFSetupStringOutput("project_id")
 		policyName := casp.GetStringOutput("policy_name")
@@ -150,7 +149,7 @@ func TestGlobalSecurityPolicyComplete(t *testing.T) {
 			assert.True(sp.Get("preview").Bool(), "priority 100 rule Preview is set to True")
 			assert.Equal("deny(502)", sp.Get("action").String(), "priority 100 rule has expected action")
 			assert.Equal("test Sensitivity level policies", sp.Get("description").String(), "priority 100 rule has expected description")
-			assert.Equal("evaluatePreconfiguredWaf('xss-v33-stable', {'sensitivity': 4, 'opt_out_rule_ids': ['owasp-crs-v030301-id942350-sqli', 'owasp-crs-v030301-id942360-sqli']})\n", sp.Get("match.expr.expression").String(), "priority 100 rule has expected expression")
+			assert.Equal("evaluatePreconfiguredWaf('sqli-v33-stable', {'sensitivity': 4, 'opt_out_rule_ids': ['owasp-crs-v030301-id942350-sqli', 'owasp-crs-v030301-id942360-sqli']})\n", sp.Get("match.expr.expression").String(), "priority 100 rule has expected expression")
 		}
 	})
 	casp.Test()

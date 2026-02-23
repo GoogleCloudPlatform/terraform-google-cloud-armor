@@ -69,6 +69,7 @@ resource "google_compute_security_policy" "policy" {
   description = var.description
   project     = var.project_id
   type        = var.type
+  labels      = var.labels
 
   dynamic "recaptcha_options_config" {
     for_each = var.recaptcha_redirect_site_key == null ? [] : ["redirect_site_key"]
@@ -81,9 +82,11 @@ resource "google_compute_security_policy" "policy" {
   dynamic "advanced_options_config" {
     for_each = var.type == "CLOUD_ARMOR" ? ["CLOUD_ARMOR"] : []
     content {
-      json_parsing            = var.json_parsing
-      log_level               = var.log_level
-      user_ip_request_headers = var.user_ip_request_headers
+      json_parsing                 = var.json_parsing
+      log_level                    = var.log_level
+      user_ip_request_headers      = var.user_ip_request_headers
+      request_body_inspection_size = var.request_body_inspection_size
+
       dynamic "json_custom_config" {
         for_each = var.json_parsing == "STANDARD" && length(var.json_custom_config_content_types) > 0 ? ["json_custom_config"] : []
         content {
@@ -520,13 +523,13 @@ resource "google_compute_security_policy" "policy" {
 
   # Cloud Armor Adaptive Protection is currently not supported for edge or network policies
   dynamic "adaptive_protection_config" {
-    for_each = var.layer_7_ddos_defense_enable && var.type != "CLOUD_ARMOR_EDGE" ? ["adaptive_protection_config"] : []
+    for_each = var.type != "CLOUD_ARMOR_EDGE" ? ["adaptive_protection_config"] : []
     content {
       layer_7_ddos_defense_config {
         enable          = var.layer_7_ddos_defense_enable
         rule_visibility = var.layer_7_ddos_defense_rule_visibility
         dynamic "threshold_configs" {
-          for_each = var.layer_7_ddos_defense_threshold_configs == null ? {} : { for x in var.layer_7_ddos_defense_threshold_configs : x.name => x }
+          for_each = var.layer_7_ddos_defense_enable ? { for x in coalesce(var.layer_7_ddos_defense_threshold_configs, []) : x.name => x } : {}
           content {
             name                                    = threshold_configs.value["name"]
             auto_deploy_load_threshold              = threshold_configs.value["auto_deploy_load_threshold"]

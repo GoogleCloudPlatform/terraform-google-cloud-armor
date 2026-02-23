@@ -12,7 +12,7 @@ There are `three` type of rules you can create in each policy:
 
 ```
 module security_policy {
-  source = "GoogleCloudPlatform/cloud-armor/google"
+  source = "GoogleCloudPlatform/cloud-armor/google//modules/regional-backend-security-policy"
 
   project_id  = var.project_id
   name        = "test-regional-external-sp-${random_id.suffix.hex}"
@@ -33,8 +33,8 @@ There are examples included in the [examples](https://github.com/GoogleCloudPlat
 
 ```
 module "cloud_armor_regional_security_policy" {
-  source  = "GoogleCloudPlatform/cloud-armor/google"
-  version = "~> 5.1"
+  source  = "GoogleCloudPlatform/cloud-armor/google//modules/regional-backend-security-policy"
+  version = "~> 8.0"
 
   project_id  = var.project_id
   name        = "test-regional-external-sp-${random_id.suffix.hex}"
@@ -196,12 +196,17 @@ module "cloud_armor_regional_security_policy" {
 | custom\_rules | Custome security rules | <pre>map(object({<br>    action      = string<br>    priority    = number<br>    description = optional(string)<br>    preview     = optional(bool, false)<br>    expression  = string<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br><br>    preconfigured_waf_config_exclusions = optional(map(object({<br>      target_rule_set = string<br>      target_rule_ids = optional(list(string), [])<br>      request_header = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_cookie = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_uri = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_query_param = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>    })), null)<br><br>  }))</pre> | `{}` | no |
 | default\_rule\_action | default rule that allows/denies all traffic with the lowest priority (2,147,483,647). | `string` | `"allow"` | no |
 | description | An optional description of advanced network ddos protection security policy | `string` | `"CA Advance DDoS protection"` | no |
+| json\_custom\_content\_types | A list of custom Content-Type header values to apply the JSON parsing. Only applicable when JSON parsing is set to STANDARD. | `list(string)` | `[]` | no |
+| json\_parsing | JSON body parsing. Possible values are: DISABLED, STANDARD, STANDARD\_WITH\_GRAPHQL | `string` | `null` | no |
+| log\_level | Logging level. Possible values are: NORMAL, VERBOSE | `string` | `null` | no |
 | name | Name of regional security policy. Name must be 1-63 characters long and match the regular expression a-z? which means the first character must be a lowercase letter, and all following characters must be a dash, lowercase letter, or digit, except the last character, which cannot be a dash | `string` | `"adv-network-ddos-protection"` | no |
 | pre\_configured\_rules | Map of pre-configured rules with Sensitivity levels | <pre>map(object({<br>    action                  = string<br>    priority                = number<br>    description             = optional(string)<br>    preview                 = optional(bool, false)<br>    target_rule_set         = string<br>    sensitivity_level       = optional(number, 4)<br>    include_target_rule_ids = optional(list(string), [])<br>    exclude_target_rule_ids = optional(list(string), [])<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>    }), {})<br><br>    preconfigured_waf_config_exclusions = optional(map(object({<br>      target_rule_set = string<br>      target_rule_ids = optional(list(string), [])<br>      request_header = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_cookie = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_uri = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>      request_query_param = optional(list(object({<br>        operator = string<br>        value    = optional(string)<br>      })))<br>    })), null)<br><br>  }))</pre> | `{}` | no |
 | project\_id | The project in which the resource belongs. | `string` | n/a | yes |
 | region | The region in which security policy is created | `string` | n/a | yes |
+| request\_body\_inspection\_size | The maximum request size chosen by the customer with Waf enabled. Values supported are '8KB', '16KB', '32KB', '48KB' and '64KB'. Values are case insensitive. | `string` | `null` | no |
 | security\_rules | Map of Security rules with list of IP addresses to block or unblock. | <pre>map(object({<br>    action        = string<br>    priority      = number<br>    description   = optional(string)<br>    preview       = optional(bool, false)<br>    src_ip_ranges = list(string)<br>    rate_limit_options = optional(object({<br>      enforce_on_key      = optional(string)<br>      enforce_on_key_name = optional(string)<br>      enforce_on_key_configs = optional(list(object({<br>        enforce_on_key_name = optional(string)<br>        enforce_on_key_type = optional(string)<br>      })))<br>      exceed_action                        = optional(string)<br>      rate_limit_http_request_count        = optional(number)<br>      rate_limit_http_request_interval_sec = optional(number)<br>      ban_duration_sec                     = optional(number)<br>      ban_http_request_count               = optional(number)<br>      ban_http_request_interval_sec        = optional(number)<br>      }),<br>    {})<br>  }))</pre> | `{}` | no |
 | type | Type indicates the intended use of the security policy. Possible values are CLOUD\_ARMOR and CLOUD\_ARMOR\_EDGE. | `string` | `"CLOUD_ARMOR"` | no |
+| user\_ip\_request\_headers | An optional list of case-insensitive request header names to use for resolving the callers client IP address | `list(string)` | `[]` | no |
 
 ## Outputs
 
@@ -526,4 +531,4 @@ These sections describe requirements for using this module.
 The following dependencies must be available:
 
 - [Terraform][terraform] v1.3+
-- [Terraform Provider for GCP][terraform-provider-gcp] plugin v5.29+
+- [Terraform Provider for GCP][terraform-provider-gcp] plugin v6.49+

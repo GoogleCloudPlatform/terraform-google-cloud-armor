@@ -25,7 +25,7 @@ spec:
       repo: https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor.git
       sourceType: git
       dir: /modules/regional-backend-security-policy
-    version: 5.1.0
+    version: 7.0.0
     actuationTool:
       flavor: Terraform
       version: ">= 1.3.0"

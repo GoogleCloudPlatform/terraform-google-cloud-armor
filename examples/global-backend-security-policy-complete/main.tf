@@ -24,7 +24,7 @@ resource "random_id" "suffix" {
 }
 module "cloud_armor" {
   source  = "GoogleCloudPlatform/cloud-armor/google"
-  version = "~> 5.0"
+  version = "~> 8.0"
 
   project_id                           = var.project_id
   name                                 = "test-casp-policy-${random_id.suffix.hex}"
@@ -151,7 +151,7 @@ module "cloud_armor" {
       description = "test Sensitivity level policies"
       preview     = true
       expression  = <<-EOT
-        evaluatePreconfiguredWaf('xss-v33-stable', {'sensitivity': 4, 'opt_out_rule_ids': ['owasp-crs-v030301-id942350-sqli', 'owasp-crs-v030301-id942360-sqli']})
+        evaluatePreconfiguredWaf('sqli-v33-stable', {'sensitivity': 4, 'opt_out_rule_ids': ['owasp-crs-v030301-id942350-sqli', 'owasp-crs-v030301-id942360-sqli']})
       EOT
     }
 

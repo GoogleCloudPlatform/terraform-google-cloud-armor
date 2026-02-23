@@ -19,17 +19,17 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = ">= 4.80, < 7"
+      version = ">= 6.49, < 8"
     }
     google-beta = {
       source  = "hashicorp/google-beta"
-      version = ">= 4.80, < 7"
+      version = ">= 6.49, < 8"
     }
   }
   provider_meta "google" {
-    module_name = "blueprints/terraform/terraform-google-cloud-armor:advanced-network-ddos-protection/v5.1.0"
+    module_name = "blueprints/terraform/terraform-google-cloud-armor:advanced-network-ddos-protection/v7.0.0"
   }
   provider_meta "google-beta" {
-    module_name = "blueprints/terraform/terraform-google-cloud-armor:advanced-network-ddos-protection/v5.1.0"
+    module_name = "blueprints/terraform/terraform-google-cloud-armor:advanced-network-ddos-protection/v7.0.0"
   }
 }

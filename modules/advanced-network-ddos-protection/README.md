@@ -16,7 +16,7 @@ There are examples included in the [examples](https://github.com/GoogleCloudPlat
 ```
 module "advanced_network_ddos_protection" {
   source  = "GoogleCloudPlatform/cloud-armor/google//modules/advanced-network-ddos-protection"
-  version = "~> 5.1"
+  version = "~> 8.0"
 
   project_id  = var.project_id
   regions     = ["us-central1", "us-east1"]
@@ -55,4 +55,4 @@ These sections describe requirements for using this module.
 The following dependencies must be available:
 
 - [Terraform][terraform] v1.3+
-- [Terraform Provider for GCP][terraform-provider-gcp] plugin v4.80+
+- [Terraform Provider for GCP][terraform-provider-gcp] plugin v6.49+

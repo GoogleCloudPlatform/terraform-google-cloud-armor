@@ -42,6 +42,36 @@ variable "description" {
   default     = "CA Advance DDoS protection"
 }
 
+variable "json_parsing" {
+  description = "JSON body parsing. Possible values are: DISABLED, STANDARD, STANDARD_WITH_GRAPHQL"
+  type        = string
+  default     = null
+}
+
+variable "log_level" {
+  description = "Logging level. Possible values are: NORMAL, VERBOSE"
+  type        = string
+  default     = null
+}
+
+variable "request_body_inspection_size" {
+  description = "The maximum request size chosen by the customer with Waf enabled. Values supported are '8KB', '16KB', '32KB', '48KB' and '64KB'. Values are case insensitive."
+  type        = string
+  default     = null
+}
+
+variable "user_ip_request_headers" {
+  description = "An optional list of case-insensitive request header names to use for resolving the callers client IP address"
+  type        = list(string)
+  default     = []
+}
+
+variable "json_custom_content_types" {
+  description = "A list of custom Content-Type header values to apply the JSON parsing. Only applicable when JSON parsing is set to STANDARD."
+  type        = list(string)
+  default     = []
+}
+
 variable "pre_configured_rules" {
   description = "Map of pre-configured rules with Sensitivity levels"
   type = map(object({

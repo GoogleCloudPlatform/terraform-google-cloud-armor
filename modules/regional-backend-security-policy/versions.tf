@@ -19,17 +19,17 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = ">= 6.10, < 7"
+      version = ">= 6.49, < 8"
     }
     google-beta = {
       source  = "hashicorp/google-beta"
-      version = ">= 6.10, < 7"
+      version = ">= 6.49, < 8"
     }
   }
   provider_meta "google" {
-    module_name = "blueprints/terraform/terraform-google-cloud-armor:regional-backend-security-policy/v5.1.0"
+    module_name = "blueprints/terraform/terraform-google-cloud-armor:regional-backend-security-policy/v7.0.0"
   }
   provider_meta "google-beta" {
-    module_name = "blueprints/terraform/terraform-google-cloud-armor:regional-backend-security-policy/v5.1.0"
+    module_name = "blueprints/terraform/terraform-google-cloud-armor:regional-backend-security-policy/v7.0.0"
   }
 }

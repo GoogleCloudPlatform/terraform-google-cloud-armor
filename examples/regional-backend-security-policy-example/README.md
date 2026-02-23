@@ -1,6 +1,6 @@
 # Regional Cloud Armor Policy with preconfigured rules, custom rules and security rules
 
-This example configures a single cloud armor policy with following types of rules:
+This example configures a regional cloud armor policy with following types of rules:
 - Pre-configured rules
 - Custom rules
 - Security rules
