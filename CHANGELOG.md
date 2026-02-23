@@ -8,6 +8,23 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [8.0.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v7.0.0...v8.0.0) (2026-02-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* **TPG > 7.17:** add labels and request_body_inspection_size in global backend security policy ([#189](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/189))
+
+### Features
+
+* **TPG > 7.17:** add labels and request_body_inspection_size in global backend security policy ([#189](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/189)) ([7db91c0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/7db91c018afd5c72ad23658e01abe03abaeb377b))
+
+
+### Bug Fixes
+
+* **cloud-armor:** allow adaptive protection block when L7 DDoS is disabled ([#186](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/186)) ([a781af7](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/a781af7ea17601e25f0e3ade80453a704ebe82a5))
+* regional-backend-security-policy Module request_body_inspection_size variable description ([#184](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/184)) ([9f222de](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/9f222de0967c80d96f11a5c785aabeeeb9284bdb))
+
 ## [7.0.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v6.0.0...v7.0.0) (2025-10-28)
 
 
