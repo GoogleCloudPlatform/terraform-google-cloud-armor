@@ -42,6 +42,12 @@ variable "recaptcha_redirect_site_key" {
   default     = null
 }
 
+variable "labels" {
+  description = "User-defined labels for the security policy"
+  type        = map(string)
+  default     = {}
+}
+
 variable "pre_configured_rules" {
   description = "Map of pre-configured rules with Sensitivity levels."
   type = map(object({
@@ -326,4 +332,10 @@ variable "user_ip_request_headers" {
   description = "An optional list of case-insensitive request header names to use for resolving the callers client IP address."
   type        = list(string)
   default     = []
+}
+
+variable "request_body_inspection_size" {
+  description = "The maximum request size chosen by the customer with Waf enabled. Values supported are '8KB', '16KB', '32KB', '48KB' and '64KB'. Values are case insensitive"
+  type        = string
+  default     = null
 }
