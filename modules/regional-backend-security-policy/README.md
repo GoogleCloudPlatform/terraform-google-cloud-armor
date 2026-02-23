@@ -34,7 +34,7 @@ There are examples included in the [examples](https://github.com/GoogleCloudPlat
 ```
 module "cloud_armor_regional_security_policy" {
   source  = "GoogleCloudPlatform/cloud-armor/google//modules/regional-backend-security-policy"
-  version = "~> 7.0"
+  version = "~> 8.0"
 
   project_id  = var.project_id
   name        = "test-regional-external-sp-${random_id.suffix.hex}"
@@ -531,4 +531,4 @@ These sections describe requirements for using this module.
 The following dependencies must be available:
 
 - [Terraform][terraform] v1.3+
-- [Terraform Provider for GCP][terraform-provider-gcp] plugin v5.29+
+- [Terraform Provider for GCP][terraform-provider-gcp] plugin v6.49+
