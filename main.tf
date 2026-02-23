@@ -523,13 +523,13 @@ resource "google_compute_security_policy" "policy" {
 
   # Cloud Armor Adaptive Protection is currently not supported for edge or network policies
   dynamic "adaptive_protection_config" {
-    for_each = var.layer_7_ddos_defense_enable && var.type != "CLOUD_ARMOR_EDGE" ? ["adaptive_protection_config"] : []
+    for_each = var.type != "CLOUD_ARMOR_EDGE" ? ["adaptive_protection_config"] : []
     content {
       layer_7_ddos_defense_config {
         enable          = var.layer_7_ddos_defense_enable
         rule_visibility = var.layer_7_ddos_defense_rule_visibility
         dynamic "threshold_configs" {
-          for_each = var.layer_7_ddos_defense_threshold_configs == null ? {} : { for x in var.layer_7_ddos_defense_threshold_configs : x.name => x }
+          for_each = var.layer_7_ddos_defense_enable ? { for x in coalesce(var.layer_7_ddos_defense_threshold_configs, []) : x.name => x } : {}
           content {
             name                                    = threshold_configs.value["name"]
             auto_deploy_load_threshold              = threshold_configs.value["auto_deploy_load_threshold"]
