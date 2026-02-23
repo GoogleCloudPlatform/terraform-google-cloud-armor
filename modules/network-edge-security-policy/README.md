@@ -35,7 +35,7 @@ There are examples included in the [examples](https://github.com/GoogleCloudPlat
 ```
 module "network_edge_security_policy" {
   source  = "GoogleCloudPlatform/cloud-armor/google//modules/network-edge-security-policy"
-  version = "~> 6.0"
+  version = "~> 8.0"
 
   project_id  = var.project_id
   region      = "us-central1"
@@ -245,4 +245,4 @@ These sections describe requirements for using this module.
 The following dependencies must be available:
 
 - [Terraform][terraform] v1.3+
-- [Terraform Provider for GCP][terraform-provider-gcp] plugin v4.80+
+- [Terraform Provider for GCP][terraform-provider-gcp] plugin v6.49+

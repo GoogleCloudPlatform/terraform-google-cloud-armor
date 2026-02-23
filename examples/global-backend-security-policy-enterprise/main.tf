@@ -19,7 +19,7 @@ resource "random_id" "suffix" {
 }
 module "cloud_armor" {
   source  = "GoogleCloudPlatform/cloud-armor/google"
-  version = "~> 7.0"
+  version = "~> 8.0"
 
   project_id                  = var.project_id
   name                        = "test-camp-policy-${random_id.suffix.hex}"
