@@ -34,7 +34,7 @@ resource "google_network_security_address_group" "address_group" {
 
 module "cloud_armor" {
   source  = "GoogleCloudPlatform/cloud-armor/google"
-  version = "~> 7.0"
+  version = "~> 8.0"
 
   project_id                           = var.project_id
   name                                 = "test-casp-policy-${random_id.suffix.hex}"
