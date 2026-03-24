@@ -149,18 +149,17 @@ module "cloud_armor" {
       description   = "Rate based ban for address from project dropten as soon as they cross rate limit threshold"
       src_ip_ranges = ["190.217.68.213/32", "45.116.227.70", ]
 
-      # change exceed_action to redirect and uncomment exceed_redirect_options once this bug is fixed https://github.com/hashicorp/terraform-provider-google/issues/21186
       rate_limit_options = {
-        exceed_action                        = "deny(502)" #"redirect"
+        exceed_action                        = "redirect"
         rate_limit_http_request_count        = 10
         rate_limit_http_request_interval_sec = 60
         ban_duration_sec                     = 120
         enforce_on_key                       = "HTTP_HEADER"
         enforce_on_key_name                  = "X-API-KEY"
-        # exceed_redirect_options = {
-        #   type   = "EXTERNAL_302"
-        #   target = "https://www.google.com"
-        # }
+        exceed_redirect_options = {
+          type   = "EXTERNAL_302"
+          target = "https://www.google.com"
+        }
       }
     }
 
@@ -333,7 +332,7 @@ module "cloud_armor" {
       expression                       = <<-EOT
         request.path.matches('/login.html') && token.recaptcha_action.score >= 0.8
       EOT
-      recaptcha_action_token_site_keys = ["6Lcm3XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5mfX","6Lcm3XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5vfW"]
+      recaptcha_action_token_site_keys = ["6Lcm3XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5mfX", "6Lcm3XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5vfW"]
     }
   }
 

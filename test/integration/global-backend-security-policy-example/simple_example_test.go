@@ -127,7 +127,7 @@ func TestGlobalSecurityPolicyExample(t *testing.T) {
 			assert.Equal("allow", sp.Get("rateLimitOptions.conformAction").String(), "priority 13 rule has Rate limit confirm action")
 			assert.Equal("HTTP_HEADER", sp.Get("rateLimitOptions.enforceOnKey").String(), "priority 13 rule has Rate limit Enforce on key")
 			assert.Equal("X-API-KEY", sp.Get("rateLimitOptions.enforceOnKeyName").String(), "priority 13 rule has Rate limit Enforce on key name")
-			assert.Equal("deny(502)", sp.Get("rateLimitOptions.exceedAction").String(), "priority 13 rule has Rate limit exceed action")
+			assert.Equal("redirect", sp.Get("rateLimitOptions.exceedAction").String(), "priority 13 rule has Rate limit exceed action")
 			assert.Equal("10", sp.Get("rateLimitOptions.rateLimitThreshold.count").String(), "priority 13 rule has Rate limit threshold count")
 			assert.Equal("60", sp.Get("rateLimitOptions.rateLimitThreshold.intervalSec").String(), "priority 13 rule has Rate limit threshold interval")
 		}

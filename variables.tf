@@ -74,6 +74,10 @@ variable "pre_configured_rules" {
       ban_duration_sec                     = optional(number)
       ban_http_request_count               = optional(number)
       ban_http_request_interval_sec        = optional(number)
+      exceed_redirect_options = optional(object({
+        type   = string
+        target = optional(string)
+      }))
     }), {})
 
     header_action = optional(list(object({
@@ -130,6 +134,10 @@ variable "security_rules" {
       ban_duration_sec                     = optional(number)
       ban_http_request_count               = optional(number)
       ban_http_request_interval_sec        = optional(number)
+      exceed_redirect_options = optional(object({
+        type   = string
+        target = optional(string)
+      }))
     }), {})
     header_action = optional(list(object({
       header_name  = optional(string)
@@ -165,6 +173,10 @@ variable "custom_rules" {
       ban_duration_sec                     = optional(number)
       ban_http_request_count               = optional(number)
       ban_http_request_interval_sec        = optional(number)
+      exceed_redirect_options = optional(object({
+        type   = string
+        target = optional(string)
+      }))
       }),
     {})
     header_action = optional(list(object({
@@ -219,6 +231,10 @@ variable "threat_intelligence_rules" {
       ban_duration_sec                     = optional(number)
       ban_http_request_count               = optional(number)
       ban_http_request_interval_sec        = optional(number)
+      exceed_redirect_options = optional(object({
+        type   = string
+        target = optional(string)
+      }))
     }), {})
     header_action = optional(list(object({
       header_name  = optional(string)
