@@ -8,6 +8,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [8.1.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v8.0.0...v8.1.0) (2026-03-26)
+
+
+### Features
+
+* add exceed_redirect_options to rate_limit_options for all rule types ([#192](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/192)) ([1e9d86a](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/1e9d86a04598ef792346a2e5876231b1b4ec5fa3))
+
 ## [8.0.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v7.0.0...v8.0.0) (2026-02-23)
 
 

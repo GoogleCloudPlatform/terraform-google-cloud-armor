@@ -34,7 +34,7 @@ There are examples included in the [examples](https://github.com/GoogleCloudPlat
 ```
 module "cloud_armor_regional_security_policy" {
   source  = "GoogleCloudPlatform/cloud-armor/google//modules/regional-backend-security-policy"
-  version = "~> 8.0"
+  version = "~> 8.1"
 
   project_id  = var.project_id
   name        = "test-regional-external-sp-${random_id.suffix.hex}"
