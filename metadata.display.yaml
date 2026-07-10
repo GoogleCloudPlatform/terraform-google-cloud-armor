@@ -1,0 +1,89 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: blueprints.cloud.google.com/v1alpha1
+kind: BlueprintMetadata
+metadata:
+  name: terraform-google-cloud-armor-display
+  annotations:
+    config.kubernetes.io/local-config: "true"
+spec:
+  info:
+    title: Cloud Armor Terraform Module
+    source:
+      repo: https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor.git
+      sourceType: git
+  ui:
+    input:
+      variables:
+        adaptive_protection_auto_deploy:
+          name: adaptive_protection_auto_deploy
+          title: Adaptive Protection Auto Deploy
+        custom_rules:
+          name: custom_rules
+          title: Custom Rules
+        default_rule_action:
+          name: default_rule_action
+          title: Default Rule Action
+        description:
+          name: description
+          title: Description
+        json_custom_config_content_types:
+          name: json_custom_config_content_types
+          title: Json Custom Config Content Types
+        json_parsing:
+          name: json_parsing
+          title: Json Parsing
+        labels:
+          name: labels
+          title: Labels
+        layer_7_ddos_defense_enable:
+          name: layer_7_ddos_defense_enable
+          title: Layer 7 Ddos Defense Enable
+        layer_7_ddos_defense_rule_visibility:
+          name: layer_7_ddos_defense_rule_visibility
+          title: Layer 7 Ddos Defense Rule Visibility
+        layer_7_ddos_defense_threshold_configs:
+          name: layer_7_ddos_defense_threshold_configs
+          title: Layer 7 Ddos Defense Threshold Configs
+        log_level:
+          name: log_level
+          title: Log Level
+        name:
+          name: name
+          title: Name
+        pre_configured_rules:
+          name: pre_configured_rules
+          title: Pre Configured Rules
+        project_id:
+          name: project_id
+          title: Project Id
+        recaptcha_redirect_site_key:
+          name: recaptcha_redirect_site_key
+          title: Recaptcha Redirect Site Key
+        request_body_inspection_size:
+          name: request_body_inspection_size
+          title: Request Body Inspection Size
+        security_rules:
+          name: security_rules
+          title: Security Rules
+        threat_intelligence_rules:
+          name: threat_intelligence_rules
+          title: Threat Intelligence Rules
+        type:
+          name: type
+          title: Type
+        user_ip_request_headers:
+          name: user_ip_request_headers
+          title: User Ip Request Headers
