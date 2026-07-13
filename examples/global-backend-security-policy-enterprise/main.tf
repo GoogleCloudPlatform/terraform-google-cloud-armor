@@ -34,11 +34,13 @@ module "cloud_armor" {
       name                             = "test1111"
       auto_deploy_load_threshold       = 0.2
       auto_deploy_confidence_threshold = 0.4
+      auto_deploy_expiration_sec       = 7200
     },
     {
       name                       = "test9999"
       detection_load_threshold   = 0.7
       auto_deploy_expiration_sec = 3
+      auto_deploy_expiration_sec = 7200
       traffic_granularity_configs = [{
         type                     = "HTTP_PATH"
         enable_each_unique_value = true
