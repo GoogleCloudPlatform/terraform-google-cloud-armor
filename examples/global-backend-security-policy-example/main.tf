@@ -343,6 +343,7 @@ module "cloud_armor" {
     action               = "deny(403)"
     load_threshold       = 0.3
     confidence_threshold = 0.6
+    expiration_sec       = 7200
   }
 
   # Rules based on threat intelligence
