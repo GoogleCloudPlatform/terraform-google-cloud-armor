@@ -54,7 +54,7 @@ module "cloud_armor" {
     # load_threshold              = 0.3    This cannot be provided if `layer_7_ddos_defense_threshold_configs` is not null
     # confidence_threshold        = 0.6    This cannot be provided if `layer_7_ddos_defense_threshold_configs` is not null
     # impacted_baseline_threshold = 0.7    This cannot be provided if `layer_7_ddos_defense_threshold_configs` is not null
-    # expiration_sec              = 7000   This cannot be provided if `layer_7_ddos_defense_threshold_configs` is not null
+    expiration_sec              = 7000     #This cannot be provided if `layer_7_ddos_defense_threshold_configs` is not null
   }
 
   ## This is an example of deny policy. Examples for redirect and throttle policies are in README.
