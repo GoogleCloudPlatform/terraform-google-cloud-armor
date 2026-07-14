@@ -31,16 +31,22 @@ module "cloud_armor" {
 
   layer_7_ddos_defense_threshold_configs = [
     {
-      name                             = "test1111"
-      auto_deploy_load_threshold       = 0.2
-      auto_deploy_confidence_threshold = 0.4
-      auto_deploy_expiration_sec       = 7200
+      name                               = "test1111"
+      auto_deploy_load_threshold         = 0.2
+      auto_deploy_confidence_threshold   = 0.4
+      auto_deploy_expiration_sec         = 7200
+      detection_relative_to_baseline_qps = 1.5
+      detection_absolute_qps             = 1000
+      detection_load_threshold           = 0.8
     },
     {
-      name                       = "test9999"
-      detection_load_threshold   = 0.7
-      auto_deploy_expiration_sec = 3
-      auto_deploy_expiration_sec = 7200
+      name                               = "test9999"
+      detection_load_threshold           = 0.7
+      auto_deploy_expiration_sec         = 3
+      auto_deploy_expiration_sec         = 7200
+      detection_relative_to_baseline_qps = 1.5
+      detection_absolute_qps             = 1000
+      detection_load_threshold           = 0.8
       traffic_granularity_configs = [{
         type                     = "HTTP_PATH"
         enable_each_unique_value = true
