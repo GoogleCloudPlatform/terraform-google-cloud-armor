@@ -31,14 +31,22 @@ module "cloud_armor" {
 
   layer_7_ddos_defense_threshold_configs = [
     {
-      name                             = "test1111"
-      auto_deploy_load_threshold       = 0.2
-      auto_deploy_confidence_threshold = 0.4
+      name                               = "test1111"
+      auto_deploy_load_threshold         = 0.2
+      auto_deploy_confidence_threshold   = 0.4
+      auto_deploy_expiration_sec         = 7200
+      detection_relative_to_baseline_qps = 1.5
+      detection_absolute_qps             = 1000
+      detection_load_threshold           = 0.8
     },
     {
-      name                       = "test9999"
-      detection_load_threshold   = 0.7
-      auto_deploy_expiration_sec = 3
+      name                               = "test9999"
+      detection_load_threshold           = 0.7
+      auto_deploy_expiration_sec         = 3
+      auto_deploy_expiration_sec         = 7200
+      detection_relative_to_baseline_qps = 1.5
+      detection_absolute_qps             = 1000
+      detection_load_threshold           = 0.8
       traffic_granularity_configs = [{
         type                     = "HTTP_PATH"
         enable_each_unique_value = true
@@ -46,16 +54,18 @@ module "cloud_armor" {
     },
   ]
 
-  adaptive_protection_auto_deploy = {
-    enable   = true
-    priority = 100000
-    action   = "deny(403)"
+  ## Disabling due to bug https://github.com/hashicorp/terraform-provider-google/issues/28306
+  ## TODO: re-enable this code once the bug is fixed
+  # adaptive_protection_auto_deploy = {
+  #   enable   = true
+  #   priority = 100000
+  #   action   = "deny(403)"
 
-    # load_threshold              = 0.3    This cannot be provided if `layer_7_ddos_defense_threshold_configs` is not null
-    # confidence_threshold        = 0.6    This cannot be provided if `layer_7_ddos_defense_threshold_configs` is not null
-    # impacted_baseline_threshold = 0.7    This cannot be provided if `layer_7_ddos_defense_threshold_configs` is not null
-    # expiration_sec              = 7000   This cannot be provided if `layer_7_ddos_defense_threshold_configs` is not null
-  }
+  #   # load_threshold              = 0.3    This cannot be provided if `layer_7_ddos_defense_threshold_configs` is not null
+  #   # confidence_threshold        = 0.6    This cannot be provided if `layer_7_ddos_defense_threshold_configs` is not null
+  #   # impacted_baseline_threshold = 0.7    This cannot be provided if `layer_7_ddos_defense_threshold_configs` is not null
+  #   # expiration_sec              = 7000     #This cannot be provided if `layer_7_ddos_defense_threshold_configs` is not null
+  # }
 
   ## This is an example of deny policy. Examples for redirect and throttle policies are in README.
 
