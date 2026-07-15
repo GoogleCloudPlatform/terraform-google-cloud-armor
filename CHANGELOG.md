@@ -8,6 +8,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [8.1.1](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v8.1.0...v8.1.1) (2026-07-15)
+
+
+### Bug Fixes
+
+* fixed default value throwing error in example global-backend-security-policy-complete ([#202](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/202)) ([7335195](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/73351951511e57d2496a328e9e12d4387be6e2d8))
+
 ## [8.1.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v8.0.0...v8.1.0) (2026-03-26)
 
 
