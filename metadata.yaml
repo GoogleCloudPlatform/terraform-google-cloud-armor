@@ -1,4 +1,4 @@
-# Copyright 2025 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -76,6 +76,10 @@ spec:
       - name: recaptcha_redirect_site_key
         description: reCAPTCHA site key to be used for all the rules using the redirect action with the redirect type of GOOGLE_RECAPTCHA.
         varType: string
+      - name: labels
+        description: User-defined labels for the security policy
+        varType: map(string)
+        defaultValue: {}
       - name: pre_configured_rules
         description: Map of pre-configured rules with Sensitivity levels.
         varType: |-
@@ -103,6 +107,10 @@ spec:
                 ban_duration_sec                     = optional(number)
                 ban_http_request_count               = optional(number)
                 ban_http_request_interval_sec        = optional(number)
+                exceed_redirect_options = optional(object({
+                  type   = string
+                  target = optional(string)
+                }))
               }), {})
 
               header_action = optional(list(object({
@@ -157,6 +165,10 @@ spec:
                 ban_duration_sec                     = optional(number)
                 ban_http_request_count               = optional(number)
                 ban_http_request_interval_sec        = optional(number)
+                exceed_redirect_options = optional(object({
+                  type   = string
+                  target = optional(string)
+                }))
               }), {})
               header_action = optional(list(object({
                 header_name  = optional(string)
@@ -190,6 +202,10 @@ spec:
                 ban_duration_sec                     = optional(number)
                 ban_http_request_count               = optional(number)
                 ban_http_request_interval_sec        = optional(number)
+                exceed_redirect_options = optional(object({
+                  type   = string
+                  target = optional(string)
+                }))
                 }),
               {})
               header_action = optional(list(object({
@@ -243,6 +259,10 @@ spec:
                 ban_duration_sec                     = optional(number)
                 ban_http_request_count               = optional(number)
                 ban_http_request_interval_sec        = optional(number)
+                exceed_redirect_options = optional(object({
+                  type   = string
+                  target = optional(string)
+                }))
               }), {})
               header_action = optional(list(object({
                 header_name  = optional(string)
@@ -337,6 +357,9 @@ spec:
         description: An optional list of case-insensitive request header names to use for resolving the callers client IP address.
         varType: list(string)
         defaultValue: []
+      - name: request_body_inspection_size
+        description: The maximum request size chosen by the customer with Waf enabled. Values supported are '8KB', '16KB', '32KB', '48KB' and '64KB'. Values are case insensitive
+        varType: string
     outputs:
       - name: policy
         description: Security policy created
@@ -362,6 +385,6 @@ spec:
       - networksecurity.googleapis.com
     providerVersions:
       - source: hashicorp/google
-        version: ">= 6.14, < 7"
+        version: ">= 7.17, < 8"
       - source: hashicorp/google-beta
-        version: ">= 6.14, < 7"
+        version: ">= 7.17, < 8"

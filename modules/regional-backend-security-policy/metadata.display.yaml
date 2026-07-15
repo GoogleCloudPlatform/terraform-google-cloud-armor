@@ -1,0 +1,72 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: blueprints.cloud.google.com/v1alpha1
+kind: BlueprintMetadata
+metadata:
+  name: terraform-google-cloud-armor-regional-backend-security-policy-display
+  annotations:
+    config.kubernetes.io/local-config: "true"
+spec:
+  info:
+    title: Cloud Armor Regional backend security policy module
+    source:
+      repo: https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor.git
+      sourceType: git
+      dir: /modules/regional-backend-security-policy
+  ui:
+    input:
+      variables:
+        custom_rules:
+          name: custom_rules
+          title: Custom Rules
+        default_rule_action:
+          name: default_rule_action
+          title: Default Rule Action
+        description:
+          name: description
+          title: Description
+        json_custom_content_types:
+          name: json_custom_content_types
+          title: Json Custom Content Types
+        json_parsing:
+          name: json_parsing
+          title: Json Parsing
+        log_level:
+          name: log_level
+          title: Log Level
+        name:
+          name: name
+          title: Name
+        pre_configured_rules:
+          name: pre_configured_rules
+          title: Pre Configured Rules
+        project_id:
+          name: project_id
+          title: Project Id
+        region:
+          name: region
+          title: Region
+        request_body_inspection_size:
+          name: request_body_inspection_size
+          title: Request Body Inspection Size
+        security_rules:
+          name: security_rules
+          title: Security Rules
+        type:
+          name: type
+          title: Type
+        user_ip_request_headers:
+          name: user_ip_request_headers
+          title: User Ip Request Headers
