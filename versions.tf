@@ -27,9 +27,9 @@ terraform {
     }
   }
   provider_meta "google" {
-    module_name = "blueprints/terraform/terraform-google-cloud-armor/v8.1.1"
+    module_name = "blueprints/terraform/terraform-google-cloud-armor/v8.2.0"
   }
   provider_meta "google-beta" {
-    module_name = "blueprints/terraform/terraform-google-cloud-armor/v8.1.1"
+    module_name = "blueprints/terraform/terraform-google-cloud-armor/v8.2.0"
   }
 }

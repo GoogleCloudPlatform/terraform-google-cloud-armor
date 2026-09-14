@@ -8,6 +8,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [8.2.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v8.1.1...v8.2.0) (2026-09-09)
+
+
+### Features
+
+* **deps:** Update Terraform Google Provider to v8 ([#206](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/206)) ([4b1ac7a](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/4b1ac7a598653092b13b76367327019945f4a371))
+
 ## [8.1.1](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v8.1.0...v8.1.1) (2026-07-15)
 
 
