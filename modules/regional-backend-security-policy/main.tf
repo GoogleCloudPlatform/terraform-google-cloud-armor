@@ -118,10 +118,10 @@ resource "google_compute_region_security_policy_rule" "security_rules" {
       enforce_on_key_name = lookup(each.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(each.value["rate_limit_options"], "enforce_on_key_name", null) : null
 
       dynamic "enforce_on_key_configs" {
-        for_each = lookup(each.value["rate_limit_options"], "enforce_on_key_configs") == null ? {} : { for x in lookup(each.value["rate_limit_options"], "enforce_on_key_configs") : x.enforce_on_key_type => x }
+        for_each = coalesce(try(each.value.rate_limit_options.enforce_on_key_configs, null), [])
         content {
           enforce_on_key_type = enforce_on_key_configs.value.enforce_on_key_type
-          enforce_on_key_name = enforce_on_key_configs.value.enforce_on_key_name
+          enforce_on_key_name = try(enforce_on_key_configs.value.enforce_on_key_name, null)
         }
       }
 
@@ -177,10 +177,10 @@ resource "google_compute_region_security_policy_rule" "custom_rules" {
       enforce_on_key_name = lookup(each.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(each.value["rate_limit_options"], "enforce_on_key_name", null) : null
 
       dynamic "enforce_on_key_configs" {
-        for_each = lookup(each.value["rate_limit_options"], "enforce_on_key_configs") == null ? {} : { for x in lookup(each.value["rate_limit_options"], "enforce_on_key_configs") : x.enforce_on_key_type => x }
+        for_each = coalesce(try(each.value.rate_limit_options.enforce_on_key_configs, null), [])
         content {
           enforce_on_key_type = enforce_on_key_configs.value.enforce_on_key_type
-          enforce_on_key_name = enforce_on_key_configs.value.enforce_on_key_name
+          enforce_on_key_name = try(enforce_on_key_configs.value.enforce_on_key_name, null)
         }
       }
 
@@ -281,10 +281,10 @@ resource "google_compute_region_security_policy_rule" "pre_configured_rules" {
       enforce_on_key_name = lookup(each.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(each.value["rate_limit_options"], "enforce_on_key_name", null) : null
 
       dynamic "enforce_on_key_configs" {
-        for_each = lookup(each.value["rate_limit_options"], "enforce_on_key_configs") == null ? {} : { for x in lookup(each.value["rate_limit_options"], "enforce_on_key_configs") : x.enforce_on_key_type => x }
+        for_each = coalesce(try(each.value.rate_limit_options.enforce_on_key_configs, null), [])
         content {
           enforce_on_key_type = enforce_on_key_configs.value.enforce_on_key_type
-          enforce_on_key_name = enforce_on_key_configs.value.enforce_on_key_name
+          enforce_on_key_name = try(enforce_on_key_configs.value.enforce_on_key_name, null)
         }
       }
 

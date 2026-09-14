@@ -135,9 +135,9 @@ func TestRegionalBackendPolicy(t *testing.T) {
 			assert.Equal("deny(502)", sp.Get("rateLimitOptions.exceedAction").String(), "priority 15 rule has Rate limit exceed action")
 			assert.Equal("10", sp.Get("rateLimitOptions.rateLimitThreshold.count").String(), "priority 15 rule has Rate limit threshold count")
 			assert.Equal("60", sp.Get("rateLimitOptions.rateLimitThreshold.intervalSec").String(), "priority 15 rule has Rate limit threshold interval")
-			assert.Equal("site_id", sp.Get("rateLimitOptions.enforceOnKeyConfigs").Array()[0].Get("enforceOnKeyName").String(), "priority 1 rule has expected requestCookiesToExclude")
-			assert.Equal("HTTP_COOKIE", sp.Get("rateLimitOptions.enforceOnKeyConfigs").Array()[0].Get("enforceOnKeyType").String(), "priority 1 rule has expected requestCookiesToExclude")
-			assert.Equal("HTTP_PATH", sp.Get("rateLimitOptions.enforceOnKeyConfigs").Array()[1].Get("enforceOnKeyType").String(), "priority 1 rule has expected requestCookiesToExclude")
+			assert.Equal("site_id", sp.Get("rateLimitOptions.enforceOnKeyConfigs").Array()[1].Get("enforceOnKeyName").String(), "priority 1 rule has expected requestCookiesToExclude")
+			assert.Equal("HTTP_COOKIE", sp.Get("rateLimitOptions.enforceOnKeyConfigs").Array()[1].Get("enforceOnKeyType").String(), "priority 1 rule has expected requestCookiesToExclude")
+			assert.Equal("HTTP_PATH", sp.Get("rateLimitOptions.enforceOnKeyConfigs").Array()[0].Get("enforceOnKeyType").String(), "priority 1 rule has expected requestCookiesToExclude")
 		}
 
 		// 	Rule 21
