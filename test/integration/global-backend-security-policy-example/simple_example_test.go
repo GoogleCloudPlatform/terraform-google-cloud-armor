@@ -52,19 +52,19 @@ func TestGlobalSecurityPolicyExample(t *testing.T) {
 			assert.Equal("STARTS_WITH", pce[0].Get("requestCookiesToExclude").Array()[0].Get("op").String(), "priority 1 rule has expected requestCookiesToExclude")
 			assert.Equal("abc", pce[0].Get("requestCookiesToExclude").Array()[0].Get("val").String(), "priority 1 rule has expected requestCookiesToExclude")
 			assert.Equal("STARTS_WITH", pce[0].Get("requestHeadersToExclude").Array()[0].Get("op").String(), "priority 1 rule has expected requestHeadersToExclude")
-			assert.Equal("uvw", pce[0].Get("requestHeadersToExclude").Array()[0].Get("val").String(), "priority 1 rule has expected requestHeadersToExclude")
+			assert.Equal("xyz", pce[0].Get("requestHeadersToExclude").Array()[0].Get("val").String(), "priority 1 rule has expected requestHeadersToExclude")
 			assert.Equal("STARTS_WITH", pce[0].Get("requestHeadersToExclude").Array()[1].Get("op").String(), "priority 1 rule has expected requestHeadersToExclude")
-			assert.Equal("xyz", pce[0].Get("requestHeadersToExclude").Array()[1].Get("val").String(), "priority 1 rule has expected requestHeadersToExclude")
+			assert.Equal("uvw", pce[0].Get("requestHeadersToExclude").Array()[1].Get("val").String(), "priority 1 rule has expected requestHeadersToExclude")
 
-			assert.Equal("ENDS_WITH", pce[1].Get("requestHeadersToExclude").Array()[0].Get("op").String(), "priority 1 rule has expected requestHeadersToExclude")
-			assert.Equal("opq", pce[1].Get("requestHeadersToExclude").Array()[0].Get("val").String(), "priority 1 rule has expected requestHeadersToExclude")
-			assert.Equal("STARTS_WITH", pce[1].Get("requestHeadersToExclude").Array()[1].Get("op").String(), "priority 1 rule has expected requestHeadersToExclude")
-			assert.Equal("lmn", pce[1].Get("requestHeadersToExclude").Array()[1].Get("val").String(), "priority 1 rule has expected requestHeadersToExclude")
+			assert.Equal("STARTS_WITH", pce[1].Get("requestHeadersToExclude").Array()[0].Get("op").String(), "priority 1 rule has expected requestHeadersToExclude")
+			assert.Equal("lmn", pce[1].Get("requestHeadersToExclude").Array()[0].Get("val").String(), "priority 1 rule has expected requestHeadersToExclude")
+			assert.Equal("ENDS_WITH", pce[1].Get("requestHeadersToExclude").Array()[1].Get("op").String(), "priority 1 rule has expected requestHeadersToExclude")
+			assert.Equal("opq", pce[1].Get("requestHeadersToExclude").Array()[1].Get("val").String(), "priority 1 rule has expected requestHeadersToExclude")
 
 			assert.Equal("CONTAINS", pce[1].Get("requestUrisToExclude").Array()[0].Get("op").String(), "priority 1 rule has expected requestUrisToExclude")
-			assert.Equal("https://xyz.com", pce[1].Get("requestUrisToExclude").Array()[0].Get("val").String(), "priority 1 rule has expected requestUrisToExclude")
+			assert.Equal("https://hashicorp.com", pce[1].Get("requestUrisToExclude").Array()[0].Get("val").String(), "priority 1 rule has expected requestUrisToExclude")
 			assert.Equal("CONTAINS", pce[1].Get("requestUrisToExclude").Array()[1].Get("op").String(), "priority 1 rule has expected requestUrisToExclude")
-			assert.Equal("https://hashicorp.com", pce[1].Get("requestUrisToExclude").Array()[1].Get("val").String(), "priority 1 rule has expected requestUrisToExclude")
+			assert.Equal("https://xyz.com", pce[1].Get("requestUrisToExclude").Array()[1].Get("val").String(), "priority 1 rule has expected requestUrisToExclude")
 		}
 
 		// 	Rule 2
