@@ -182,28 +182,28 @@ resource "google_compute_region_security_policy_rule" "custom_rules" {
           target_rule_set = exclusion.value.target_rule_set
           target_rule_ids = exclusion.value.target_rule_ids
           dynamic "request_header" {
-            for_each = exclusion.value.request_header == null ? {} : { for x in exclusion.value.request_header : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+            for_each = exclusion.value.request_header != null ? exclusion.value.request_header : []
             content {
               operator = request_header.value.operator
               value    = request_header.value.operator == "EQUALS_ANY" ? null : request_header.value.value
             }
           }
           dynamic "request_cookie" {
-            for_each = exclusion.value.request_cookie == null ? {} : { for x in exclusion.value.request_cookie : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+            for_each = exclusion.value.request_cookie != null ? exclusion.value.request_cookie : []
             content {
               operator = request_cookie.value.operator
               value    = request_cookie.value.operator == "EQUALS_ANY" ? null : request_cookie.value.value
             }
           }
           dynamic "request_uri" {
-            for_each = exclusion.value.request_uri == null ? {} : { for x in exclusion.value.request_uri : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+            for_each = exclusion.value.request_uri != null ? exclusion.value.request_uri : []
             content {
               operator = request_uri.value.operator
               value    = request_uri.value.operator == "EQUALS_ANY" ? null : request_uri.value.value
             }
           }
           dynamic "request_query_param" {
-            for_each = exclusion.value.request_query_param == null ? {} : { for x in exclusion.value.request_query_param : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+            for_each = exclusion.value.request_query_param != null ? exclusion.value.request_query_param : []
             content {
               operator = request_query_param.value.operator
               value    = request_query_param.value.operator == "EQUALS_ANY" ? null : request_query_param.value.value
@@ -286,28 +286,28 @@ resource "google_compute_region_security_policy_rule" "pre_configured_rules" {
           target_rule_set = exclusion.value.target_rule_set
           target_rule_ids = exclusion.value.target_rule_ids
           dynamic "request_header" {
-            for_each = exclusion.value.request_header == null ? {} : { for x in exclusion.value.request_header : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+            for_each = exclusion.value.request_header != null ? exclusion.value.request_header : []
             content {
               operator = request_header.value.operator
               value    = request_header.value.operator == "EQUALS_ANY" ? null : request_header.value.value
             }
           }
           dynamic "request_cookie" {
-            for_each = exclusion.value.request_cookie == null ? {} : { for x in exclusion.value.request_cookie : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+            for_each = exclusion.value.request_cookie != null ? exclusion.value.request_cookie : []
             content {
               operator = request_cookie.value.operator
               value    = request_cookie.value.operator == "EQUALS_ANY" ? null : request_cookie.value.value
             }
           }
           dynamic "request_uri" {
-            for_each = exclusion.value.request_uri == null ? {} : { for x in exclusion.value.request_uri : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+            for_each = exclusion.value.request_uri != null ? exclusion.value.request_uri : []
             content {
               operator = request_uri.value.operator
               value    = request_uri.value.operator == "EQUALS_ANY" ? null : request_uri.value.value
             }
           }
           dynamic "request_query_param" {
-            for_each = exclusion.value.request_query_param == null ? {} : { for x in exclusion.value.request_query_param : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+            for_each = exclusion.value.request_query_param != null ? exclusion.value.request_query_param : []
             content {
               operator = request_query_param.value.operator
               value    = request_query_param.value.operator == "EQUALS_ANY" ? null : request_query_param.value.value
@@ -330,7 +330,7 @@ resource "google_compute_region_security_policy_rule" "default_rule" {
   security_policy = google_compute_region_security_policy.security_policy.name
   description     = "default rule"
   action          = var.default_rule_action
-  priority        = "2147483647"
+  priority        = 2147483647
   match {
     versioned_expr = "SRC_IPS_V1"
     config {

@@ -89,8 +89,8 @@ variable "pre_configured_rules" {
     }), {})
 
     header_action = optional(list(object({
-      header_name  = optional(string)
-      header_value = optional(string)
+      header_name  = string
+      header_value = string
     })), [])
 
     preconfigured_waf_config_exclusions = optional(map(object({
@@ -148,8 +148,8 @@ variable "security_rules" {
       }))
     }), {})
     header_action = optional(list(object({
-      header_name  = optional(string)
-      header_value = optional(string)
+      header_name  = string
+      header_value = string
     })), [])
   }))
 
@@ -188,8 +188,8 @@ variable "custom_rules" {
       }),
     {})
     header_action = optional(list(object({
-      header_name  = optional(string)
-      header_value = optional(string)
+      header_name  = string
+      header_value = string
     })), [])
 
     preconfigured_waf_config_exclusions = optional(map(object({
@@ -245,8 +245,8 @@ variable "threat_intelligence_rules" {
       }))
     }), {})
     header_action = optional(list(object({
-      header_name  = optional(string)
-      header_value = optional(string)
+      header_name  = string
+      header_value = string
     })), [])
   }))
   default = {}

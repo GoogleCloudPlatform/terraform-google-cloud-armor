@@ -24,8 +24,9 @@ resource "random_id" "suffix" {
 }
 
 module "advanced_network_ddos_protection" {
-  source  = "GoogleCloudPlatform/cloud-armor/google//modules/advanced-network-ddos-protection"
-  version = "~> 8.0"
+  # source  = "GoogleCloudPlatform/cloud-armor/google//modules/advanced-network-ddos-protection"
+  # version = "~> 8.0"
+  source = "../../modules/advanced-network-ddos-protection"
 
   project_id                         = var.project_id
   regions                            = [local.primary_region, local.secondary_region]
@@ -34,8 +35,9 @@ module "advanced_network_ddos_protection" {
 }
 
 module "network_edge_security_policy" {
-  source  = "GoogleCloudPlatform/cloud-armor/google//modules/network-edge-security-policy"
-  version = "~> 8.0"
+  # source  = "GoogleCloudPlatform/cloud-armor/google//modules/network-edge-security-policy"
+  # version = "~> 8.0"
+  source = "../../modules/network-edge-security-policy"
 
   project_id  = var.project_id
   region      = local.primary_region

@@ -330,22 +330,22 @@ resource "google_compute_security_policy" "policy" {
         enable          = var.layer_7_ddos_defense_enable
         rule_visibility = var.layer_7_ddos_defense_rule_visibility
         dynamic "threshold_configs" {
-          for_each = var.layer_7_ddos_defense_enable ? { for x in coalesce(var.layer_7_ddos_defense_threshold_configs, []) : x.name => x } : {}
+          for_each = var.layer_7_ddos_defense_enable && var.layer_7_ddos_defense_threshold_configs != null ? var.layer_7_ddos_defense_threshold_configs : []
           content {
-            name                                    = threshold_configs.value["name"]
-            auto_deploy_load_threshold              = threshold_configs.value["auto_deploy_load_threshold"]
-            auto_deploy_confidence_threshold        = threshold_configs.value["auto_deploy_confidence_threshold"]
-            auto_deploy_impacted_baseline_threshold = threshold_configs.value["auto_deploy_impacted_baseline_threshold"]
-            auto_deploy_expiration_sec              = threshold_configs.value["auto_deploy_expiration_sec"]
-            detection_load_threshold                = threshold_configs.value["detection_load_threshold"]
-            detection_absolute_qps                  = threshold_configs.value["detection_absolute_qps"]
-            detection_relative_to_baseline_qps      = threshold_configs.value["detection_relative_to_baseline_qps"]
+            name                                    = threshold_configs.value.name
+            auto_deploy_load_threshold              = threshold_configs.value.auto_deploy_load_threshold
+            auto_deploy_confidence_threshold        = threshold_configs.value.auto_deploy_confidence_threshold
+            auto_deploy_impacted_baseline_threshold = threshold_configs.value.auto_deploy_impacted_baseline_threshold
+            auto_deploy_expiration_sec              = threshold_configs.value.auto_deploy_expiration_sec
+            detection_load_threshold                = threshold_configs.value.detection_load_threshold
+            detection_absolute_qps                  = threshold_configs.value.detection_absolute_qps
+            detection_relative_to_baseline_qps      = threshold_configs.value.detection_relative_to_baseline_qps
             dynamic "traffic_granularity_configs" {
-              for_each = threshold_configs.value["traffic_granularity_configs"] == null ? {} : { for x in threshold_configs.value["traffic_granularity_configs"] : x.type => x }
+              for_each = threshold_configs.value.traffic_granularity_configs != null ? threshold_configs.value.traffic_granularity_configs : []
               content {
-                type                     = traffic_granularity_configs.value["type"]
-                value                    = traffic_granularity_configs.value["value"]
-                enable_each_unique_value = traffic_granularity_configs.value["enable_each_unique_value"]
+                type                     = traffic_granularity_configs.value.type
+                value                    = traffic_granularity_configs.value.value
+                enable_each_unique_value = traffic_granularity_configs.value.enable_each_unique_value
               }
             }
           }
