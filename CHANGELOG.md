@@ -8,6 +8,17 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [9.0.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v8.2.0...v9.0.0) (2026-09-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* allow repeated key types in rate limit enforce_on_key_configs ([#205](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/205))
+
+### Bug Fixes
+
+* allow repeated key types in rate limit enforce_on_key_configs ([#205](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/205)) ([ca5c86a](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/ca5c86adf2837c20c43d2fa95723ad0cede0a506))
+
 ## [8.2.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v8.1.1...v8.2.0) (2026-09-09)
 
 
