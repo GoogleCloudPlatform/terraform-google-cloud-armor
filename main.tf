@@ -352,14 +352,13 @@ resource "google_compute_security_policy" "policy" {
         }
       }
       dynamic "auto_deploy_config" {
-        for_each = var.adaptive_protection_auto_deploy.enable && (var.adaptive_protection_auto_deploy.load_threshold != null || var.adaptive_protection_auto_deploy.confidence_threshold != null || var.adaptive_protection_auto_deploy.impacted_baseline_threshold != null || var.adaptive_protection_auto_deploy.expiration_sec != null) ? { auto_deploy = var.adaptive_protection_auto_deploy } : {}
+        for_each = var.adaptive_protection_auto_deploy.enable && (var.adaptive_protection_auto_deploy.load_threshold != null || var.adaptive_protection_auto_deploy.confidence_threshold != null || var.adaptive_protection_auto_deploy.impacted_baseline_threshold != null || var.adaptive_protection_auto_deploy.expiration_sec != null) ? ["auto_deploy"] : []
         content {
-          load_threshold              = auto_deploy_config.value["load_threshold"]
-          confidence_threshold        = auto_deploy_config.value["confidence_threshold"]
-          impacted_baseline_threshold = auto_deploy_config.value["impacted_baseline_threshold"]
-          expiration_sec              = auto_deploy_config.value["expiration_sec"]
+          load_threshold              = var.adaptive_protection_auto_deploy.load_threshold
+          confidence_threshold        = var.adaptive_protection_auto_deploy.confidence_threshold
+          impacted_baseline_threshold = var.adaptive_protection_auto_deploy.impacted_baseline_threshold
+          expiration_sec              = var.adaptive_protection_auto_deploy.expiration_sec
         }
-
       }
     }
   }
