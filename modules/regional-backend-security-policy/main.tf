@@ -15,50 +15,19 @@
  */
 
 locals {
-  ### find all the preconfigured rule with no include or exclude expression
-  pre_configured_rules_no_cond_expr = { for name, policy in var.pre_configured_rules : name => {
-    expression = "evaluatePreconfiguredWaf('${policy["target_rule_set"]}', {'sensitivity': ${policy["sensitivity_level"]}})"
-    } if length(policy["include_target_rule_ids"]) == 0 && length(policy["exclude_target_rule_ids"]) == 0
-  }
-
-  ### find all the preconfigured rule with include (Opt In rules) expression
-  pre_configured_rules_include = { for name, policy in var.pre_configured_rules : name => {
-    target_rule_set         = policy.target_rule_set
-    include_target_rule_ids = replace(join(",", policy.include_target_rule_ids), ",", "','")
-    sensitivity_level       = policy.sensitivity_level
-    action                  = policy.action
-    priority                = 0
-    description             = policy.description
-    preview                 = policy.preview
-    rate_limit_options      = policy.rate_limit_options
-    } if length(policy["include_target_rule_ids"]) > 0
-  }
-
-  pre_configured_rules_include_expr = { for name, policy in local.pre_configured_rules_include : name => {
-    expression = "evaluatePreconfiguredWaf('${policy["target_rule_set"]}', {'sensitivity': 0, 'opt_in_rule_ids': ['${policy.include_target_rule_ids}']})"
+  pre_configured_rules_expr = {
+    for name, p in var.pre_configured_rules : name => {
+      expression = (
+        length(p.include_target_rule_ids) > 0
+        ? "evaluatePreconfiguredWaf('${p.target_rule_set}', {'sensitivity': 0, 'opt_in_rule_ids': ['${join("','", p.include_target_rule_ids)}']})"
+        : length(p.exclude_target_rule_ids) > 0
+        ? "evaluatePreconfiguredWaf('${p.target_rule_set}', {'sensitivity': ${p.sensitivity_level}, 'opt_out_rule_ids': ['${join("','", p.exclude_target_rule_ids)}']})"
+        : "evaluatePreconfiguredWaf('${p.target_rule_set}', {'sensitivity': ${p.sensitivity_level}})"
+      )
     }
   }
 
-  ### find all the preconfigured rule with Exclude (Opt out rules) expression
-  pre_configured_rules_exclude = { for name, policy in var.pre_configured_rules : name => {
-    target_rule_set         = policy.target_rule_set
-    exclude_target_rule_ids = replace(join(",", policy.exclude_target_rule_ids), ",", "','")
-    sensitivity_level       = policy.sensitivity_level
-    action                  = policy.action
-    priority                = policy.priority
-    description             = policy.description
-    preview                 = policy.preview
-    rate_limit_options      = policy.rate_limit_options
-    } if length(policy["include_target_rule_ids"]) == 0 && length(policy["exclude_target_rule_ids"]) > 0
-  }
-  pre_configured_rules_exclude_expr = { for name, policy in local.pre_configured_rules_exclude : name => {
-    expression = "evaluatePreconfiguredWaf('${policy["target_rule_set"]}', {'sensitivity': ${policy.sensitivity_level}, 'opt_out_rule_ids': ['${policy.exclude_target_rule_ids}']})"
-    }
-  }
-  ## Combine all the preconfigured rules
-  pre_configured_rules_expr = merge(local.pre_configured_rules_no_cond_expr, local.pre_configured_rules_include_expr, local.pre_configured_rules_exclude_expr)
-
-  advanced_options_config_enable = var.json_parsing != null || var.log_level != null || var.request_body_inspection_size != null || length(var.user_ip_request_headers) > 0 || length(var.json_custom_content_types) > 0 ? true : false
+  advanced_options_config_enable = var.json_parsing != null || var.log_level != null || var.request_body_inspection_size != null || length(var.user_ip_request_headers) > 0 || length(var.json_custom_content_types) > 0
 }
 
 
