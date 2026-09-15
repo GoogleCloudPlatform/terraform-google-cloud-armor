@@ -28,12 +28,20 @@ variable "description" {
   description = "An optional description of this security policy. Max size is 2048."
   type        = string
   default     = null
+  validation {
+    condition     = var.description == null || length(var.description) <= 2048
+    error_message = "description cannot exceed 2048 characters."
+  }
 }
 
 variable "default_rule_action" {
   description = "default rule that allows/denies all traffic with the lowest priority (2,147,483,647)."
   type        = string
   default     = "allow"
+  validation {
+    condition     = contains(["allow", "deny(403)", "deny(404)", "deny(502)"], var.default_rule_action)
+    error_message = "default_rule_action must be one of: allow, deny(403), deny(404), deny(502)."
+  }
 }
 
 variable "recaptcha_redirect_site_key" {
@@ -245,9 +253,13 @@ variable "threat_intelligence_rules" {
 }
 
 variable "type" {
-  description = "Type indicates the intended use of the security policy. Possible values are CLOUD_ARMOR and CLOUD_ARMOR_EDGE."
+  description = "Type indicates the intended use of the security policy. Possible values are CLOUD_ARMOR, CLOUD_ARMOR_EDGE and CLOUD_ARMOR_INTERNAL_SERVICE.  This field can be set only at resource creation time."
   type        = string
   default     = "CLOUD_ARMOR"
+  validation {
+    condition     = contains(["CLOUD_ARMOR", "CLOUD_ARMOR_EDGE", "CLOUD_ARMOR_INTERNAL_SERVICE"], var.type)
+    error_message = "type must be either CLOUD_ARMOR, CLOUD_ARMOR_EDGE or CLOUD_ARMOR_INTERNAL_SERVICE."
+  }
 }
 
 variable "layer_7_ddos_defense_enable" {
@@ -260,6 +272,10 @@ variable "layer_7_ddos_defense_rule_visibility" {
   description = "(Optional) Rule visibility can be one of the following: STANDARD - opaque rules. PREMIUM - transparent rules. This field is only supported in Global Security Policies of type CLOUD_ARMOR."
   type        = string
   default     = "STANDARD"
+  validation {
+    condition     = contains(["STANDARD", "PREMIUM"], var.layer_7_ddos_defense_rule_visibility)
+    error_message = "layer_7_ddos_defense_rule_visibility must be either STANDARD or PREMIUM."
+  }
 }
 
 variable "layer_7_ddos_defense_threshold_configs" {
@@ -327,15 +343,23 @@ variable "adaptive_protection_auto_deploy" {
 }
 
 variable "json_parsing" {
-  description = "Whether or not to JSON parse the payload body. Possible values are DISABLED and STANDARD. Not supported for CLOUD_ARMOR_EDGE policy type."
+  description = "Whether or not to JSON parse the payload body. Possible values are DISABLED, STANDARD and STANDARD_WITH_GRAPHQL. Not supported for CLOUD_ARMOR_EDGE policy type."
   type        = string
   default     = "DISABLED"
+  validation {
+    condition     = contains(["DISABLED", "STANDARD", "STANDARD_WITH_GRAPHQL"], var.json_parsing)
+    error_message = "json_parsing must be one of: DISABLED, STANDARD, STANDARD_WITH_GRAPHQL."
+  }
 }
 
 variable "log_level" {
   description = "Log level to use. Possible values are NORMAL and VERBOSE. Not supported for CLOUD_ARMOR_EDGE policy type."
   type        = string
   default     = "NORMAL"
+  validation {
+    condition     = contains(["NORMAL", "VERBOSE"], var.log_level)
+    error_message = "log_level must be either NORMAL or VERBOSE."
+  }
 }
 
 variable "json_custom_config_content_types" {
@@ -354,4 +378,8 @@ variable "request_body_inspection_size" {
   description = "The maximum request size chosen by the customer with Waf enabled. Values supported are '8KB', '16KB', '32KB', '48KB' and '64KB'. Values are case insensitive"
   type        = string
   default     = null
+  validation {
+    condition     = var.request_body_inspection_size == null || contains(["8KB", "16KB", "32KB", "48KB", "64KB"], upper(var.request_body_inspection_size))
+    error_message = "request_body_inspection_size must be null or one of: 8KB, 16KB, 32KB, 48KB, 64KB (case-insensitive)."
+  }
 }

@@ -25,9 +25,13 @@ variable "regions" {
 }
 
 variable "ddos_protection_config" {
-  description = "Configuration for Google Cloud Armor DDOS Proctection Config. 1) ADVANCED: additional protections for Managed Protection Plus subscribers 2) ADVANCED_PREVIEW: enable the security policy in preview mode"
+  description = "Configuration for Google Cloud Armor DDOS Proctection Config. 1) ADVANCED: additional protections for Managed Protection Plus subscribers 2) ADVANCED_PREVIEW: enable the security policy in preview mode. 3) STANDARD: basic always-on protection for network load balancers, protocol forwarding, or VMs with public IP addresses"
   type        = string
   default     = "ADVANCED"
+  validation {
+    condition     = contains(["ADVANCED", "ADVANCED_PREVIEW", "STANDARD"], var.ddos_protection_config)
+    error_message = "ddos_protection_config must be one of: ADVANCED, ADVANCED_PREVIEW, STANDARD."
+  }
 }
 
 variable "policy_name" {
