@@ -35,9 +35,8 @@ resource "random_id" "suffix" {
 }
 
 module "cloud_armor" {
-  # source  = "GoogleCloudPlatform/cloud-armor/google"
-  # version = "~> 8.0"
-  source = "../../"
+  source  = "GoogleCloudPlatform/cloud-armor/google"
+  version = "~> 8.0"
 
   project_id                  = var.project_id
   name                        = "test-policy-recaptcha-${random_id.suffix.hex}"
