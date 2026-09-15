@@ -29,7 +29,7 @@ module "advanced_network_ddos_protection" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| ddos\_protection\_config | Configuration for Google Cloud Armor DDOS Proctection Config. 1) ADVANCED: additional protections for Managed Protection Plus subscribers 2) ADVANCED\_PREVIEW: enable the security policy in preview mode | `string` | `"ADVANCED"` | no |
+| ddos\_protection\_config | Configuration for Google Cloud Armor DDOS Proctection Config. 1) ADVANCED: additional protections for Managed Protection Plus subscribers 2) ADVANCED\_PREVIEW: enable the security policy in preview mode. 3) STANDARD: basic always-on protection for network load balancers, protocol forwarding, or VMs with public IP addresses | `string` | `"ADVANCED"` | no |
 | network\_edge\_security\_service\_description | description of edge security service for advanced network ddos protection | `string` | `"edge security service for advanced network ddos protection"` | no |
 | network\_edge\_security\_service\_name | Name of network edge security service resource for advanced network ddos protection | `string` | `"adv-network-ddos-protection"` | no |
 | policy\_description | An optional description of advanced network ddos protection security policy | `string` | `"CA Advance DDoS protection"` | no |
