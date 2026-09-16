@@ -15,50 +15,19 @@
  */
 
 locals {
-  ### find all the preconfigured rule with no include or exclude expression
-  pre_configured_rules_no_cond_expr = { for name, policy in var.pre_configured_rules : name => {
-    expression = "evaluatePreconfiguredWaf('${policy["target_rule_set"]}', {'sensitivity': ${policy["sensitivity_level"]}})"
-    } if length(policy["include_target_rule_ids"]) == 0 && length(policy["exclude_target_rule_ids"]) == 0
-  }
-
-  ### find all the preconfigured rule with include (Opt In rules) expression
-  pre_configured_rules_include = { for name, policy in var.pre_configured_rules : name => {
-    target_rule_set         = policy.target_rule_set
-    include_target_rule_ids = replace(join(",", policy.include_target_rule_ids), ",", "','")
-    sensitivity_level       = policy.sensitivity_level
-    action                  = policy.action
-    priority                = 0
-    description             = policy.description
-    preview                 = policy.preview
-    rate_limit_options      = policy.rate_limit_options
-    } if length(policy["include_target_rule_ids"]) > 0
-  }
-
-  pre_configured_rules_include_expr = { for name, policy in local.pre_configured_rules_include : name => {
-    expression = "evaluatePreconfiguredWaf('${policy["target_rule_set"]}', {'sensitivity': 0, 'opt_in_rule_ids': ['${policy.include_target_rule_ids}']})"
+  pre_configured_rules_expr = {
+    for name, p in var.pre_configured_rules : name => {
+      expression = (
+        length(p.include_target_rule_ids) > 0
+        ? "evaluatePreconfiguredWaf('${p.target_rule_set}', {'sensitivity': 0, 'opt_in_rule_ids': ['${join("','", p.include_target_rule_ids)}']})"
+        : length(p.exclude_target_rule_ids) > 0
+        ? "evaluatePreconfiguredWaf('${p.target_rule_set}', {'sensitivity': ${p.sensitivity_level}, 'opt_out_rule_ids': ['${join("','", p.exclude_target_rule_ids)}']})"
+        : "evaluatePreconfiguredWaf('${p.target_rule_set}', {'sensitivity': ${p.sensitivity_level}})"
+      )
     }
   }
 
-  ### find all the preconfigured rule with Exclude (Opt out rules) expression
-  pre_configured_rules_exclude = { for name, policy in var.pre_configured_rules : name => {
-    target_rule_set         = policy.target_rule_set
-    exclude_target_rule_ids = replace(join(",", policy.exclude_target_rule_ids), ",", "','")
-    sensitivity_level       = policy.sensitivity_level
-    action                  = policy.action
-    priority                = policy.priority
-    description             = policy.description
-    preview                 = policy.preview
-    rate_limit_options      = policy.rate_limit_options
-    } if length(policy["include_target_rule_ids"]) == 0 && length(policy["exclude_target_rule_ids"]) > 0
-  }
-  pre_configured_rules_exclude_expr = { for name, policy in local.pre_configured_rules_exclude : name => {
-    expression = "evaluatePreconfiguredWaf('${policy["target_rule_set"]}', {'sensitivity': ${policy.sensitivity_level}, 'opt_out_rule_ids': ['${policy.exclude_target_rule_ids}']})"
-    }
-  }
-  ## Combine all the preconfigured rules
-  pre_configured_rules_expr = merge(local.pre_configured_rules_no_cond_expr, local.pre_configured_rules_include_expr, local.pre_configured_rules_exclude_expr)
-
-  advanced_options_config_enable = var.json_parsing != null || var.log_level != null || var.request_body_inspection_size != null || length(var.user_ip_request_headers) > 0 || length(var.json_custom_content_types) > 0 ? true : false
+  advanced_options_config_enable = var.json_parsing != null || var.log_level != null || var.request_body_inspection_size != null || length(var.user_ip_request_headers) > 0 || length(var.json_custom_content_types) > 0
 }
 
 
@@ -96,50 +65,49 @@ resource "google_compute_region_security_policy_rule" "security_rules" {
   region          = var.region
   security_policy = google_compute_region_security_policy.security_policy.name
 
-  action      = each.value["action"]
-  priority    = each.value["priority"]
-  preview     = each.value["preview"]
-  description = each.value["description"]
+  action      = each.value.action
+  priority    = each.value.priority
+  preview     = each.value.preview
+  description = each.value.description
   match {
     versioned_expr = "SRC_IPS_V1"
     config {
-      src_ip_ranges = each.value["src_ip_ranges"]
+      src_ip_ranges = each.value.src_ip_ranges
     }
   }
 
   ### Rate limit. Execute only if Action is "rate_based_ban" or "throttle"
   dynamic "rate_limit_options" {
-    for_each = each.value["action"] == "rate_based_ban" || each.value["action"] == "throttle" ? ["rate_limits"] : []
+    for_each = contains(["rate_based_ban", "throttle"], each.value.action) ? ["rate_limits"] : []
     content {
       conform_action      = "allow"
-      ban_duration_sec    = each.value["action"] == "rate_based_ban" ? lookup(each.value["rate_limit_options"], "ban_duration_sec") : null
-      exceed_action       = lookup(each.value["rate_limit_options"], "exceed_action")
-      enforce_on_key      = lookup(each.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(each.value["rate_limit_options"], "enforce_on_key", null) : ""
-      enforce_on_key_name = lookup(each.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(each.value["rate_limit_options"], "enforce_on_key_name", null) : null
+      ban_duration_sec    = each.value.action == "rate_based_ban" ? try(each.value.rate_limit_options.ban_duration_sec, null) : null
+      exceed_action       = try(each.value.rate_limit_options.exceed_action, null)
+      enforce_on_key      = try(each.value.rate_limit_options.enforce_on_key_configs, null) == null ? try(each.value.rate_limit_options.enforce_on_key, null) : ""
+      enforce_on_key_name = try(each.value.rate_limit_options.enforce_on_key_configs, null) == null ? try(each.value.rate_limit_options.enforce_on_key_name, null) : null
 
       dynamic "enforce_on_key_configs" {
-        for_each = coalesce(try(each.value.rate_limit_options.enforce_on_key_configs, null), [])
+        for_each = try(each.value.rate_limit_options.enforce_on_key_configs, null) != null ? each.value.rate_limit_options.enforce_on_key_configs : []
         content {
           enforce_on_key_type = enforce_on_key_configs.value.enforce_on_key_type
           enforce_on_key_name = try(enforce_on_key_configs.value.enforce_on_key_name, null)
         }
       }
 
-      ## Required for all rate limit options
-      dynamic "rate_limit_threshold" {
-        for_each = each.value["action"] == "rate_based_ban" || each.value["action"] == "throttle" ? ["rate_limit_options"] : []
-        content {
-          count        = each.value["rate_limit_options"].rate_limit_http_request_count
-          interval_sec = each.value["rate_limit_options"].rate_limit_http_request_interval_sec
-        }
+      rate_limit_threshold {
+        count        = each.value.rate_limit_options.rate_limit_http_request_count
+        interval_sec = each.value.rate_limit_options.rate_limit_http_request_interval_sec
       }
 
-      ## Optional. Can be provided for for rate based ban. Not needed for throttle
       dynamic "ban_threshold" {
-        for_each = each.value["action"] == "rate_based_ban" && lookup(each.value["rate_limit_options"], "ban_http_request_count", null) != null && lookup(each.value["rate_limit_options"], "ban_http_request_interval_sec", null) != null ? ["ban_threshold"] : []
+        for_each = (
+          each.value.action == "rate_based_ban" &&
+          try(each.value.rate_limit_options.ban_http_request_count, null) != null &&
+          try(each.value.rate_limit_options.ban_http_request_interval_sec, null) != null
+        ) ? ["ban_threshold"] : []
         content {
-          count        = lookup(each.value["rate_limit_options"], "ban_http_request_count")
-          interval_sec = lookup(each.value["rate_limit_options"], "ban_http_request_interval_sec")
+          count        = each.value.rate_limit_options.ban_http_request_count
+          interval_sec = each.value.rate_limit_options.ban_http_request_interval_sec
         }
       }
     }
@@ -156,49 +124,48 @@ resource "google_compute_region_security_policy_rule" "custom_rules" {
   region          = var.region
   security_policy = google_compute_region_security_policy.security_policy.name
 
-  action      = each.value["action"]
-  priority    = each.value["priority"]
-  preview     = each.value["preview"]
-  description = each.value["description"]
+  action      = each.value.action
+  priority    = each.value.priority
+  preview     = each.value.preview
+  description = each.value.description
   match {
     expr {
-      expression = each.value["expression"]
+      expression = each.value.expression
     }
   }
 
   ### Rate limit. Execute only if Action is "rate_based_ban" or "throttle"
   dynamic "rate_limit_options" {
-    for_each = each.value["action"] == "rate_based_ban" || each.value["action"] == "throttle" ? ["rate_limits"] : []
+    for_each = contains(["rate_based_ban", "throttle"], each.value.action) ? ["rate_limits"] : []
     content {
       conform_action      = "allow"
-      ban_duration_sec    = each.value["action"] == "rate_based_ban" ? lookup(each.value["rate_limit_options"], "ban_duration_sec") : null
-      exceed_action       = lookup(each.value["rate_limit_options"], "exceed_action")
-      enforce_on_key      = lookup(each.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(each.value["rate_limit_options"], "enforce_on_key", null) : ""
-      enforce_on_key_name = lookup(each.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(each.value["rate_limit_options"], "enforce_on_key_name", null) : null
+      ban_duration_sec    = each.value.action == "rate_based_ban" ? try(each.value.rate_limit_options.ban_duration_sec, null) : null
+      exceed_action       = try(each.value.rate_limit_options.exceed_action, null)
+      enforce_on_key      = try(each.value.rate_limit_options.enforce_on_key_configs, null) == null ? try(each.value.rate_limit_options.enforce_on_key, null) : ""
+      enforce_on_key_name = try(each.value.rate_limit_options.enforce_on_key_configs, null) == null ? try(each.value.rate_limit_options.enforce_on_key_name, null) : null
 
       dynamic "enforce_on_key_configs" {
-        for_each = coalesce(try(each.value.rate_limit_options.enforce_on_key_configs, null), [])
+        for_each = try(each.value.rate_limit_options.enforce_on_key_configs, null) != null ? each.value.rate_limit_options.enforce_on_key_configs : []
         content {
           enforce_on_key_type = enforce_on_key_configs.value.enforce_on_key_type
           enforce_on_key_name = try(enforce_on_key_configs.value.enforce_on_key_name, null)
         }
       }
 
-      ## Required for all rate limit options
-      dynamic "rate_limit_threshold" {
-        for_each = each.value["action"] == "rate_based_ban" || each.value["action"] == "throttle" ? ["rate_limit_options"] : []
-        content {
-          count        = each.value["rate_limit_options"].rate_limit_http_request_count
-          interval_sec = each.value["rate_limit_options"].rate_limit_http_request_interval_sec
-        }
+      rate_limit_threshold {
+        count        = each.value.rate_limit_options.rate_limit_http_request_count
+        interval_sec = each.value.rate_limit_options.rate_limit_http_request_interval_sec
       }
 
-      ## Optional. Can be provided for for rate based ban. Not needed for throttle
       dynamic "ban_threshold" {
-        for_each = each.value["action"] == "rate_based_ban" && lookup(each.value["rate_limit_options"], "ban_http_request_count", null) != null && lookup(each.value["rate_limit_options"], "ban_http_request_interval_sec", null) != null ? ["ban_threshold"] : []
+        for_each = (
+          each.value.action == "rate_based_ban" &&
+          try(each.value.rate_limit_options.ban_http_request_count, null) != null &&
+          try(each.value.rate_limit_options.ban_http_request_interval_sec, null) != null
+        ) ? ["ban_threshold"] : []
         content {
-          count        = lookup(each.value["rate_limit_options"], "ban_http_request_count")
-          interval_sec = lookup(each.value["rate_limit_options"], "ban_http_request_interval_sec")
+          count        = each.value.rate_limit_options.ban_http_request_count
+          interval_sec = each.value.rate_limit_options.ban_http_request_interval_sec
         }
       }
     }
@@ -213,28 +180,28 @@ resource "google_compute_region_security_policy_rule" "custom_rules" {
           target_rule_set = exclusion.value.target_rule_set
           target_rule_ids = exclusion.value.target_rule_ids
           dynamic "request_header" {
-            for_each = exclusion.value.request_header == null ? {} : { for x in exclusion.value.request_header : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+            for_each = exclusion.value.request_header != null ? exclusion.value.request_header : []
             content {
               operator = request_header.value.operator
               value    = request_header.value.operator == "EQUALS_ANY" ? null : request_header.value.value
             }
           }
           dynamic "request_cookie" {
-            for_each = exclusion.value.request_cookie == null ? {} : { for x in exclusion.value.request_cookie : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+            for_each = exclusion.value.request_cookie != null ? exclusion.value.request_cookie : []
             content {
               operator = request_cookie.value.operator
               value    = request_cookie.value.operator == "EQUALS_ANY" ? null : request_cookie.value.value
             }
           }
           dynamic "request_uri" {
-            for_each = exclusion.value.request_uri == null ? {} : { for x in exclusion.value.request_uri : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+            for_each = exclusion.value.request_uri != null ? exclusion.value.request_uri : []
             content {
               operator = request_uri.value.operator
               value    = request_uri.value.operator == "EQUALS_ANY" ? null : request_uri.value.value
             }
           }
           dynamic "request_query_param" {
-            for_each = exclusion.value.request_query_param == null ? {} : { for x in exclusion.value.request_query_param : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+            for_each = exclusion.value.request_query_param != null ? exclusion.value.request_query_param : []
             content {
               operator = request_query_param.value.operator
               value    = request_query_param.value.operator == "EQUALS_ANY" ? null : request_query_param.value.value
@@ -260,10 +227,10 @@ resource "google_compute_region_security_policy_rule" "pre_configured_rules" {
   region          = var.region
   security_policy = google_compute_region_security_policy.security_policy.name
 
-  action      = each.value["action"]
-  priority    = each.value["priority"]
-  preview     = each.value["preview"]
-  description = each.value["description"]
+  action      = each.value.action
+  priority    = each.value.priority
+  preview     = each.value.preview
+  description = each.value.description
   match {
     expr {
       expression = local.pre_configured_rules_expr[each.key].expression
@@ -272,37 +239,36 @@ resource "google_compute_region_security_policy_rule" "pre_configured_rules" {
 
   ### Rate limit. Execute only if Action is "rate_based_ban" or "throttle"
   dynamic "rate_limit_options" {
-    for_each = each.value["action"] == "rate_based_ban" || each.value["action"] == "throttle" ? ["rate_limits"] : []
+    for_each = contains(["rate_based_ban", "throttle"], each.value.action) ? ["rate_limits"] : []
     content {
       conform_action      = "allow"
-      ban_duration_sec    = each.value["action"] == "rate_based_ban" ? lookup(each.value["rate_limit_options"], "ban_duration_sec") : null
-      exceed_action       = lookup(each.value["rate_limit_options"], "exceed_action")
-      enforce_on_key      = lookup(each.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(each.value["rate_limit_options"], "enforce_on_key", null) : ""
-      enforce_on_key_name = lookup(each.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(each.value["rate_limit_options"], "enforce_on_key_name", null) : null
+      ban_duration_sec    = each.value.action == "rate_based_ban" ? try(each.value.rate_limit_options.ban_duration_sec, null) : null
+      exceed_action       = try(each.value.rate_limit_options.exceed_action, null)
+      enforce_on_key      = try(each.value.rate_limit_options.enforce_on_key_configs, null) == null ? try(each.value.rate_limit_options.enforce_on_key, null) : ""
+      enforce_on_key_name = try(each.value.rate_limit_options.enforce_on_key_configs, null) == null ? try(each.value.rate_limit_options.enforce_on_key_name, null) : null
 
       dynamic "enforce_on_key_configs" {
-        for_each = coalesce(try(each.value.rate_limit_options.enforce_on_key_configs, null), [])
+        for_each = try(each.value.rate_limit_options.enforce_on_key_configs, null) != null ? each.value.rate_limit_options.enforce_on_key_configs : []
         content {
           enforce_on_key_type = enforce_on_key_configs.value.enforce_on_key_type
           enforce_on_key_name = try(enforce_on_key_configs.value.enforce_on_key_name, null)
         }
       }
 
-      ## Required for all rate limit options
-      dynamic "rate_limit_threshold" {
-        for_each = each.value["action"] == "rate_based_ban" || each.value["action"] == "throttle" ? ["rate_limit_options"] : []
-        content {
-          count        = each.value["rate_limit_options"].rate_limit_http_request_count
-          interval_sec = each.value["rate_limit_options"].rate_limit_http_request_interval_sec
-        }
+      rate_limit_threshold {
+        count        = each.value.rate_limit_options.rate_limit_http_request_count
+        interval_sec = each.value.rate_limit_options.rate_limit_http_request_interval_sec
       }
 
-      ## Optional. Can be provided for for rate based ban. Not needed for throttle
       dynamic "ban_threshold" {
-        for_each = each.value["action"] == "rate_based_ban" && lookup(each.value["rate_limit_options"], "ban_http_request_count", null) != null && lookup(each.value["rate_limit_options"], "ban_http_request_interval_sec", null) != null ? ["ban_threshold"] : []
+        for_each = (
+          each.value.action == "rate_based_ban" &&
+          try(each.value.rate_limit_options.ban_http_request_count, null) != null &&
+          try(each.value.rate_limit_options.ban_http_request_interval_sec, null) != null
+        ) ? ["ban_threshold"] : []
         content {
-          count        = lookup(each.value["rate_limit_options"], "ban_http_request_count")
-          interval_sec = lookup(each.value["rate_limit_options"], "ban_http_request_interval_sec")
+          count        = each.value.rate_limit_options.ban_http_request_count
+          interval_sec = each.value.rate_limit_options.ban_http_request_interval_sec
         }
       }
     }
@@ -317,28 +283,28 @@ resource "google_compute_region_security_policy_rule" "pre_configured_rules" {
           target_rule_set = exclusion.value.target_rule_set
           target_rule_ids = exclusion.value.target_rule_ids
           dynamic "request_header" {
-            for_each = exclusion.value.request_header == null ? {} : { for x in exclusion.value.request_header : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+            for_each = exclusion.value.request_header != null ? exclusion.value.request_header : []
             content {
               operator = request_header.value.operator
               value    = request_header.value.operator == "EQUALS_ANY" ? null : request_header.value.value
             }
           }
           dynamic "request_cookie" {
-            for_each = exclusion.value.request_cookie == null ? {} : { for x in exclusion.value.request_cookie : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+            for_each = exclusion.value.request_cookie != null ? exclusion.value.request_cookie : []
             content {
               operator = request_cookie.value.operator
               value    = request_cookie.value.operator == "EQUALS_ANY" ? null : request_cookie.value.value
             }
           }
           dynamic "request_uri" {
-            for_each = exclusion.value.request_uri == null ? {} : { for x in exclusion.value.request_uri : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+            for_each = exclusion.value.request_uri != null ? exclusion.value.request_uri : []
             content {
               operator = request_uri.value.operator
               value    = request_uri.value.operator == "EQUALS_ANY" ? null : request_uri.value.value
             }
           }
           dynamic "request_query_param" {
-            for_each = exclusion.value.request_query_param == null ? {} : { for x in exclusion.value.request_query_param : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+            for_each = exclusion.value.request_query_param != null ? exclusion.value.request_query_param : []
             content {
               operator = request_query_param.value.operator
               value    = request_query_param.value.operator == "EQUALS_ANY" ? null : request_query_param.value.value
@@ -361,7 +327,7 @@ resource "google_compute_region_security_policy_rule" "default_rule" {
   security_policy = google_compute_region_security_policy.security_policy.name
   description     = "default rule"
   action          = var.default_rule_action
-  priority        = "2147483647"
+  priority        = 2147483647
   match {
     versioned_expr = "SRC_IPS_V1"
     config {

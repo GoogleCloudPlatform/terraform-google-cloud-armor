@@ -63,15 +63,15 @@ spec:
       - name: name
         description: Name of regional security policy. Name must be 1-63 characters long and match the regular expression a-z? which means the first character must be a lowercase letter, and all following characters must be a dash, lowercase letter, or digit, except the last character, which cannot be a dash
         varType: string
-        defaultValue: adv-network-ddos-protection
+        defaultValue: regional-backend-security-policy
       - name: type
         description: Type indicates the intended use of the security policy. Possible values are CLOUD_ARMOR and CLOUD_ARMOR_EDGE.
         varType: string
         defaultValue: CLOUD_ARMOR
       - name: description
-        description: An optional description of advanced network ddos protection security policy
+        description: An optional description of the regional backend security policy
         varType: string
-        defaultValue: CA Advance DDoS protection
+        defaultValue: Regional backend security policy
       - name: json_parsing
         description: "JSON body parsing. Possible values are: DISABLED, STANDARD, STANDARD_WITH_GRAPHQL"
         varType: string
@@ -219,7 +219,7 @@ spec:
         defaultValue: allow
     outputs:
       - name: policy
-        description: Regional network Security policy created
+        description: Regional backend security policy created
       - name: security_rules
         description: Security policy rules created
   requirements:
@@ -244,6 +244,6 @@ spec:
       - networksecurity.googleapis.com
     providerVersions:
       - source: hashicorp/google
-        version: ">= 6.49, < 8"
+        version: ">= 6.49, < 9"
       - source: hashicorp/google-beta
-        version: ">= 6.49, < 8"
+        version: ">= 6.49, < 9"

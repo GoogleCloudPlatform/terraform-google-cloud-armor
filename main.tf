@@ -15,52 +15,114 @@
  */
 
 locals {
-  ### find all the preconfigured rule with no include or exclude expression
-  pre_configured_rules_no_cond_expr = { for name, policy in var.pre_configured_rules : name => {
-    expression = "evaluatePreconfiguredWaf('${policy["target_rule_set"]}', {'sensitivity': ${policy["sensitivity_level"]}})"
-    } if length(policy["include_target_rule_ids"]) == 0 && length(policy["exclude_target_rule_ids"]) == 0
+  pre_configured_rules_expr = {
+    for name, p in var.pre_configured_rules : name => (
+      length(p.include_target_rule_ids) > 0
+      ? "evaluatePreconfiguredWaf('${p.target_rule_set}', {'sensitivity': 0, 'opt_in_rule_ids': ['${join("','", p.include_target_rule_ids)}']})"
+      : length(p.exclude_target_rule_ids) > 0
+      ? "evaluatePreconfiguredWaf('${p.target_rule_set}', {'sensitivity': ${p.sensitivity_level}, 'opt_out_rule_ids': ['${join("','", p.exclude_target_rule_ids)}']})"
+      : "evaluatePreconfiguredWaf('${p.target_rule_set}', {'sensitivity': ${p.sensitivity_level}})"
+    )
   }
 
-  ### find all the preconfigured rule with include (Opt In rules) expression
-  pre_configured_rules_include = { for name, policy in var.pre_configured_rules : name => {
-    target_rule_set         = policy.target_rule_set
-    include_target_rule_ids = replace(join(",", policy.include_target_rule_ids), ",", "','")
-    sensitivity_level       = policy.sensitivity_level
-    action                  = policy.action
-    priority                = 0
-    description             = policy.description
-    preview                 = policy.preview
-    redirect_type           = policy.redirect_type
-    redirect_target         = policy.redirect_target
-    rate_limit_options      = policy.rate_limit_options
-    } if length(policy["include_target_rule_ids"]) > 0
-  }
-
-  pre_configured_rules_include_expr = { for name, policy in local.pre_configured_rules_include : name => {
-    expression = "evaluatePreconfiguredWaf('${policy["target_rule_set"]}', {'sensitivity': 0, 'opt_in_rule_ids': ['${policy.include_target_rule_ids}']})"
-    }
-  }
-
-  ### find all the preconfigured rule with Exclude (Opt out rules) expression
-  pre_configured_rules_exclude = { for name, policy in var.pre_configured_rules : name => {
-    target_rule_set         = policy.target_rule_set
-    exclude_target_rule_ids = replace(join(",", policy.exclude_target_rule_ids), ",", "','")
-    sensitivity_level       = policy.sensitivity_level
-    action                  = policy.action
-    priority                = policy.priority
-    description             = policy.description
-    preview                 = policy.preview
-    redirect_type           = policy.redirect_type
-    redirect_target         = policy.redirect_target
-    rate_limit_options      = policy.rate_limit_options
-    } if length(policy["include_target_rule_ids"]) == 0 && length(policy["exclude_target_rule_ids"]) > 0
-  }
-  pre_configured_rules_exclude_expr = { for name, policy in local.pre_configured_rules_exclude : name => {
-    expression = "evaluatePreconfiguredWaf('${policy["target_rule_set"]}', {'sensitivity': ${policy.sensitivity_level}, 'opt_out_rule_ids': ['${policy.exclude_target_rule_ids}']})"
-    }
-  }
-  ## Combine all the preconfigured rules
-  pre_configured_rules_expr = merge(local.pre_configured_rules_no_cond_expr, local.pre_configured_rules_include_expr, local.pre_configured_rules_exclude_expr)
+  # Normalize all 5 dynamic rule types into a single schema
+  all_rules = merge(
+    # 1. Preconfigured WAF Rules
+    {
+      for k, r in var.pre_configured_rules : "pre_configured/${k}" => {
+        action                              = r.action
+        priority                            = r.priority
+        preview                             = r.preview
+        description                         = r.description
+        versioned_expr                      = null
+        src_ip_ranges                       = null
+        expression                          = local.pre_configured_rules_expr[k]
+        recaptcha_action_token_site_keys    = null
+        recaptcha_session_token_site_keys   = null
+        header_action                       = r.header_action
+        redirect_type                       = r.redirect_type
+        redirect_target                     = r.redirect_target
+        rate_limit_options                  = r.rate_limit_options
+        preconfigured_waf_config_exclusions = r.preconfigured_waf_config_exclusions
+      }
+    },
+    # 2. IP Security Rules
+    {
+      for k, r in var.security_rules : "security/${k}" => {
+        action                              = r.action
+        priority                            = r.priority
+        preview                             = r.preview
+        description                         = r.description
+        versioned_expr                      = "SRC_IPS_V1"
+        src_ip_ranges                       = r.src_ip_ranges
+        expression                          = null
+        recaptcha_action_token_site_keys    = null
+        recaptcha_session_token_site_keys   = null
+        header_action                       = r.header_action
+        redirect_type                       = r.redirect_type
+        redirect_target                     = r.redirect_target
+        rate_limit_options                  = r.rate_limit_options
+        preconfigured_waf_config_exclusions = null
+      }
+    },
+    # 3. Custom CEL Expression Rules
+    {
+      for k, r in var.custom_rules : "custom/${k}" => {
+        action                              = r.action
+        priority                            = r.priority
+        preview                             = r.preview
+        description                         = r.description
+        versioned_expr                      = null
+        src_ip_ranges                       = null
+        expression                          = r.expression
+        recaptcha_action_token_site_keys    = try(r.recaptcha_action_token_site_keys, null)
+        recaptcha_session_token_site_keys   = try(r.recaptcha_session_token_site_keys, null)
+        header_action                       = r.header_action
+        redirect_type                       = r.redirect_type
+        redirect_target                     = r.redirect_target
+        rate_limit_options                  = r.rate_limit_options
+        preconfigured_waf_config_exclusions = r.preconfigured_waf_config_exclusions
+      }
+    },
+    # 4. Threat Intelligence Rules
+    {
+      for k, r in var.threat_intelligence_rules : "threat_intel/${k}" => {
+        action                              = r.action
+        priority                            = r.priority
+        preview                             = r.preview
+        description                         = r.description
+        versioned_expr                      = null
+        src_ip_ranges                       = null
+        expression                          = try(r.exclude_ip, null) == null ? "evaluateThreatIntelligence('${r.feed}')" : "evaluateThreatIntelligence('${r.feed}', ${r.exclude_ip})"
+        recaptcha_action_token_site_keys    = null
+        recaptcha_session_token_site_keys   = null
+        header_action                       = r.header_action
+        redirect_type                       = null
+        redirect_target                     = null
+        rate_limit_options                  = r.rate_limit_options
+        preconfigured_waf_config_exclusions = null
+      }
+    },
+    # 5. Adaptive Protection Auto-Deploy Rule
+    var.layer_7_ddos_defense_enable && var.adaptive_protection_auto_deploy.enable && var.type != "CLOUD_ARMOR_EDGE" ? {
+      "auto_deploy" = {
+        action                              = var.adaptive_protection_auto_deploy.action
+        priority                            = var.adaptive_protection_auto_deploy.priority
+        preview                             = var.adaptive_protection_auto_deploy.preview
+        description                         = var.adaptive_protection_auto_deploy.description
+        versioned_expr                      = null
+        src_ip_ranges                       = null
+        expression                          = "evaluateAdaptiveProtectionAutoDeploy()"
+        recaptcha_action_token_site_keys    = null
+        recaptcha_session_token_site_keys   = null
+        header_action                       = []
+        redirect_type                       = var.adaptive_protection_auto_deploy.redirect_type
+        redirect_target                     = var.adaptive_protection_auto_deploy.redirect_target
+        rate_limit_options                  = var.adaptive_protection_auto_deploy.rate_limit_options
+        preconfigured_waf_config_exclusions = null
+      }
+    } : {}
+  )
 }
 
 resource "google_compute_security_policy" "policy" {
@@ -96,259 +158,49 @@ resource "google_compute_security_policy" "policy" {
     }
   }
 
-  ##### Preconfigured WAF Rules
-
+  ##### All Configured Rules (Preconfigured, IP, Custom, Threat Intel, Auto-Deploy)
   dynamic "rule" {
-    for_each = var.pre_configured_rules
+    for_each = local.all_rules
     content {
-      action      = rule.value["action"]
-      priority    = rule.value["priority"]
-      preview     = rule.value["preview"]
-      description = rule.value["description"]
+      action      = rule.value.action
+      priority    = rule.value.priority
+      preview     = rule.value.preview
+      description = rule.value.description
 
       match {
-        expr {
-          expression = local.pre_configured_rules_expr[rule.key].expression
-        }
-      }
+        versioned_expr = rule.value.versioned_expr
 
-      # Header Action Block. Only if header_action is provided
-      dynamic "header_action" {
-        for_each = length(rule.value["header_action"]) == 0 ? [] : ["header_action"]
-        content {
-          dynamic "request_headers_to_adds" {
-            for_each = { for x in rule.value["header_action"] : x.header_name => x }
-            content {
-              header_name  = request_headers_to_adds.value.header_name
-              header_value = request_headers_to_adds.value.header_value
-            }
+        dynamic "config" {
+          for_each = rule.value.src_ip_ranges != null ? ["config"] : []
+          content {
+            src_ip_ranges = rule.value.src_ip_ranges
           }
         }
-      }
 
-      ### Redirect option
-      dynamic "redirect_options" {
-        for_each = rule.value["action"] == "redirect" ? ["redirect"] : []
-        content {
-          type   = rule.value["redirect_type"]
-          target = rule.value["redirect_type"] == "EXTERNAL_302" ? rule.value["redirect_target"] : null
-        }
-      }
-
-      ### Rate limit. Execute only if Action is "rate_based_ban" or "throttle"
-      dynamic "rate_limit_options" {
-        for_each = rule.value["action"] == "rate_based_ban" || rule.value["action"] == "throttle" ? ["rate_limits"] : []
-        content {
-          conform_action      = "allow"
-          ban_duration_sec    = rule.value["action"] == "rate_based_ban" ? lookup(rule.value["rate_limit_options"], "ban_duration_sec") : null
-          exceed_action       = lookup(rule.value["rate_limit_options"], "exceed_action")
-          enforce_on_key      = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key", null) : ""
-          enforce_on_key_name = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key_name", null) : null
-
-          dynamic "enforce_on_key_configs" {
-            for_each = coalesce(try(rule.value.rate_limit_options.enforce_on_key_configs, null), [])
-            content {
-              enforce_on_key_type = enforce_on_key_configs.value.enforce_on_key_type
-              enforce_on_key_name = try(enforce_on_key_configs.value.enforce_on_key_name, null)
-            }
-          }
-
-          ## Required for all rate limit options
-          dynamic "rate_limit_threshold" {
-            for_each = rule.value["action"] == "rate_based_ban" || rule.value["action"] == "throttle" ? ["rate_limit_options"] : []
-            content {
-              count        = rule.value["rate_limit_options"].rate_limit_http_request_count
-              interval_sec = rule.value["rate_limit_options"].rate_limit_http_request_interval_sec
-            }
-          }
-
-          ## Optional. Can be provided for for rate based ban. Not needed for throttle
-          dynamic "ban_threshold" {
-            for_each = rule.value["action"] == "rate_based_ban" && lookup(rule.value["rate_limit_options"], "ban_http_request_count", null) != null && lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec", null) != null ? ["ban_threshold"] : []
-            content {
-              count        = lookup(rule.value["rate_limit_options"], "ban_http_request_count")
-              interval_sec = lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec")
-            }
-          }
-
-          dynamic "exceed_redirect_options" {
-            for_each = lookup(rule.value["rate_limit_options"], "exceed_redirect_options", null) != null ? ["exceed_redirect_options"] : []
-            content {
-              type   = rule.value["rate_limit_options"].exceed_redirect_options.type
-              target = lookup(rule.value["rate_limit_options"].exceed_redirect_options, "target", null)
-            }
-          }
-
-        }
-      }
-
-      # Optional preconfigured_waf_config Block if preconfigured_waf_config_exclusion is provided
-      dynamic "preconfigured_waf_config" {
-        for_each = rule.value.preconfigured_waf_config_exclusions == null ? [] : ["preconfigured_waf_config_exclusions"] #rule.value.preconfigured_waf_config_exclusions
-        content {
-          dynamic "exclusion" {
-            for_each = rule.value.preconfigured_waf_config_exclusions
-            content {
-              target_rule_set = exclusion.value.target_rule_set
-              target_rule_ids = exclusion.value.target_rule_ids
-              dynamic "request_header" {
-                for_each = exclusion.value.request_header == null ? {} : { for x in exclusion.value.request_header : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
-                content {
-                  operator = request_header.value.operator
-                  value    = request_header.value.operator == "EQUALS_ANY" ? null : request_header.value.value
-                }
-              }
-              dynamic "request_cookie" {
-                for_each = exclusion.value.request_cookie == null ? {} : { for x in exclusion.value.request_cookie : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
-                content {
-                  operator = request_cookie.value.operator
-                  value    = request_cookie.value.operator == "EQUALS_ANY" ? null : request_cookie.value.value
-                }
-              }
-              dynamic "request_uri" {
-                for_each = exclusion.value.request_uri == null ? {} : { for x in exclusion.value.request_uri : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
-                content {
-                  operator = request_uri.value.operator
-                  value    = request_uri.value.operator == "EQUALS_ANY" ? null : request_uri.value.value
-                }
-              }
-              dynamic "request_query_param" {
-                for_each = exclusion.value.request_query_param == null ? {} : { for x in exclusion.value.request_query_param : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
-                content {
-                  operator = request_query_param.value.operator
-                  value    = request_query_param.value.operator == "EQUALS_ANY" ? null : request_query_param.value.value
-                }
-              }
-            }
-          }
-
-        }
-      }
-
-    }
-  }
-
-
-  ##### Security Rules IP
-
-  dynamic "rule" {
-    for_each = var.security_rules
-    content {
-      action      = rule.value["action"]
-      priority    = rule.value["priority"]
-      preview     = rule.value["preview"]
-      description = rule.value["description"]
-      match {
-        versioned_expr = "SRC_IPS_V1"
-        config {
-          src_ip_ranges = rule.value["src_ip_ranges"]
-        }
-      }
-
-      # Header Action Block. Only if header_action is provided
-      dynamic "header_action" {
-        for_each = length(rule.value["header_action"]) == 0 ? [] : ["header_action"]
-        content {
-          dynamic "request_headers_to_adds" {
-            for_each = { for x in rule.value["header_action"] : x.header_name => x }
-            content {
-              header_name  = request_headers_to_adds.value.header_name
-              header_value = request_headers_to_adds.value.header_value
-            }
+        dynamic "expr" {
+          for_each = rule.value.expression != null ? ["expr"] : []
+          content {
+            expression = rule.value.expression
           }
         }
-      }
 
-      ### Redirect option. Execute only if Action is "redirect"
-      dynamic "redirect_options" {
-        for_each = rule.value["action"] == "redirect" ? ["redirect"] : []
-        content {
-          type   = rule.value["redirect_type"]
-          target = rule.value["redirect_type"] == "EXTERNAL_302" ? rule.value["redirect_target"] : null
-        }
-      }
-
-      ### Rate limit. Execute only if Action is "rate_based_ban" or "throttle"
-      dynamic "rate_limit_options" {
-        for_each = rule.value["action"] == "rate_based_ban" || rule.value["action"] == "throttle" ? ["rate_limits"] : []
-        content {
-          conform_action      = "allow"
-          ban_duration_sec    = rule.value["action"] == "rate_based_ban" ? lookup(rule.value["rate_limit_options"], "ban_duration_sec") : null
-          exceed_action       = lookup(rule.value["rate_limit_options"], "exceed_action")
-          enforce_on_key      = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key", null) : ""
-          enforce_on_key_name = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key_name", null) : null
-
-          dynamic "enforce_on_key_configs" {
-            for_each = coalesce(try(rule.value.rate_limit_options.enforce_on_key_configs, null), [])
-            content {
-              enforce_on_key_type = enforce_on_key_configs.value.enforce_on_key_type
-              enforce_on_key_name = try(enforce_on_key_configs.value.enforce_on_key_name, null)
-            }
-          }
-
-          ## Required for all rate limit options
-          dynamic "rate_limit_threshold" {
-            for_each = rule.value["action"] == "rate_based_ban" || rule.value["action"] == "throttle" ? ["rate_limit_options"] : []
-            content {
-              count        = rule.value["rate_limit_options"].rate_limit_http_request_count
-              interval_sec = rule.value["rate_limit_options"].rate_limit_http_request_interval_sec
-            }
-          }
-
-          ## Optional. Can be provided for for rate based ban. Not needed for throttle
-          dynamic "ban_threshold" {
-            for_each = rule.value["action"] == "rate_based_ban" && lookup(rule.value["rate_limit_options"], "ban_http_request_count", null) != null && lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec", null) != null ? ["ban_threshold"] : []
-            content {
-              count        = lookup(rule.value["rate_limit_options"], "ban_http_request_count")
-              interval_sec = lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec")
-            }
-          }
-
-          dynamic "exceed_redirect_options" {
-            for_each = lookup(rule.value["rate_limit_options"], "exceed_redirect_options", null) != null ? ["exceed_redirect_options"] : []
-            content {
-              type   = rule.value["rate_limit_options"].exceed_redirect_options.type
-              target = lookup(rule.value["rate_limit_options"].exceed_redirect_options, "target", null)
-            }
-          }
-
-        }
-      }
-
-    }
-  }
-
-  ##### Custom Rules
-
-  dynamic "rule" {
-    for_each = var.custom_rules
-    content {
-      action      = rule.value["action"]
-      priority    = rule.value["priority"]
-      preview     = rule.value["preview"]
-      description = rule.value["description"]
-
-      match {
-        expr {
-          expression = rule.value["expression"]
-        }
         dynamic "expr_options" {
-          for_each = try(rule.value.recaptcha_action_token_site_keys, null) == null && try(rule.value.recaptcha_session_token_site_keys, null) == null ? [] : ["expr_options"]
+          for_each = rule.value.recaptcha_action_token_site_keys != null || rule.value.recaptcha_session_token_site_keys != null ? ["expr_options"] : []
           content {
             recaptcha_options {
-              action_token_site_keys  = try(rule.value.recaptcha_action_token_site_keys, null)
-              session_token_site_keys = try(rule.value.recaptcha_session_token_site_keys, null)
+              action_token_site_keys  = rule.value.recaptcha_action_token_site_keys
+              session_token_site_keys = rule.value.recaptcha_session_token_site_keys
             }
           }
         }
       }
 
-      # Header Action Block. Only if header_action is provided
+      # Header Action Block
       dynamic "header_action" {
-        for_each = length(rule.value["header_action"]) == 0 ? [] : ["header_action"]
+        for_each = length(rule.value.header_action) > 0 ? ["header_action"] : []
         content {
           dynamic "request_headers_to_adds" {
-            for_each = { for x in rule.value["header_action"] : x.header_name => x }
+            for_each = rule.value.header_action
             content {
               header_name  = request_headers_to_adds.value.header_name
               header_value = request_headers_to_adds.value.header_value
@@ -357,94 +209,93 @@ resource "google_compute_security_policy" "policy" {
         }
       }
 
-      # Redirect option block
+      # Redirect Options Block
       dynamic "redirect_options" {
-        for_each = rule.value["action"] == "redirect" ? ["redirect"] : []
+        for_each = rule.value.action == "redirect" ? ["redirect"] : []
         content {
-          type   = rule.value["redirect_type"]
-          target = rule.value["redirect_type"] == "EXTERNAL_302" ? rule.value["redirect_target"] : null
+          type   = rule.value.redirect_type
+          target = rule.value.redirect_type == "EXTERNAL_302" ? rule.value.redirect_target : null
         }
       }
 
-      ### Rate limit. Execute only if Action is "rate_based_ban" or "throttle"
+      # Rate Limit Options Block
       dynamic "rate_limit_options" {
-        for_each = rule.value["action"] == "rate_based_ban" || rule.value["action"] == "throttle" ? ["rate_limits"] : []
+        for_each = contains(["rate_based_ban", "throttle"], rule.value.action) ? ["rate_limits"] : []
         content {
           conform_action      = "allow"
-          ban_duration_sec    = rule.value["action"] == "rate_based_ban" ? lookup(rule.value["rate_limit_options"], "ban_duration_sec") : null
-          exceed_action       = lookup(rule.value["rate_limit_options"], "exceed_action")
-          enforce_on_key      = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key", null) : ""
-          enforce_on_key_name = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key_name", null) : null
+          ban_duration_sec    = rule.value.action == "rate_based_ban" ? try(rule.value.rate_limit_options.ban_duration_sec, null) : null
+          exceed_action       = try(rule.value.rate_limit_options.exceed_action, null)
+          enforce_on_key      = try(rule.value.rate_limit_options.enforce_on_key_configs, null) == null ? try(rule.value.rate_limit_options.enforce_on_key, null) : ""
+          enforce_on_key_name = try(rule.value.rate_limit_options.enforce_on_key_configs, null) == null ? try(rule.value.rate_limit_options.enforce_on_key_name, null) : null
 
           dynamic "enforce_on_key_configs" {
-            for_each = coalesce(try(rule.value.rate_limit_options.enforce_on_key_configs, null), [])
+            for_each = try(rule.value.rate_limit_options.enforce_on_key_configs, null) != null ? rule.value.rate_limit_options.enforce_on_key_configs : []
             content {
               enforce_on_key_type = enforce_on_key_configs.value.enforce_on_key_type
               enforce_on_key_name = try(enforce_on_key_configs.value.enforce_on_key_name, null)
             }
           }
 
-          ## Required for all rate limit options
-          dynamic "rate_limit_threshold" {
-            for_each = rule.value["action"] == "rate_based_ban" || rule.value["action"] == "throttle" ? ["rate_limit_options"] : []
-            content {
-              count        = rule.value["rate_limit_options"].rate_limit_http_request_count
-              interval_sec = rule.value["rate_limit_options"].rate_limit_http_request_interval_sec
-            }
+          rate_limit_threshold {
+            count        = rule.value.rate_limit_options.rate_limit_http_request_count
+            interval_sec = rule.value.rate_limit_options.rate_limit_http_request_interval_sec
           }
 
-          ## Optional. Can be provided for for rate based ban. Not needed for throttle
           dynamic "ban_threshold" {
-            for_each = rule.value["action"] == "rate_based_ban" && lookup(rule.value["rate_limit_options"], "ban_http_request_count", null) != null && lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec", null) != null ? ["ban_threshold"] : []
+            for_each = (
+              rule.value.action == "rate_based_ban" &&
+              try(rule.value.rate_limit_options.ban_http_request_count, null) != null &&
+              try(rule.value.rate_limit_options.ban_http_request_interval_sec, null) != null
+            ) ? ["ban_threshold"] : []
             content {
-              count        = lookup(rule.value["rate_limit_options"], "ban_http_request_count")
-              interval_sec = lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec")
+              count        = rule.value.rate_limit_options.ban_http_request_count
+              interval_sec = rule.value.rate_limit_options.ban_http_request_interval_sec
             }
           }
 
           dynamic "exceed_redirect_options" {
-            for_each = lookup(rule.value["rate_limit_options"], "exceed_redirect_options", null) != null ? ["exceed_redirect_options"] : []
+            for_each = try(rule.value.rate_limit_options.exceed_redirect_options, null) != null ? ["exceed_redirect_options"] : []
             content {
-              type   = rule.value["rate_limit_options"].exceed_redirect_options.type
-              target = lookup(rule.value["rate_limit_options"].exceed_redirect_options, "target", null)
+              type   = rule.value.rate_limit_options.exceed_redirect_options.type
+              target = try(rule.value.rate_limit_options.exceed_redirect_options.target, null)
             }
           }
-
         }
       }
 
-      # Optional preconfigured_waf_config Block if preconfigured_waf_config_exclusion is provided
+      # Preconfigured WAF Config Exclusions Block
       dynamic "preconfigured_waf_config" {
-        for_each = rule.value.preconfigured_waf_config_exclusions == null ? [] : ["preconfigured_waf_config_exclusions"] #rule.value.preconfigured_waf_config_exclusions
+        for_each = rule.value.preconfigured_waf_config_exclusions != null ? ["preconfigured_waf_config"] : []
         content {
           dynamic "exclusion" {
             for_each = rule.value.preconfigured_waf_config_exclusions
             content {
               target_rule_set = exclusion.value.target_rule_set
               target_rule_ids = exclusion.value.target_rule_ids
+
               dynamic "request_header" {
-                for_each = exclusion.value.request_header == null ? {} : { for x in exclusion.value.request_header : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+                for_each = exclusion.value.request_header != null ? exclusion.value.request_header : []
                 content {
                   operator = request_header.value.operator
                   value    = request_header.value.operator == "EQUALS_ANY" ? null : request_header.value.value
                 }
               }
               dynamic "request_cookie" {
-                for_each = exclusion.value.request_cookie == null ? {} : { for x in exclusion.value.request_cookie : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+                for_each = exclusion.value.request_cookie != null ? exclusion.value.request_cookie : []
                 content {
                   operator = request_cookie.value.operator
                   value    = request_cookie.value.operator == "EQUALS_ANY" ? null : request_cookie.value.value
                 }
               }
               dynamic "request_uri" {
-                for_each = exclusion.value.request_uri == null ? {} : { for x in exclusion.value.request_uri : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+                for_each = exclusion.value.request_uri != null ? exclusion.value.request_uri : []
                 content {
                   operator = request_uri.value.operator
                   value    = request_uri.value.operator == "EQUALS_ANY" ? null : request_uri.value.value
                 }
               }
               dynamic "request_query_param" {
-                for_each = exclusion.value.request_query_param == null ? {} : { for x in exclusion.value.request_query_param : "${x.operator}-${base64encode(coalesce(x.value, "test"))}" => x }
+                for_each = exclusion.value.request_query_param != null ? exclusion.value.request_query_param : []
                 content {
                   operator = request_query_param.value.operator
                   value    = request_query_param.value.operator == "EQUALS_ANY" ? null : request_query_param.value.value
@@ -452,88 +303,6 @@ resource "google_compute_security_policy" "policy" {
               }
             }
           }
-
-        }
-      }
-
-
-    }
-  }
-
-  ##### Threat Intelligence Rules
-
-  dynamic "rule" {
-    for_each = var.threat_intelligence_rules
-    content {
-      action      = rule.value["action"]
-      priority    = rule.value["priority"]
-      preview     = rule.value["preview"]
-      description = rule.value["description"]
-
-      match {
-        expr {
-          expression = lookup(rule.value, "exclude_ip", null) == null ? "evaluateThreatIntelligence('${rule.value["feed"]}')" : "evaluateThreatIntelligence('${rule.value["feed"]}', ${rule.value["exclude_ip"]})"
-        }
-      }
-
-      # Header Action Block. Only if header_action is provided
-      dynamic "header_action" {
-        for_each = length(rule.value["header_action"]) == 0 ? [] : ["header_action"]
-        content {
-          dynamic "request_headers_to_adds" {
-            for_each = { for x in rule.value["header_action"] : x.header_name => x }
-            content {
-              header_name  = request_headers_to_adds.value.header_name
-              header_value = request_headers_to_adds.value.header_value
-            }
-          }
-        }
-      }
-
-      ### Rate limit. Execute only if Action is "rate_based_ban" or "throttle"
-      dynamic "rate_limit_options" {
-        for_each = rule.value["action"] == "rate_based_ban" || rule.value["action"] == "throttle" ? ["rate_limits"] : []
-        content {
-          conform_action      = "allow"
-          ban_duration_sec    = rule.value["action"] == "rate_based_ban" ? lookup(rule.value["rate_limit_options"], "ban_duration_sec") : null
-          exceed_action       = lookup(rule.value["rate_limit_options"], "exceed_action")
-          enforce_on_key      = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key", null) : null
-          enforce_on_key_name = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key_name", null) : null
-
-          dynamic "enforce_on_key_configs" {
-            for_each = coalesce(try(rule.value.rate_limit_options.enforce_on_key_configs, null), [])
-            content {
-              enforce_on_key_type = enforce_on_key_configs.value.enforce_on_key_type
-              enforce_on_key_name = try(enforce_on_key_configs.value.enforce_on_key_name, null)
-            }
-          }
-
-          ## Required for all rate limit options
-          dynamic "rate_limit_threshold" {
-            for_each = rule.value["action"] == "rate_based_ban" || rule.value["action"] == "throttle" ? ["rate_limit_options"] : []
-            content {
-              count        = rule.value["rate_limit_options"].rate_limit_http_request_count
-              interval_sec = rule.value["rate_limit_options"].rate_limit_http_request_interval_sec
-            }
-          }
-
-          ## Optional. Can be provided for for rate based ban. Not needed for throttle
-          dynamic "ban_threshold" {
-            for_each = rule.value["action"] == "rate_based_ban" && lookup(rule.value["rate_limit_options"], "ban_http_request_count", null) != null && lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec", null) != null ? ["ban_threshold"] : []
-            content {
-              count        = lookup(rule.value["rate_limit_options"], "ban_http_request_count")
-              interval_sec = lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec")
-            }
-          }
-
-          dynamic "exceed_redirect_options" {
-            for_each = lookup(rule.value["rate_limit_options"], "exceed_redirect_options", null) != null ? ["exceed_redirect_options"] : []
-            content {
-              type   = rule.value["rate_limit_options"].exceed_redirect_options.type
-              target = lookup(rule.value["rate_limit_options"].exceed_redirect_options, "target", null)
-            }
-          }
-
         }
       }
     }
@@ -543,7 +312,7 @@ resource "google_compute_security_policy" "policy" {
   ##### Default Rule
   rule {
     action      = var.default_rule_action
-    priority    = "2147483647"
+    priority    = 2147483647
     description = "Default rule, higher priority overrides it"
     match {
       versioned_expr = "SRC_IPS_V1"
@@ -561,113 +330,36 @@ resource "google_compute_security_policy" "policy" {
         enable          = var.layer_7_ddos_defense_enable
         rule_visibility = var.layer_7_ddos_defense_rule_visibility
         dynamic "threshold_configs" {
-          for_each = var.layer_7_ddos_defense_enable ? { for x in coalesce(var.layer_7_ddos_defense_threshold_configs, []) : x.name => x } : {}
+          for_each = var.layer_7_ddos_defense_enable && var.layer_7_ddos_defense_threshold_configs != null ? var.layer_7_ddos_defense_threshold_configs : []
           content {
-            name                                    = threshold_configs.value["name"]
-            auto_deploy_load_threshold              = threshold_configs.value["auto_deploy_load_threshold"]
-            auto_deploy_confidence_threshold        = threshold_configs.value["auto_deploy_confidence_threshold"]
-            auto_deploy_impacted_baseline_threshold = threshold_configs.value["auto_deploy_impacted_baseline_threshold"]
-            auto_deploy_expiration_sec              = threshold_configs.value["auto_deploy_expiration_sec"]
-            detection_load_threshold                = threshold_configs.value["detection_load_threshold"]
-            detection_absolute_qps                  = threshold_configs.value["detection_absolute_qps"]
-            detection_relative_to_baseline_qps      = threshold_configs.value["detection_relative_to_baseline_qps"]
+            name                                    = threshold_configs.value.name
+            auto_deploy_load_threshold              = threshold_configs.value.auto_deploy_load_threshold
+            auto_deploy_confidence_threshold        = threshold_configs.value.auto_deploy_confidence_threshold
+            auto_deploy_impacted_baseline_threshold = threshold_configs.value.auto_deploy_impacted_baseline_threshold
+            auto_deploy_expiration_sec              = threshold_configs.value.auto_deploy_expiration_sec
+            detection_load_threshold                = threshold_configs.value.detection_load_threshold
+            detection_absolute_qps                  = threshold_configs.value.detection_absolute_qps
+            detection_relative_to_baseline_qps      = threshold_configs.value.detection_relative_to_baseline_qps
             dynamic "traffic_granularity_configs" {
-              for_each = threshold_configs.value["traffic_granularity_configs"] == null ? {} : { for x in threshold_configs.value["traffic_granularity_configs"] : x.type => x }
+              for_each = threshold_configs.value.traffic_granularity_configs != null ? threshold_configs.value.traffic_granularity_configs : []
               content {
-                type                     = traffic_granularity_configs.value["type"]
-                value                    = traffic_granularity_configs.value["value"]
-                enable_each_unique_value = traffic_granularity_configs.value["enable_each_unique_value"]
+                type                     = traffic_granularity_configs.value.type
+                value                    = traffic_granularity_configs.value.value
+                enable_each_unique_value = traffic_granularity_configs.value.enable_each_unique_value
               }
             }
           }
         }
       }
       dynamic "auto_deploy_config" {
-        for_each = var.adaptive_protection_auto_deploy.enable && (var.adaptive_protection_auto_deploy.load_threshold != null || var.adaptive_protection_auto_deploy.confidence_threshold != null || var.adaptive_protection_auto_deploy.impacted_baseline_threshold != null || var.adaptive_protection_auto_deploy.expiration_sec != null) ? { auto_deploy = var.adaptive_protection_auto_deploy } : {}
+        for_each = var.adaptive_protection_auto_deploy.enable && (var.adaptive_protection_auto_deploy.load_threshold != null || var.adaptive_protection_auto_deploy.confidence_threshold != null || var.adaptive_protection_auto_deploy.impacted_baseline_threshold != null || var.adaptive_protection_auto_deploy.expiration_sec != null) ? ["auto_deploy"] : []
         content {
-          load_threshold              = auto_deploy_config.value["load_threshold"]
-          confidence_threshold        = auto_deploy_config.value["confidence_threshold"]
-          impacted_baseline_threshold = auto_deploy_config.value["impacted_baseline_threshold"]
-          expiration_sec              = auto_deploy_config.value["expiration_sec"]
+          load_threshold              = var.adaptive_protection_auto_deploy.load_threshold
+          confidence_threshold        = var.adaptive_protection_auto_deploy.confidence_threshold
+          impacted_baseline_threshold = var.adaptive_protection_auto_deploy.impacted_baseline_threshold
+          expiration_sec              = var.adaptive_protection_auto_deploy.expiration_sec
         }
-
       }
     }
   }
-
-  ##### Automatic Adaptive protection rule deploy
-
-  dynamic "rule" {
-    for_each = var.layer_7_ddos_defense_enable && var.adaptive_protection_auto_deploy.enable && var.type != "CLOUD_ARMOR_EDGE" ? { auto_deploy = var.adaptive_protection_auto_deploy } : {}
-    content {
-      action      = rule.value["action"]
-      priority    = rule.value["priority"]
-      preview     = rule.value["preview"]
-      description = rule.value["description"]
-
-      match {
-        expr {
-          expression = "evaluateAdaptiveProtectionAutoDeploy()"
-        }
-      }
-
-      # Redirect option block
-      dynamic "redirect_options" {
-        for_each = rule.value["action"] == "redirect" ? ["redirect"] : []
-        content {
-          type   = rule.value["redirect_type"]
-          target = rule.value["redirect_type"] == "EXTERNAL_302" ? rule.value["redirect_target"] : null
-        }
-      }
-
-      ### Rate limit. Execute only if Action is "rate_based_ban" or "throttle"
-      dynamic "rate_limit_options" {
-        for_each = rule.value["action"] == "rate_based_ban" || rule.value["action"] == "throttle" ? ["rate_limits"] : []
-        content {
-          conform_action      = "allow"
-          ban_duration_sec    = rule.value["action"] == "rate_based_ban" ? lookup(rule.value["rate_limit_options"], "ban_duration_sec") : null
-          exceed_action       = lookup(rule.value["rate_limit_options"], "exceed_action")
-          enforce_on_key      = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key", null) : ""
-          enforce_on_key_name = lookup(rule.value["rate_limit_options"], "enforce_on_key_configs") == null ? lookup(rule.value["rate_limit_options"], "enforce_on_key_name", null) : null
-
-          dynamic "enforce_on_key_configs" {
-            for_each = coalesce(try(rule.value.rate_limit_options.enforce_on_key_configs, null), [])
-            content {
-              enforce_on_key_type = enforce_on_key_configs.value.enforce_on_key_type
-              enforce_on_key_name = try(enforce_on_key_configs.value.enforce_on_key_name, null)
-            }
-          }
-
-          ## Required for all rate limit options
-          dynamic "rate_limit_threshold" {
-            for_each = rule.value["action"] == "rate_based_ban" || rule.value["action"] == "throttle" ? ["rate_limit_options"] : []
-            content {
-              count        = rule.value["rate_limit_options"].rate_limit_http_request_count
-              interval_sec = rule.value["rate_limit_options"].rate_limit_http_request_interval_sec
-            }
-          }
-
-          ## Optional. Can be provided for for rate based ban. Not needed for throttle
-          dynamic "ban_threshold" {
-            for_each = rule.value["action"] == "rate_based_ban" && lookup(rule.value["rate_limit_options"], "ban_http_request_count", null) != null && lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec", null) != null ? ["ban_threshold"] : []
-            content {
-              count        = lookup(rule.value["rate_limit_options"], "ban_http_request_count")
-              interval_sec = lookup(rule.value["rate_limit_options"], "ban_http_request_interval_sec")
-            }
-          }
-
-          dynamic "exceed_redirect_options" {
-            for_each = lookup(rule.value["rate_limit_options"], "exceed_redirect_options", null) != null ? ["exceed_redirect_options"] : []
-            content {
-              type   = rule.value["rate_limit_options"].exceed_redirect_options.type
-              target = lookup(rule.value["rate_limit_options"].exceed_redirect_options, "target", null)
-            }
-          }
-
-        }
-      }
-
-    }
-  }
-
 }

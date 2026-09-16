@@ -16,10 +16,14 @@
 
 output "policy" {
   value       = google_compute_region_security_policy.security_policy
-  description = "Regional network Security policy created"
+  description = "Regional backend security policy created"
 }
 
 output "security_rules" {
-  value       = google_compute_region_security_policy_rule.security_rules
   description = "Security policy rules created"
+  value = merge(
+    google_compute_region_security_policy_rule.security_rules,
+    google_compute_region_security_policy_rule.custom_rules,
+    google_compute_region_security_policy_rule.pre_configured_rules,
+  )
 }

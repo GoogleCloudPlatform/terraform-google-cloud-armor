@@ -27,13 +27,13 @@ resource "google_compute_region_security_policy" "security_policy" {
   region      = var.region
 
   dynamic "user_defined_fields" {
-    for_each = var.policy_user_defined_fields == null ? [] : var.policy_user_defined_fields
+    for_each = var.policy_user_defined_fields != null ? var.policy_user_defined_fields : []
     content {
-      name   = lookup(user_defined_fields.value, "name", null)
+      name   = user_defined_fields.value.name
       base   = user_defined_fields.value.base
-      offset = lookup(user_defined_fields.value, "offset", null)
-      size   = lookup(user_defined_fields.value, "size", null)
-      mask   = lookup(user_defined_fields.value, "mask", null)
+      offset = user_defined_fields.value.offset
+      size   = user_defined_fields.value.size
+      mask   = user_defined_fields.value.mask
     }
 
   }
@@ -48,18 +48,18 @@ resource "google_compute_region_security_policy_rule" "policy_rules" {
   description     = each.value.description
   priority        = each.value.priority
   network_match {
-    src_ip_ranges    = lookup(each.value, "src_ip_ranges", [])
-    src_ports        = lookup(each.value, "src_ports", [])
-    src_asns         = lookup(each.value, "src_asns", [])
-    src_region_codes = lookup(each.value, "src_region_codes", [])
-    ip_protocols     = lookup(each.value, "ip_protocols", [])
-    dest_ports       = lookup(each.value, "dest_ports", [])
-    dest_ip_ranges   = lookup(each.value, "dest_ip_ranges", [])
+    src_ip_ranges    = each.value.src_ip_ranges
+    src_ports        = each.value.src_ports
+    src_asns         = each.value.src_asns
+    src_region_codes = each.value.src_region_codes
+    ip_protocols     = each.value.ip_protocols
+    dest_ports       = each.value.dest_ports
+    dest_ip_ranges   = each.value.dest_ip_ranges
     dynamic "user_defined_fields" {
-      for_each = lookup(each.value, "user_defined_fields", null) == null ? [] : lookup(each.value, "user_defined_fields")
+      for_each = each.value.user_defined_fields != null ? each.value.user_defined_fields : []
       content {
-        name   = lookup(user_defined_fields.value, "name", null)
-        values = lookup(user_defined_fields.value, "values", null)
+        name   = user_defined_fields.value.name
+        values = user_defined_fields.value.values
       }
     }
   }
