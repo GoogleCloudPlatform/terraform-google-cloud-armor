@@ -22,7 +22,7 @@ This module is meant for use with Terraform 1.3+ and tested using Terraform 1.3+
 
 ## Version
 
-Current version is 2.X. Upgrade guides:
+Current version is 9.X. Upgrade guides:
 
 - [0.X -> 1.0.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v1.0.md)
 - [1.X -> 2.0.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v2.0.md)
@@ -31,6 +31,8 @@ Current version is 2.X. Upgrade guides:
 - [3.X -> 4.X.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v4.0.md)
 - [4.X -> 5.X.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v5.0.md)
 - [5.X -> 6.X.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v6.0.md)
+- [7.X -> 8.X.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v8.0.md)
+- [8.X -> 9.X.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v9.0.md)
 
 ##  Module Format
 
@@ -65,7 +67,7 @@ There are examples included in the [examples](https://github.com/GoogleCloudPlat
 ```
 module "security_policy" {
   source   = "GoogleCloudPlatform/cloud-armor/google"
-  version  = "~> 8.0"
+  version  = "~> 9.0"
 
   project_id                           = var.project_id
   name                                 = "my-test-security-policy"
@@ -109,7 +111,7 @@ module "security_policy" {
 
   }
 
-  # Action against specific IP addresses or IP adress ranges
+  # Action against specific IP addresses or IP address ranges
 
   security_rules = {
 
