@@ -147,7 +147,7 @@ resource "google_compute_security_policy" "policy" {
       json_parsing                 = var.json_parsing
       log_level                    = var.log_level
       user_ip_request_headers      = var.user_ip_request_headers
-      request_body_inspection_size =  var.request_body_inspection_size != null ? upper(var.request_body_inspection_size) : null
+      request_body_inspection_size = var.request_body_inspection_size != null ? upper(var.request_body_inspection_size) : null
 
       dynamic "json_custom_config" {
         for_each = var.json_parsing == "STANDARD" && length(var.json_custom_config_content_types) > 0 ? ["json_custom_config"] : []
