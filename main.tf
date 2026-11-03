@@ -104,7 +104,7 @@ locals {
       }
     },
     # 5. Adaptive Protection Auto-Deploy Rule
-    var.layer_7_ddos_defense_enable && var.adaptive_protection_auto_deploy.enable && var.type != "CLOUD_ARMOR_EDGE" ? {
+    var.layer_7_ddos_defense_enable && var.adaptive_protection_auto_deploy.enable && var.type == "CLOUD_ARMOR" ? {
       "auto_deploy" = {
         action                              = var.adaptive_protection_auto_deploy.action
         priority                            = var.adaptive_protection_auto_deploy.priority
@@ -147,7 +147,7 @@ resource "google_compute_security_policy" "policy" {
       json_parsing                 = var.json_parsing
       log_level                    = var.log_level
       user_ip_request_headers      = var.user_ip_request_headers
-      request_body_inspection_size = var.request_body_inspection_size
+      request_body_inspection_size =  var.request_body_inspection_size != null ? upper(var.request_body_inspection_size) : null
 
       dynamic "json_custom_config" {
         for_each = var.json_parsing == "STANDARD" && length(var.json_custom_config_content_types) > 0 ? ["json_custom_config"] : []
@@ -324,7 +324,7 @@ resource "google_compute_security_policy" "policy" {
 
   # Cloud Armor Adaptive Protection is currently not supported for edge or network policies
   dynamic "adaptive_protection_config" {
-    for_each = var.type != "CLOUD_ARMOR_EDGE" ? ["adaptive_protection_config"] : []
+    for_each = var.type == "CLOUD_ARMOR" ? ["adaptive_protection_config"] : []
     content {
       layer_7_ddos_defense_config {
         enable          = var.layer_7_ddos_defense_enable

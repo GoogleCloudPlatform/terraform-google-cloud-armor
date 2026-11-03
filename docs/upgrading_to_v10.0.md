@@ -101,4 +101,4 @@ Configurations passing invalid values that previously succeeded during `terrafor
 
 #### Upgrade impact
 
-No configuration changes are required. Because `rule` blocks in `google_compute_security_policy` are unordered sets in the Terraform provider schema, no policy or rule recreation will occur.
+No configuration changes are required. Because `rule` blocks in `google_compute_security_policy` are unordered sets in the Terraform provider schema, no policy or rule recreation will occur. Note that nested ordered list blocks (`header_action`, `preconfigured_waf_config` field exclusions, `threshold_configs`, and `traffic_granularity_configs`) now preserve caller list order instead of sorting by synthetic map keys, which may produce a one-time in-place reordering update on existing policies.

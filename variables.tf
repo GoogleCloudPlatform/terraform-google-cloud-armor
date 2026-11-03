@@ -38,6 +38,7 @@ variable "default_rule_action" {
   description = "default rule that allows/denies all traffic with the lowest priority (2,147,483,647)."
   type        = string
   default     = "allow"
+  nullable    = false
   validation {
     condition     = contains(["allow", "deny(403)", "deny(404)", "deny(502)"], var.default_rule_action)
     error_message = "default_rule_action must be one of: allow, deny(403), deny(404), deny(502)."
@@ -256,6 +257,7 @@ variable "type" {
   description = "Type indicates the intended use of the security policy. Possible values are CLOUD_ARMOR, CLOUD_ARMOR_EDGE and CLOUD_ARMOR_INTERNAL_SERVICE.  This field can be set only at resource creation time."
   type        = string
   default     = "CLOUD_ARMOR"
+  nullable    = false
   validation {
     condition     = contains(["CLOUD_ARMOR", "CLOUD_ARMOR_EDGE", "CLOUD_ARMOR_INTERNAL_SERVICE"], var.type)
     error_message = "type must be either CLOUD_ARMOR, CLOUD_ARMOR_EDGE or CLOUD_ARMOR_INTERNAL_SERVICE."
@@ -346,6 +348,7 @@ variable "json_parsing" {
   description = "Whether or not to JSON parse the payload body. Possible values are DISABLED, STANDARD and STANDARD_WITH_GRAPHQL. Not supported for CLOUD_ARMOR_EDGE policy type."
   type        = string
   default     = "DISABLED"
+  nullable    = false
   validation {
     condition     = contains(["DISABLED", "STANDARD", "STANDARD_WITH_GRAPHQL"], var.json_parsing)
     error_message = "json_parsing must be one of: DISABLED, STANDARD, STANDARD_WITH_GRAPHQL."
@@ -356,6 +359,7 @@ variable "log_level" {
   description = "Log level to use. Possible values are NORMAL and VERBOSE. Not supported for CLOUD_ARMOR_EDGE policy type."
   type        = string
   default     = "NORMAL"
+  nullable    = false
   validation {
     condition     = contains(["NORMAL", "VERBOSE"], var.log_level)
     error_message = "log_level must be either NORMAL or VERBOSE."
