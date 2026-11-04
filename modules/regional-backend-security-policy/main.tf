@@ -16,15 +16,13 @@
 
 locals {
   pre_configured_rules_expr = {
-    for name, p in var.pre_configured_rules : name => {
-      expression = (
-        length(p.include_target_rule_ids) > 0
-        ? "evaluatePreconfiguredWaf('${p.target_rule_set}', {'sensitivity': 0, 'opt_in_rule_ids': ['${join("','", p.include_target_rule_ids)}']})"
-        : length(p.exclude_target_rule_ids) > 0
-        ? "evaluatePreconfiguredWaf('${p.target_rule_set}', {'sensitivity': ${p.sensitivity_level}, 'opt_out_rule_ids': ['${join("','", p.exclude_target_rule_ids)}']})"
-        : "evaluatePreconfiguredWaf('${p.target_rule_set}', {'sensitivity': ${p.sensitivity_level}})"
-      )
-    }
+    for name, p in var.pre_configured_rules : name => (
+      length(p.include_target_rule_ids) > 0
+      ? "evaluatePreconfiguredWaf('${p.target_rule_set}', {'sensitivity': 0, 'opt_in_rule_ids': ['${join("','", p.include_target_rule_ids)}']})"
+      : length(p.exclude_target_rule_ids) > 0
+      ? "evaluatePreconfiguredWaf('${p.target_rule_set}', {'sensitivity': ${p.sensitivity_level}, 'opt_out_rule_ids': ['${join("','", p.exclude_target_rule_ids)}']})"
+      : "evaluatePreconfiguredWaf('${p.target_rule_set}', {'sensitivity': ${p.sensitivity_level}})"
+    )
   }
 
   advanced_options_config_enable = var.json_parsing != null || var.log_level != null || var.request_body_inspection_size != null || length(var.user_ip_request_headers) > 0 || length(var.json_custom_content_types) > 0
@@ -113,7 +111,6 @@ resource "google_compute_region_security_policy_rule" "security_rules" {
     }
   }
 }
-
 
 ##### Custom Rules
 
@@ -215,9 +212,6 @@ resource "google_compute_region_security_policy_rule" "custom_rules" {
 
 }
 
-
-
-
 ##### Preconfigured WAF Rules
 
 resource "google_compute_region_security_policy_rule" "pre_configured_rules" {
@@ -233,7 +227,7 @@ resource "google_compute_region_security_policy_rule" "pre_configured_rules" {
   description = each.value.description
   match {
     expr {
-      expression = local.pre_configured_rules_expr[each.key].expression
+      expression = local.pre_configured_rules_expr[each.key]
     }
   }
 
