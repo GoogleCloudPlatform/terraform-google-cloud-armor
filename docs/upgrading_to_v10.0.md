@@ -63,7 +63,7 @@ output "security_rules" {
   value = merge(
     google_compute_region_security_policy_rule.security_rules,
     google_compute_region_security_policy_rule.custom_rules,
-    google_compute_region_security_policy_rule.pre_configured_rules,
+    { for k, r in google_compute_region_security_policy_rule.pre_configured_rules : tostring(r.priority) => r },
   )
 }
 ```

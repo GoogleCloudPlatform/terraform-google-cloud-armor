@@ -34,12 +34,20 @@ variable "type" {
   description = "Type indicates the intended use of the security policy. Possible values are CLOUD_ARMOR and CLOUD_ARMOR_EDGE."
   type        = string
   default     = "CLOUD_ARMOR"
+  validation {
+    condition     = contains(["CLOUD_ARMOR", "CLOUD_ARMOR_EDGE", "CLOUD_ARMOR_INTERNAL_SERVICE"], var.type)
+    error_message = "type must be either CLOUD_ARMOR, CLOUD_ARMOR_EDGE or CLOUD_ARMOR_INTERNAL_SERVICE."
+  }
 }
 
 variable "description" {
   description = "An optional description of the regional backend security policy"
   type        = string
   default     = "Regional backend security policy"
+  validation {
+    condition     = var.description == null || length(var.description) <= 2048
+    error_message = "description cannot exceed 2048 characters."
+  }
 }
 
 variable "json_parsing" {
@@ -52,6 +60,10 @@ variable "log_level" {
   description = "Logging level. Possible values are: NORMAL, VERBOSE"
   type        = string
   default     = null
+  validation {
+    condition     = contains(["NORMAL", "VERBOSE"], var.log_level)
+    error_message = "log_level must be either NORMAL or VERBOSE."
+  }
 }
 
 variable "request_body_inspection_size" {

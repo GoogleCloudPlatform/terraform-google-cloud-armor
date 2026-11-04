@@ -274,6 +274,7 @@ variable "layer_7_ddos_defense_rule_visibility" {
   description = "(Optional) Rule visibility can be one of the following: STANDARD - opaque rules. PREMIUM - transparent rules. This field is only supported in Global Security Policies of type CLOUD_ARMOR."
   type        = string
   default     = "STANDARD"
+  nullable    = false
   validation {
     condition     = contains(["STANDARD", "PREMIUM"], var.layer_7_ddos_defense_rule_visibility)
     error_message = "layer_7_ddos_defense_rule_visibility must be either STANDARD or PREMIUM."

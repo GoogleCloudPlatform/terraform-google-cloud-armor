@@ -22,7 +22,7 @@ This module is meant for use with Terraform 1.3+ and tested using Terraform 1.3+
 
 ## Version
 
-Current version is 10.X. Upgrade guides:
+Current version is 10.X. [Upgrade guides](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/):
 
 - [7.X -> 8.X.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v8.0.md)
 - [8.X -> 9.X.](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/blob/main/docs/upgrading_to_v9.0.md)
@@ -61,7 +61,7 @@ There are examples included in the [examples](https://github.com/GoogleCloudPlat
 ```
 module "security_policy" {
   source   = "GoogleCloudPlatform/cloud-armor/google"
-  version  = "~> 8.0"
+  version  = "~> 10.0"
 
   project_id                           = var.project_id
   name                                 = "my-test-security-policy"

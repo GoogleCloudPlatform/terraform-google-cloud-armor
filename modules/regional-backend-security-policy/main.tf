@@ -44,7 +44,7 @@ resource "google_compute_region_security_policy" "security_policy" {
     content {
       json_parsing                 = var.json_parsing
       log_level                    = var.log_level
-      request_body_inspection_size = var.request_body_inspection_size
+      request_body_inspection_size = var.request_body_inspection_size != null ? upper(var.request_body_inspection_size) : null
       user_ip_request_headers      = length(var.user_ip_request_headers) > 0 ? var.user_ip_request_headers : null
       dynamic "json_custom_config" {
         for_each = length(var.json_custom_content_types) > 0 ? ["json_custom_config"] : []
