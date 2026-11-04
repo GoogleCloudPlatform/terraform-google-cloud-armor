@@ -36,7 +36,7 @@ func TestRegionalNetworkEdgePolicy(t *testing.T) {
 		spName := gcloud.Run(t, fmt.Sprintf("compute security-policies describe %s --project %s --region %s", policyName, projectId, region))
 		for _, sp := range spName.Array() {
 			assert.Equal(policyName, sp.Get("name").String(), "mismatched name")
-			assert.Equal("CA Advance DDoS protection", sp.Get("description").String(), "mismatched description")
+			assert.Equal("Network edge security policy", sp.Get("description").String(), "mismatched description")
 			assert.Equal("CLOUD_ARMOR_NETWORK", sp.Get("type").String(), "mismatched type")
 		}
 

@@ -114,8 +114,8 @@ spec:
               }), {})
 
               header_action = optional(list(object({
-                header_name  = optional(string)
-                header_value = optional(string)
+                header_name  = string
+                header_value = string
               })), [])
 
               preconfigured_waf_config_exclusions = optional(map(object({
@@ -171,8 +171,8 @@ spec:
                 }))
               }), {})
               header_action = optional(list(object({
-                header_name  = optional(string)
-                header_value = optional(string)
+                header_name  = string
+                header_value = string
               })), [])
             }))
         defaultValue: {}
@@ -209,8 +209,8 @@ spec:
                 }),
               {})
               header_action = optional(list(object({
-                header_name  = optional(string)
-                header_value = optional(string)
+                header_name  = string
+                header_value = string
               })), [])
 
               preconfigured_waf_config_exclusions = optional(map(object({
@@ -265,13 +265,13 @@ spec:
                 }))
               }), {})
               header_action = optional(list(object({
-                header_name  = optional(string)
-                header_value = optional(string)
+                header_name  = string
+                header_value = string
               })), [])
             }))
         defaultValue: {}
       - name: type
-        description: Type indicates the intended use of the security policy. Possible values are CLOUD_ARMOR and CLOUD_ARMOR_EDGE.
+        description: Type indicates the intended use of the security policy. Possible values are CLOUD_ARMOR, CLOUD_ARMOR_EDGE and CLOUD_ARMOR_INTERNAL_SERVICE.  This field can be set only at resource creation time.
         varType: string
         defaultValue: CLOUD_ARMOR
       - name: layer_7_ddos_defense_enable
@@ -342,7 +342,7 @@ spec:
         defaultValue:
           enable: false
       - name: json_parsing
-        description: Whether or not to JSON parse the payload body. Possible values are DISABLED and STANDARD. Not supported for CLOUD_ARMOR_EDGE policy type.
+        description: Whether or not to JSON parse the payload body. Possible values are DISABLED, STANDARD and STANDARD_WITH_GRAPHQL. Not supported for CLOUD_ARMOR_EDGE policy type.
         varType: string
         defaultValue: DISABLED
       - name: log_level
@@ -385,6 +385,6 @@ spec:
       - networksecurity.googleapis.com
     providerVersions:
       - source: hashicorp/google
-        version: ">= 7.17, < 8"
+        version: ">= 7.17, < 9"
       - source: hashicorp/google-beta
-        version: ">= 7.17, < 8"
+        version: ">= 7.17, < 9"

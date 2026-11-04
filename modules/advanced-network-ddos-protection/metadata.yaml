@@ -61,7 +61,7 @@ spec:
         varType: list(string)
         required: true
       - name: ddos_protection_config
-        description: "Configuration for Google Cloud Armor DDOS Proctection Config. 1) ADVANCED: additional protections for Managed Protection Plus subscribers 2) ADVANCED_PREVIEW: enable the security policy in preview mode"
+        description: "Configuration for Google Cloud Armor DDOS Proctection Config. 1) ADVANCED: additional protections for Managed Protection Plus subscribers 2) ADVANCED_PREVIEW: enable the security policy in preview mode. 3) STANDARD: basic always-on protection for network load balancers, protocol forwarding, or VMs with public IP addresses"
         varType: string
         defaultValue: ADVANCED
       - name: policy_name
@@ -107,6 +107,6 @@ spec:
       - networksecurity.googleapis.com
     providerVersions:
       - source: hashicorp/google
-        version: ">= 6.49, < 8"
+        version: ">= 6.49, < 9"
       - source: hashicorp/google-beta
-        version: ">= 6.49, < 8"
+        version: ">= 6.49, < 9"
