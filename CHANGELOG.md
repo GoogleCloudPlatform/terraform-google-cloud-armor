@@ -8,6 +8,17 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [10.0.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v9.0.0...v10.0.0) (2026-11-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* redundant code and logics ([#209](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/209))
+
+### Bug Fixes
+
+* redundant code and logics ([#209](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/209)) ([cc2f029](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/cc2f029b20c4ae26ec107c31245c9f3060ad6e95))
+
 ## [9.0.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v8.2.0...v9.0.0) (2026-09-15)
 
 
