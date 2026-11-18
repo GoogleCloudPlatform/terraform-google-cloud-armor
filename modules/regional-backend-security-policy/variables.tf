@@ -45,7 +45,7 @@ variable "description" {
   type        = string
   default     = "Regional backend security policy"
   validation {
-    condition     = var.description == null || length(var.description) <= 2048
+    condition     = var.description == null ? true : length(var.description) <= 2048
     error_message = "description cannot exceed 2048 characters."
   }
 }
@@ -61,7 +61,7 @@ variable "log_level" {
   type        = string
   default     = null
   validation {
-    condition     = contains(["NORMAL", "VERBOSE"], var.log_level)
+    condition     = var.log_level == null ? true : contains(["NORMAL", "VERBOSE"], var.log_level)
     error_message = "log_level must be either NORMAL or VERBOSE."
   }
 }
