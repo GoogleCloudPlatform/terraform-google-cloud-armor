@@ -29,7 +29,7 @@ variable "description" {
   type        = string
   default     = null
   validation {
-    condition     = var.description == null || length(var.description) <= 2048
+    condition     = var.description == null ? true : length(var.description) <= 2048
     error_message = "description cannot exceed 2048 characters."
   }
 }
@@ -384,7 +384,7 @@ variable "request_body_inspection_size" {
   type        = string
   default     = null
   validation {
-    condition     = var.request_body_inspection_size == null || contains(["8KB", "16KB", "32KB", "48KB", "64KB"], upper(var.request_body_inspection_size))
+    condition     = var.request_body_inspection_size == null ? true : contains(["8KB", "16KB", "32KB", "48KB", "64KB"], upper(var.request_body_inspection_size))
     error_message = "request_body_inspection_size must be null or one of: 8KB, 16KB, 32KB, 48KB, 64KB (case-insensitive)."
   }
 }
