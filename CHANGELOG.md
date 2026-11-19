@@ -8,6 +8,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 This changelog is generated automatically based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [10.0.1](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v10.0.0...v10.0.1) (2026-11-19)
+
+
+### Bug Fixes
+
+* don't call functions on null inputs in variable validations ([#223](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/issues/223)) ([baa362b](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/commit/baa362b3d96fd4359d2b6a11b2e2e71fc8e9bdee))
+
 ## [10.0.0](https://github.com/GoogleCloudPlatform/terraform-google-cloud-armor/compare/v9.0.0...v10.0.0) (2026-11-04)
 
 
